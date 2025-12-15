@@ -11,12 +11,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class AnimalController extends Controller
 {
     public function index(): View
     {
-        $animals = Animal::with(['category', 'breed', 'location', 'physStatus'])->paginate(10);
+        $animals = Animal::with(['category', 'breed', 'location', 'physStatus', 'photos'])->paginate(10);
         return view('animals.index', compact('animals'));
     }
 
@@ -43,9 +45,18 @@ class AnimalController extends Controller
             'gender' => 'required|in:MALE,FEMALE',
             'birth_date' => 'required|date',
             'acquisition_type' => 'required|in:BRED,BOUGHT',
+            'photo' => 'nullable|image|max:20480', // 20MB Max
         ]);
 
-        Animal::create($validated);
+        $animal = Animal::create($validated);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('animal-photos', 'public');
+            $animal->photos()->create([
+                'photo_url' => $path,
+                'capture_date' => Carbon::now(),
+            ]);
+        }
 
         return redirect()->route('animals.index')->with('success', 'Animal created successfully.');
     }

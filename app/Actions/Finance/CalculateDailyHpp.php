@@ -10,18 +10,18 @@ use Carbon\Carbon;
 
 class CalculateDailyHpp
 {
-    public function execute(): void
+    public function execute(?Carbon $date = null): void
     {
-        DB::transaction(function () {
-            // 1. Calculate total feed cost for "Today"
+        $date = $date ?? Carbon::yesterday();
+
+        DB::transaction(function () use ($date) {
+            // 1. Calculate total feed cost for the target date
             // We need to determine the price per unit of the used feed.
             // This is a complex FIFO/Average Cost problem.
             // For MVP, we will use the "Latest Purchase Price" strategy or Average Price.
             // Let's go with Average Price from all purchases to keep it simple but functional.
 
-            $today = Carbon::today();
-
-            $usageLogs = InventoryUsageLog::whereDate('usage_date', $today)->get();
+            $usageLogs = InventoryUsageLog::whereDate('usage_date', $date)->get();
 
             $totalDailyCost = 0;
 

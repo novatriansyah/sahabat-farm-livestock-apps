@@ -9,6 +9,7 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="px-6 py-3">Tag ID</th>
+                    <th scope="col" class="px-6 py-3">Photo</th>
                     <th scope="col" class="px-6 py-3">Breed</th>
                     <th scope="col" class="px-6 py-3">Gender</th>
                     <th scope="col" class="px-6 py-3">Status</th>
@@ -24,6 +25,15 @@
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {{ $animal->tag_id }}
                     </th>
+                    <td class="px-6 py-4">
+                        @if($animal->photos->count() > 0)
+                            <img class="w-10 h-10 rounded-full" src="{{ Storage::url($animal->photos->first()->photo_url) }}" alt="Animal Photo">
+                        @else
+                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                            </div>
+                        @endif
+                    </td>
                     <td class="px-6 py-4">{{ $animal->breed->name ?? '-' }}</td>
                     <td class="px-6 py-4">{{ $animal->gender }}</td>
                     <td class="px-6 py-4">
