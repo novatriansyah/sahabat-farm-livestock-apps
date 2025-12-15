@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\AnimalPrintController;
+use App\Http\Controllers\BreedingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExitController;
 use App\Http\Controllers\InventoryController;
@@ -29,6 +30,10 @@ Route::middleware(['auth'])->group(function () {
         // Animal Management (Create/Edit/Exit)
         Route::resource('animals', AnimalController::class);
         Route::get('animals/{animal}/print', [AnimalPrintController::class, 'show'])->name('animals.print');
+
+        // Breeding Flow
+        Route::get('animals/{animal}/breeding/create', [BreedingController::class, 'create'])->name('breeding.create');
+        Route::post('animals/{animal}/breeding', [BreedingController::class, 'store'])->name('breeding.store');
 
         // Exit Flow
         Route::get('animals/{animal}/exit', [ExitController::class, 'create'])->name('animals.exit.create');

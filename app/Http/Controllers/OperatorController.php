@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\InventoryItem;
 use App\Models\InventoryUsageLog;
+use App\Models\MasterDisease;
 use App\Models\MasterLocation;
 use App\Models\TreatmentLog;
 use App\Models\WeightLog;
@@ -17,14 +18,15 @@ class OperatorController extends Controller
 {
     public function show(Animal $animal): View
     {
-        $medicines = InventoryItem::where('name', 'like', '%Vaksin%')
-            ->orWhere('name', 'like', '%Obat%')
-            ->orWhere('name', 'like', '%Vitamin%')
-            ->get(); // Simple filter for MVP
+        $medicines = InventoryItem::where('category', 'MEDICINE')
+            ->orWhere('category', 'VITAMIN')
+            ->orWhere('category', 'VACCINE')
+            ->get();
 
+        $diseases = MasterDisease::all();
         $locations = MasterLocation::all();
 
-        return view('operator.show', compact('animal', 'medicines', 'locations'));
+        return view('operator.show', compact('animal', 'medicines', 'diseases', 'locations'));
     }
 
     public function storeWeight(Request $request, Animal $animal): RedirectResponse
@@ -46,6 +48,7 @@ class OperatorController extends Controller
     {
         $validated = $request->validate([
             'health_status' => 'required|in:HEALTHY,SICK,QUARANTINE',
+            'disease_id' => 'nullable|exists:master_diseases,id',
             'symptoms' => 'nullable|string',
             'medicine_id' => 'nullable|exists:inventory_items,id',
             'medicine_qty' => 'nullable|required_with:medicine_id|numeric|min:0',
@@ -53,12 +56,18 @@ class OperatorController extends Controller
 
         $animal->update(['health_status' => $validated['health_status']]);
 
+        // Get Diagnosis Name if disease_id present
+        $diagnosis = null;
+        if ($request->filled('disease_id')) {
+            $diagnosis = MasterDisease::find($validated['disease_id'])->name;
+        }
+
         if ($validated['health_status'] !== 'HEALTHY' || $request->filled('medicine_id')) {
             TreatmentLog::create([
                 'animal_id' => $animal->id,
                 'treatment_date' => Carbon::now(),
                 'type' => $request->filled('medicine_id') ? 'MEDICATION' : 'CHECKUP',
-                'notes' => $validated['symptoms'] ?? 'Health Check',
+                'notes' => ($diagnosis ? "Diagnosis: $diagnosis. " : '') . ($validated['symptoms'] ?? 'Health Check'),
             ]);
         }
 
@@ -89,8 +98,6 @@ class OperatorController extends Controller
             'location_id' => 'required|exists:master_locations,id',
         ]);
 
-        // Note: In a full system, we might log this movement in a separate `movement_logs` table.
-        // For this MVP, we just update the current location.
         $animal->update(['current_location_id' => $validated['location_id']]);
 
         return redirect()->route('operator.show', $animal->id)->with('success', 'Cage moved successfully.');

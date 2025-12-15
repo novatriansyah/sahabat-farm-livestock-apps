@@ -55,8 +55,8 @@
         </div>
     </div>
 
-    <!-- Population by Cage -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <!-- Population by Cage -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <h3 class="text-xl font-bold mb-4 dark:text-white">Population by Cage</h3>
             <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
@@ -69,10 +69,16 @@
             </ul>
         </div>
 
-        <!-- Chart (Placeholder for now) -->
+        <!-- Conception Rate & Charts -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-            <h3 class="text-xl font-bold mb-4 dark:text-white">Financial Trend</h3>
-             <div class="relative h-64 w-full">
+            <h3 class="text-xl font-bold mb-4 dark:text-white">Breeding Performance</h3>
+
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-500 dark:text-gray-400">Conception Rate (All Time)</span>
+                <span class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($conceptionRate, 1) }}%</span>
+            </div>
+
+             <div class="relative h-48 w-full">
                 <canvas id="performanceChart"></canvas>
             </div>
         </div>

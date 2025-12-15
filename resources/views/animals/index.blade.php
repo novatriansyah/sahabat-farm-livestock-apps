@@ -55,7 +55,12 @@
                     </td>
                     <td class="px-6 py-4">{{ number_format($animal->current_hpp, 0, ',', '.') }}</td>
                     <td class="px-6 py-4">
-                        <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Print Tag</a>
+                        <div class="flex gap-2">
+                            <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Tag</a>
+                            @if($animal->gender === 'FEMALE')
+                                <a href="{{ route('breeding.create', $animal->id) }}" class="font-medium text-purple-600 dark:text-purple-500 hover:underline">Mate</a>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @endforeach

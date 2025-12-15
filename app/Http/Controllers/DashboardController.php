@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\BreedingEvent;
 use App\Models\ExitLog;
 use App\Models\InventoryItem;
 use App\Models\InventoryUsageLog;
@@ -53,6 +54,13 @@ class DashboardController extends Controller
         // 4. Low Stock Alerts (Threshold < 10 units)
         $lowStockItems = InventoryItem::where('current_stock', '<', 10)->get();
 
+        // 5. Conception Rate (Successful Breeds / Total Breeds this month or all time?)
+        // Let's do All Time for MVP to show data
+        $totalBreeding = BreedingEvent::count();
+        $successfulBreeding = BreedingEvent::where('status', 'SUCCESS')->count();
+
+        $conceptionRate = $totalBreeding > 0 ? ($successfulBreeding / $totalBreeding) * 100 : 0;
+
         return view('dashboard', [
             'activeAnimals' => $activeAnimals,
             'populationByCage' => $populationByCage,
@@ -61,6 +69,7 @@ class DashboardController extends Controller
             'salesThisMonth' => $salesThisMonth,
             'netProfit' => $netProfit,
             'lowStockItems' => $lowStockItems,
+            'conceptionRate' => $conceptionRate,
         ]);
     }
 }
