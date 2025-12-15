@@ -86,6 +86,18 @@
                             <option value="QUARANTINE" {{ $animal->health_status == 'QUARANTINE' ? 'selected' : '' }}>Quarantine</option>
                         </select>
                     </div>
+
+                    <!-- Disease Selection -->
+                    <div class="mb-4">
+                        <label for="disease_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Diagnosis (Optional)</label>
+                        <select id="disease_id" name="disease_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            <option value="">-- None --</option>
+                            @foreach($diseases as $disease)
+                                <option value="{{ $disease->id }}">{{ $disease->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="mb-4">
                         <label for="symptoms" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Symptoms / Notes</label>
                         <textarea id="symptoms" name="symptoms" rows="2" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
@@ -96,12 +108,13 @@
 
                     <div class="mb-4">
                         <label for="medicine_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item</label>
-                        <select id="medicine_id" name="medicine_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <select id="medicine_id" name="medicine_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" onchange="calculateDosage(this)">
                             <option value="">-- Select Medicine --</option>
                             @foreach($medicines as $med)
-                                <option value="{{ $med->id }}">{{ $med->name }} ({{ $med->current_stock }} {{ $med->unit }})</option>
+                                <option value="{{ $med->id }}" data-dosage="{{ $med->dosage_per_kg }}">{{ $med->name }} ({{ $med->current_stock }} {{ $med->unit }})</option>
                             @endforeach
                         </select>
+                        <p id="dosage-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
                     </div>
                     <div class="mb-4">
                         <label for="medicine_qty" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quantity</label>
@@ -130,4 +143,27 @@
         </div>
 
     </div>
+
+    <script>
+        function calculateDosage(select) {
+            const dosagePerKg = select.options[select.selectedIndex].getAttribute('data-dosage');
+            // Assuming current weight is known or passed to view.
+            // For MVP, we'll just show the hint rule.
+            const hint = document.getElementById('dosage-hint');
+            if (dosagePerKg) {
+                hint.textContent = `Recommended Dosage: ${dosagePerKg} per kg`;
+
+                // If we want to auto-fill, we need the animal's weight.
+                // We can pass it via PHP to a JS variable.
+                const currentWeight = {{ $animal->weightLogs()->orderByDesc('weigh_date')->first()->weight_kg ?? 0 }};
+                if (currentWeight > 0) {
+                    const recommended = (currentWeight * dosagePerKg).toFixed(2);
+                    document.getElementById('medicine_qty').value = recommended;
+                    hint.textContent += ` (Auto-calc for ${currentWeight}kg: ${recommended})`;
+                }
+            } else {
+                hint.textContent = '';
+            }
+        }
+    </script>
 </x-app-layout>

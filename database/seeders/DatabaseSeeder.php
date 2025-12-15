@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\MasterCategory;
 use App\Models\MasterBreed;
 use App\Models\MasterLocation;
 use App\Models\MasterPhysStatus;
@@ -37,41 +36,41 @@ class DatabaseSeeder extends Seeder
             'role' => 'STAFF',
         ]);
 
-        // 2. Master Data
-        $catSheep = MasterCategory::create(['name' => 'Domba']);
-        $catGoat = MasterCategory::create(['name' => 'Kambing']);
+        // 2. Call SOP Seeder for Master Data (Breeds, Categories, Diseases, Inventory)
+        $this->call(SopSeeder::class);
 
-        $breedDorper = MasterBreed::create(['category_id' => $catSheep->id, 'name' => 'Dorper']);
-        $breedGarut = MasterBreed::create(['category_id' => $catSheep->id, 'name' => 'Garut']);
-        $breedBoer = MasterBreed::create(['category_id' => $catGoat->id, 'name' => 'Boer']);
-
+        // 3. Create Locations (Specific to Farm Instance, not SOP)
         $locIndividual = MasterLocation::create(['name' => 'Kandang Individu A', 'type' => 'Kandang Individu']);
         $locColony = MasterLocation::create(['name' => 'Kandang Koloni 1', 'type' => 'Kandang Koloni']);
 
-        $statCempe = MasterPhysStatus::create(['name' => 'Cempe']);
-        $statGrower = MasterPhysStatus::create(['name' => 'Pembesaran']);
-        $statReady = MasterPhysStatus::create(['name' => 'Siap Kawin']);
+        // 4. Additional Inventory Purchase (Seed Stock)
+        $feedConcentrate = InventoryItem::where('name', 'like', '%Konsentrat%')->first();
+        if ($feedConcentrate) {
+            InventoryPurchase::create([
+                'item_id' => $feedConcentrate->id,
+                'date' => Carbon::now()->subMonths(2),
+                'qty' => 50,
+                'price_total' => 50 * 350000,
+            ]);
+        }
 
-        // 3. Inventory
-        $feedConcentrate = InventoryItem::create(['name' => 'Konsentrat Premium', 'unit' => 'sak', 'current_stock' => 100]);
-        $feedForage = InventoryItem::create(['name' => 'Rumput Odot', 'unit' => 'kg', 'current_stock' => 5000]);
+        // 5. Animals (50 head)
+        $breedDorper = MasterBreed::where('name', 'Dorper')->first();
+        $breedGarut = MasterBreed::where('name', 'Domba Garut')->first();
 
-        // Purchases (Backdated)
-        InventoryPurchase::create([
-            'item_id' => $feedConcentrate->id,
-            'date' => Carbon::now()->subMonths(2),
-            'qty' => 50,
-            'price_total' => 50 * 350000, // 350k per sak
-        ]);
+        // Fallback if seeder failed (shouldn't happen)
+        if (!$breedDorper) $breedDorper = MasterBreed::first();
+        if (!$breedGarut) $breedGarut = MasterBreed::first();
 
-        // 4. Animals (50 head)
+        // Statuses
+        $statGrower = MasterPhysStatus::where('name', 'FATTENING')->first() ?? MasterPhysStatus::first();
+
         $animals = [];
         for ($i = 0; $i < 50; $i++) {
             $isMale = rand(0, 1);
             $breed = rand(0, 1) ? $breedDorper : $breedGarut;
             $location = rand(0, 1) ? $locIndividual : $locColony;
 
-            // Random birth date between 3-12 months ago
             $birthDate = Carbon::now()->subMonths(rand(3, 12));
 
             $animal = Animal::create([
@@ -86,13 +85,13 @@ class DatabaseSeeder extends Seeder
                 'acquisition_type' => 'BRED',
                 'is_active' => true,
                 'health_status' => 'HEALTHY',
-                'current_hpp' => rand(1000000, 2000000), // Random starting HPP
+                'current_hpp' => rand(1000000, 2000000),
+                'purchase_price' => 0,
             ]);
 
             $animals[] = $animal;
 
-            // Generate Weight Logs to simulate growth
-            // Initial weight at birth/acquisition
+            // Generate Weight Logs
             $initialWeight = rand(15, 20);
             WeightLog::create([
                 'animal_id' => $animal->id,
@@ -100,7 +99,6 @@ class DatabaseSeeder extends Seeder
                 'weight_kg' => $initialWeight,
             ]);
 
-            // Weight 1 month ago
             $weight1 = $initialWeight + rand(3, 5);
             $date1 = $birthDate->copy()->addMonth();
             if ($date1 < Carbon::now()) {
@@ -111,7 +109,6 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // Current weight
             $currentWeight = $weight1 + rand(3, 5);
             $log = WeightLog::create([
                 'animal_id' => $animal->id,
@@ -119,10 +116,6 @@ class DatabaseSeeder extends Seeder
                 'weight_kg' => $currentWeight,
             ]);
 
-            // Trigger ADG calculation for the last log
-            // Note: In real seeder, we might want to manually set adg or call the action.
-            // Since we registered a model event in Booted, it *should* trigger if we were running in app.
-            // But just in case, let's update ADG manually here to ensure data looks good.
             $days = $date1->diffInDays(Carbon::now());
             if ($days > 0) {
                  $adg = ($currentWeight - $weight1) / $days;

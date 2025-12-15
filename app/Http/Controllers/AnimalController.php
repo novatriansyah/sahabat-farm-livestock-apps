@@ -9,6 +9,7 @@ use App\Models\MasterLocation;
 use App\Models\MasterPhysStatus;
 use App\Models\User;
 use App\Models\WeightLog;
+use App\Services\TaskService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -34,7 +35,7 @@ class AnimalController extends Controller
         return view('animals.create', compact('categories', 'breeds', 'locations', 'statuses', 'owners'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, TaskService $taskService): RedirectResponse
     {
         $validated = $request->validate([
             'tag_id' => 'required|unique:animals',
@@ -63,6 +64,11 @@ class AnimalController extends Controller
             'weigh_date' => Carbon::now(),
             'weight_kg' => $validated['initial_weight'],
         ]);
+
+        // Generate Tasks if Bought (SOP Kedatangan)
+        if ($validated['acquisition_type'] === 'BOUGHT') {
+            $taskService->generateArrivalTasks($animal);
+        }
 
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('animal-photos', 'public');
