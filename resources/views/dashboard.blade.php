@@ -55,6 +55,38 @@
         </div>
     </div>
 
+    <!-- Additional Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <!-- Feed Usage -->
+        <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="w-full">
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Feed Usage (Kg)</h3>
+                <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{ number_format($feedUsage, 1) }}</span>
+            </div>
+        </div>
+        <!-- Medicine Cost -->
+        <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="w-full">
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Medicine Cost (Est)</h3>
+                <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Rp {{ number_format($medicineCost, 0, ',', '.') }}</span>
+            </div>
+        </div>
+        <!-- Mortality -->
+        <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="w-full">
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Mortality (Count)</h3>
+                <span class="text-2xl font-bold leading-none text-red-600 sm:text-3xl dark:text-red-500">{{ $deathCount }}</span>
+            </div>
+        </div>
+        <!-- Mortality Value -->
+        <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="w-full">
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Lost Asset Value</h3>
+                <span class="text-2xl font-bold leading-none text-red-600 sm:text-3xl dark:text-red-500">Rp {{ number_format($deathValue, 0, ',', '.') }}</span>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <!-- Population by Cage -->
         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">

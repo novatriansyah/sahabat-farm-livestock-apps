@@ -15,8 +15,15 @@ class CalculateDailyHpp
         $date = $date ?? Carbon::yesterday();
 
         DB::transaction(function () use ($date) {
-            // Get all usage logs for the date
-            $usageLogs = InventoryUsageLog::whereDate('usage_date', $date)->get();
+            // Get all usage logs for the date where category is FEED
+            // Note: If 'category' is null, we assume FEED for backward compatibility, or strictly check 'FEED'.
+            // Let's rely on item relationship.
+            $usageLogs = InventoryUsageLog::whereDate('usage_date', $date)
+                ->with('item')
+                ->get()
+                ->filter(function ($log) {
+                    return $log->item->category === 'FEED';
+                });
 
             if ($usageLogs->isEmpty()) {
                 return;
@@ -28,9 +35,7 @@ class CalculateDailyHpp
             // Group logs by Location (Cage)
             $logsByLocation = $usageLogs->groupBy('location_id');
 
-            // We also need to handle logs with NULL location (General usage).
-            // For MVP, if location is NULL, we might distribute to ALL cages or just ignore.
-            // Let's assume General Usage is distributed equally to all active animals.
+            // General Cost (No Location)
             $generalCost = 0;
             if (isset($logsByLocation[''])) {
                  foreach ($logsByLocation[''] as $log) {
@@ -56,6 +61,11 @@ class CalculateDailyHpp
                     $costPerHead = $locationCost / $animalsInLocation;
                     Animal::where('is_active', true)
                         ->where('current_location_id', $locationId)
+                        ->increment('accumulated_feed_cost', $costPerHead);
+
+                    // Also update total HPP
+                    Animal::where('is_active', true)
+                        ->where('current_location_id', $locationId)
                         ->increment('current_hpp', $costPerHead);
                 }
             }
@@ -65,6 +75,7 @@ class CalculateDailyHpp
                 $totalActive = Animal::where('is_active', true)->count();
                 if ($totalActive > 0) {
                     $generalCostPerHead = $generalCost / $totalActive;
+                    Animal::where('is_active', true)->increment('accumulated_feed_cost', $generalCostPerHead);
                     Animal::where('is_active', true)->increment('current_hpp', $generalCostPerHead);
                 }
             }

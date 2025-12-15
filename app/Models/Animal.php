@@ -18,6 +18,8 @@ class Animal extends Model
         'is_active' => 'boolean',
         'current_hpp' => 'decimal:2',
         'purchase_price' => 'decimal:2',
+        'accumulated_feed_cost' => 'decimal:2',
+        'accumulated_medicine_cost' => 'decimal:2',
         'daily_adg' => 'float',
     ];
 

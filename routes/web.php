@@ -8,6 +8,7 @@ use App\Http\Controllers\ExitController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InventoryPurchaseController;
 use App\Http\Controllers\InventoryUsageController;
+use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\OperatorInventoryController;
 use App\Http\Controllers\ScanController;
@@ -23,6 +24,12 @@ Route::middleware(['auth'])->group(function () {
     // Manager Routes (Owner Only)
     Route::middleware(['role:OWNER'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Master Data
+        Route::get('masters', [MasterDataController::class, 'index'])->name('masters.index');
+        Route::post('masters/breed', [MasterDataController::class, 'storeBreed'])->name('masters.breed.store');
+        Route::post('masters/location', [MasterDataController::class, 'storeLocation'])->name('masters.location.store');
+        Route::post('masters/disease', [MasterDataController::class, 'storeDisease'])->name('masters.disease.store');
 
         // User Management
         Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'destroy']);
