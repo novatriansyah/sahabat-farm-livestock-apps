@@ -8,9 +8,16 @@
                <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
             </svg>
          </button>
-        <a href="{{ route('dashboard') }}" class="flex ms-2 md:ms-24">
+        <a href="{{ Auth::user()->role == 'OWNER' ? route('dashboard') : route('scan.index') }}" class="flex ms-2 md:ms-24">
           <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Sahabat Farm</span>
         </a>
+
+        @if(Auth::user()->role == 'STAFF')
+        <div class="ml-4 flex gap-4">
+             <a href="{{ route('scan.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-white">Scan QR</a>
+             <a href="{{ route('operator.inventory.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-white">Feeding</a>
+        </div>
+        @endif
       </div>
       <div class="flex items-center">
           <div class="flex items-center ms-3">

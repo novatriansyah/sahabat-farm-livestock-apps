@@ -19,4 +19,9 @@ class InventoryUsageLog extends Model
     {
         return $this->belongsTo(InventoryItem::class, 'item_id');
     }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(MasterLocation::class, 'location_id');
+    }
 }

@@ -17,6 +17,7 @@ class Animal extends Model
         'birth_date' => 'date',
         'is_active' => 'boolean',
         'current_hpp' => 'decimal:2',
+        'purchase_price' => 'decimal:2',
         'daily_adg' => 'float',
     ];
 
