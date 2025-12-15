@@ -24,6 +24,7 @@ class MasterDataController extends Controller
         return view('admin.masters.index', compact('breeds', 'locations', 'diseases', 'items', 'categories'));
     }
 
+    // --- BREED ---
     public function storeBreed(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -38,6 +39,27 @@ class MasterDataController extends Controller
         return back()->with('success', 'Breed added successfully.');
     }
 
+    public function editBreed(MasterBreed $breed): View
+    {
+        $categories = MasterCategory::all();
+        return view('admin.masters.edit-breed', compact('breed', 'categories'));
+    }
+
+    public function updateBreed(Request $request, MasterBreed $breed): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:master_categories,id',
+            'origin' => 'nullable|string',
+            'min_weight_mate' => 'nullable|numeric',
+            'min_age_mate_months' => 'nullable|integer',
+        ]);
+
+        $breed->update($validated);
+        return redirect()->route('masters.index')->with('success', 'Breed updated.');
+    }
+
+    // --- LOCATION ---
     public function storeLocation(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -49,6 +71,23 @@ class MasterDataController extends Controller
         return back()->with('success', 'Location added successfully.');
     }
 
+    public function editLocation(MasterLocation $location): View
+    {
+        return view('admin.masters.edit-location', compact('location'));
+    }
+
+    public function updateLocation(Request $request, MasterLocation $location): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string',
+        ]);
+
+        $location->update($validated);
+        return redirect()->route('masters.index')->with('success', 'Location updated.');
+    }
+
+    // --- DISEASE ---
     public function storeDisease(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -60,6 +99,49 @@ class MasterDataController extends Controller
         return back()->with('success', 'Disease added successfully.');
     }
 
+    public function editDisease(MasterDisease $disease): View
+    {
+        return view('admin.masters.edit-disease', compact('disease'));
+    }
+
+    public function updateDisease(Request $request, MasterDisease $disease): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'symptoms' => 'nullable|string',
+        ]);
+
+        $disease->update($validated);
+        return redirect()->route('masters.index')->with('success', 'Disease updated.');
+    }
+
+    // --- CATEGORY ---
+    public function storeCategory(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        MasterCategory::create($validated);
+        return back()->with('success', 'Category added successfully.');
+    }
+
+    public function editCategory(MasterCategory $category): View
+    {
+        return view('admin.masters.edit-category', compact('category'));
+    }
+
+    public function updateCategory(Request $request, MasterCategory $category): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $category->update($validated);
+        return redirect()->route('masters.index')->with('success', 'Category updated.');
+    }
+
+    // --- ITEM ---
     public function storeItem(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -71,15 +153,5 @@ class MasterDataController extends Controller
 
         InventoryItem::create($validated);
         return back()->with('success', 'Inventory Item added successfully.');
-    }
-
-    public function storeCategory(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        MasterCategory::create($validated);
-        return back()->with('success', 'Category added successfully.');
     }
 }

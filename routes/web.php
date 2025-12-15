@@ -33,10 +33,23 @@ Route::middleware(['auth'])->group(function () {
         Route::post('masters/item', [MasterDataController::class, 'storeItem'])->name('masters.item.store');
         Route::post('masters/category', [MasterDataController::class, 'storeCategory'])->name('masters.category.store');
 
-        // User Management
-        Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'destroy']);
+        // Master Data Edit Routes
+        Route::get('masters/breed/{breed}/edit', [MasterDataController::class, 'editBreed'])->name('masters.breed.edit');
+        Route::put('masters/breed/{breed}', [MasterDataController::class, 'updateBreed'])->name('masters.breed.update');
 
-        // Animal Management (Create/Edit/Exit)
+        Route::get('masters/location/{location}/edit', [MasterDataController::class, 'editLocation'])->name('masters.location.edit');
+        Route::put('masters/location/{location}', [MasterDataController::class, 'updateLocation'])->name('masters.location.update');
+
+        Route::get('masters/category/{category}/edit', [MasterDataController::class, 'editCategory'])->name('masters.category.edit');
+        Route::put('masters/category/{category}', [MasterDataController::class, 'updateCategory'])->name('masters.category.update');
+
+        Route::get('masters/disease/{disease}/edit', [MasterDataController::class, 'editDisease'])->name('masters.disease.edit');
+        Route::put('masters/disease/{disease}', [MasterDataController::class, 'updateDisease'])->name('masters.disease.update');
+
+        // User Management (Full Resource)
+        Route::resource('users', UserController::class);
+
+        // Animal Management (Full Resource)
         Route::resource('animals', AnimalController::class);
         Route::get('animals/{animal}/print', [AnimalPrintController::class, 'show'])->name('animals.print');
 
@@ -48,19 +61,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('animals/{animal}/exit', [ExitController::class, 'create'])->name('animals.exit.create');
         Route::post('animals/{animal}/exit', [ExitController::class, 'store'])->name('animals.exit.store');
 
-        // Inventory Management (Full Access)
-        Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
+        // Inventory Management (Full Resource + Purchase)
+        Route::resource('inventory', InventoryController::class)->except(['destroy']);
         Route::post('inventory/purchase', [InventoryPurchaseController::class, 'store'])->name('inventory.purchase.store');
     });
 
     // Operator Routes (Staff & Owner)
-    // Note: RoleMiddleware for 'STAFF' allows 'OWNER' access too.
     Route::middleware(['role:STAFF'])->group(function () {
         Route::get('scan', [ScanController::class, 'index'])->name('scan.index');
 
         // Operator Workflow
         Route::get('operator/inventory', [OperatorInventoryController::class, 'index'])->name('operator.inventory.index');
-        Route::post('inventory/usage', [InventoryUsageController::class, 'store'])->name('inventory.usage.store'); // Moved here so Staff can access
+        Route::post('inventory/usage', [InventoryUsageController::class, 'store'])->name('inventory.usage.store');
 
         Route::get('operator/{animal}', [OperatorController::class, 'show'])->name('operator.show');
         Route::post('operator/{animal}/weight', [OperatorController::class, 'storeWeight'])->name('operator.weight.store');

@@ -80,4 +80,48 @@ class AnimalController extends Controller
 
         return redirect()->route('animals.index')->with('success', 'Animal created successfully.');
     }
+
+    public function show(Animal $animal): View
+    {
+        $animal->load(['category', 'breed', 'location', 'physStatus', 'photos', 'weightLogs', 'treatmentLogs', 'owner']);
+        return view('animals.show', compact('animal'));
+    }
+
+    public function edit(Animal $animal): View
+    {
+        $categories = MasterCategory::all();
+        $breeds = MasterBreed::all();
+        $locations = MasterLocation::all();
+        $statuses = MasterPhysStatus::all();
+        $owners = User::all();
+
+        return view('animals.edit', compact('animal', 'categories', 'breeds', 'locations', 'statuses', 'owners'));
+    }
+
+    public function update(Request $request, Animal $animal): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tag_id' => 'required|unique:animals,tag_id,' . $animal->id,
+            'owner_id' => 'required|exists:users,id',
+            'category_id' => 'required|exists:master_categories,id',
+            'breed_id' => 'required|exists:master_breeds,id',
+            'current_location_id' => 'required|exists:master_locations,id',
+            'current_phys_status_id' => 'required|exists:master_phys_statuses,id',
+            'gender' => 'required|in:MALE,FEMALE',
+            'birth_date' => 'required|date',
+            'photo' => 'nullable|image|max:20480',
+        ]);
+
+        $animal->update($validated);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('animal-photos', 'public');
+            $animal->photos()->create([
+                'photo_url' => $path,
+                'capture_date' => Carbon::now(),
+            ]);
+        }
+
+        return redirect()->route('animals.show', $animal->id)->with('success', 'Animal updated successfully.');
+    }
 }

@@ -18,6 +18,7 @@
                     <th scope="col" class="px-6 py-3">Email</th>
                     <th scope="col" class="px-6 py-3">Role</th>
                     <th scope="col" class="px-6 py-3">Joined</th>
+                    <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,6 +32,9 @@
                         <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ $user->role }}</span>
                     </td>
                     <td class="px-6 py-4">{{ $user->created_at?->format('Y-m-d') ?? '-' }}</td>
+                    <td class="px-6 py-4">
+                        <a href="{{ route('users.edit', $user->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
