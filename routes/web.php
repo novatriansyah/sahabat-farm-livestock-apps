@@ -30,6 +30,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('masters/breed', [MasterDataController::class, 'storeBreed'])->name('masters.breed.store');
         Route::post('masters/location', [MasterDataController::class, 'storeLocation'])->name('masters.location.store');
         Route::post('masters/disease', [MasterDataController::class, 'storeDisease'])->name('masters.disease.store');
+        Route::post('masters/item', [MasterDataController::class, 'storeItem'])->name('masters.item.store');
+        Route::post('masters/category', [MasterDataController::class, 'storeCategory'])->name('masters.category.store');
 
         // User Management
         Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'destroy']);
