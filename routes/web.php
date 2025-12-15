@@ -21,10 +21,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    // Manager Routes (Owner Only)
+    // --- GROUP 1: OWNER ONLY (Admin & Settings) ---
     Route::middleware(['role:OWNER'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
         // Master Data
         Route::get('masters', [MasterDataController::class, 'index'])->name('masters.index');
         Route::post('masters/breed', [MasterDataController::class, 'storeBreed'])->name('masters.breed.store');
@@ -48,8 +46,13 @@ Route::middleware(['auth'])->group(function () {
 
         // User Management (Full Resource)
         Route::resource('users', UserController::class);
+    });
 
-        // Animal Management (Full Resource)
+    // --- GROUP 2: MANAGERIAL (Owner & Breeder) ---
+    Route::middleware(['role:OWNER,BREEDER'])->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Animal Management
         Route::resource('animals', AnimalController::class);
         Route::get('animals/{animal}/print', [AnimalPrintController::class, 'show'])->name('animals.print');
 
@@ -61,13 +64,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('animals/{animal}/exit', [ExitController::class, 'create'])->name('animals.exit.create');
         Route::post('animals/{animal}/exit', [ExitController::class, 'store'])->name('animals.exit.store');
 
-        // Inventory Management (Full Resource + Purchase)
+        // Inventory Management
         Route::resource('inventory', InventoryController::class)->except(['destroy']);
         Route::post('inventory/purchase', [InventoryPurchaseController::class, 'store'])->name('inventory.purchase.store');
     });
 
-    // Operator Routes (Staff & Owner)
-    Route::middleware(['role:STAFF'])->group(function () {
+    // --- GROUP 3: OPERATIONAL (Staff & Owner & Breeder) ---
+    // Note: Everyone might need to scan/weigh, but primarily Staff.
+    // OWNER is implied by RoleMiddleware logic if we allow STAFF.
+    // BREEDER is implied if we add it to the list.
+    // Requirement: "breeder can go to dashboard...". It doesn't explicitly say Breeder scans, but it's useful.
+    // Let's assume Staff routes are for Staff and potentially Owner.
+    // If Breeder needs to scan, we add BREEDER here.
+    Route::middleware(['role:STAFF,BREEDER'])->group(function () {
         Route::get('scan', [ScanController::class, 'index'])->name('scan.index');
 
         // Operator Workflow

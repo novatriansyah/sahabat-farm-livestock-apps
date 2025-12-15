@@ -34,10 +34,11 @@ class AuthenticatedSessionController extends Controller
 
             $role = Auth::user()->role;
 
-            if ($role === 'STAFF' || $role === 'BREEDER') {
+            if ($role === 'STAFF') {
                 return redirect()->route('scan.index');
             }
 
+            // OWNER and BREEDER go to Dashboard
             return redirect()->intended('dashboard');
         }
 
