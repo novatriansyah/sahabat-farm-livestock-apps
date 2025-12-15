@@ -4,6 +4,7 @@ use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\AnimalPrintController;
 use App\Http\Controllers\BreedingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeploymentController;
 use App\Http\Controllers\ExitController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InventoryPurchaseController;
@@ -23,6 +24,9 @@ Route::middleware(['auth'])->group(function () {
 
     // --- GROUP 1: OWNER ONLY (Admin & Settings) ---
     Route::middleware(['role:OWNER'])->group(function () {
+        // Deployment Utilities
+        Route::get('deploy/storage-link', [DeploymentController::class, 'linkStorage']);
+
         // Master Data
         Route::get('masters', [MasterDataController::class, 'index'])->name('masters.index');
         Route::post('masters/breed', [MasterDataController::class, 'storeBreed'])->name('masters.breed.store');
@@ -70,12 +74,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // --- GROUP 3: OPERATIONAL (Staff & Owner & Breeder) ---
-    // Note: Everyone might need to scan/weigh, but primarily Staff.
-    // OWNER is implied by RoleMiddleware logic if we allow STAFF.
-    // BREEDER is implied if we add it to the list.
-    // Requirement: "breeder can go to dashboard...". It doesn't explicitly say Breeder scans, but it's useful.
-    // Let's assume Staff routes are for Staff and potentially Owner.
-    // If Breeder needs to scan, we add BREEDER here.
     Route::middleware(['role:STAFF,BREEDER'])->group(function () {
         Route::get('scan', [ScanController::class, 'index'])->name('scan.index');
 
