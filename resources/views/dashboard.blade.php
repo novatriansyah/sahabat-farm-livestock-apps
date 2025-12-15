@@ -1,4 +1,17 @@
 <x-app-layout>
+
+    <!-- Low Stock Alert -->
+    @if(count($lowStockItems) > 0)
+    <div class="mb-4 p-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
+        <span class="font-medium">⚠️ Inventory Alert!</span> The following items are running low (< 10 units):
+        <ul class="mt-1.5 list-disc list-inside">
+            @foreach($lowStockItems as $item)
+                <li>{{ $item->name }} (Current: {{ $item->current_stock }} {{ $item->unit }})</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <!-- Metric 1: Active Animals -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">

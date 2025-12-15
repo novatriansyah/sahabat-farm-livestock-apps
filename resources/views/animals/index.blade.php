@@ -46,7 +46,13 @@
                         @endif
                     </td>
                     <td class="px-6 py-4">{{ $animal->location->name ?? '-' }}</td>
-                    <td class="px-6 py-4">{{ number_format($animal->daily_adg, 3) }}</td>
+                    <td class="px-6 py-4">
+                        @if($animal->daily_adg < 0.1)
+                            <span class="text-red-600 font-bold dark:text-red-500">{{ number_format($animal->daily_adg, 3) }} ▼</span>
+                        @else
+                            <span class="text-green-600 dark:text-green-500">{{ number_format($animal->daily_adg, 3) }}</span>
+                        @endif
+                    </td>
                     <td class="px-6 py-4">{{ number_format($animal->current_hpp, 0, ',', '.') }}</td>
                     <td class="px-6 py-4">
                         <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Print Tag</a>

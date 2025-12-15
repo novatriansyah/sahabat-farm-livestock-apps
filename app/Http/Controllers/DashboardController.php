@@ -37,11 +37,6 @@ class DashboardController extends Controller
             ->sum('price');
 
         // Net Profit This Month
-        // Formula: Sum(Sale Price) - Sum(Purchase Price + Final HPP) for animals sold THIS MONTH.
-        // We need to fetch the animals that exited this month via SALE.
-        // ExitLog stores 'price' (Sale Price) and 'final_hpp'.
-        // We also need 'purchase_price' from the animal.
-
         $exits = ExitLog::where('exit_type', 'SALE')
             ->whereMonth('exit_date', Carbon::now()->month)
             ->whereYear('exit_date', Carbon::now()->year)
@@ -55,6 +50,9 @@ class DashboardController extends Controller
             $netProfit += ($exit->price - $cost);
         }
 
+        // 4. Low Stock Alerts (Threshold < 10 units)
+        $lowStockItems = InventoryItem::where('current_stock', '<', 10)->get();
+
         return view('dashboard', [
             'activeAnimals' => $activeAnimals,
             'populationByCage' => $populationByCage,
@@ -62,6 +60,7 @@ class DashboardController extends Controller
             'totalStockValue' => $totalStockValue,
             'salesThisMonth' => $salesThisMonth,
             'netProfit' => $netProfit,
+            'lowStockItems' => $lowStockItems,
         ]);
     }
 }
