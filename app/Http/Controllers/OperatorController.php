@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\InventoryItem;
+use App\Models\InventoryPurchase;
 use App\Models\InventoryUsageLog;
 use App\Models\MasterDisease;
 use App\Models\MasterLocation;
@@ -84,6 +85,14 @@ class OperatorController extends Controller
                      'qty_used' => $validated['medicine_qty'],
                      'qty_wasted' => 0,
                  ]);
+
+                 // Calculate Cost immediately for Medicines
+                 $avgPrice = $this->getItemPrice($item->id);
+                 $cost = $validated['medicine_qty'] * $avgPrice;
+
+                 $animal->increment('accumulated_medicine_cost', $cost);
+                 $animal->increment('current_hpp', $cost);
+
             } else {
                 return back()->withErrors(['medicine_qty' => 'Not enough stock.']);
             }
@@ -101,5 +110,13 @@ class OperatorController extends Controller
         $animal->update(['current_location_id' => $validated['location_id']]);
 
         return redirect()->route('operator.show', $animal->id)->with('success', 'Cage moved successfully.');
+    }
+
+    private function getItemPrice($itemId): float
+    {
+        $totalValue = InventoryPurchase::where('item_id', $itemId)->sum('price_total');
+        $totalQty = InventoryPurchase::where('item_id', $itemId)->sum('qty');
+
+        return ($totalQty > 0) ? ($totalValue / $totalQty) : 0;
     }
 }
