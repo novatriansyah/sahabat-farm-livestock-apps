@@ -49,7 +49,7 @@
                     <td class="px-6 py-4">{{ number_format($animal->daily_adg, 3) }}</td>
                     <td class="px-6 py-4">{{ number_format($animal->current_hpp, 0, ',', '.') }}</td>
                     <td class="px-6 py-4">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                        <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Print Tag</a>
                     </td>
                 </tr>
                 @endforeach

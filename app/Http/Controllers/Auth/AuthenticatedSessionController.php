@@ -32,6 +32,10 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
+            if (Auth::user()->role === 'STAFF') {
+                return redirect()->route('scan.index');
+            }
+
             return redirect()->intended('dashboard');
         }
 

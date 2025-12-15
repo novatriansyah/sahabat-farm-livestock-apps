@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\ExitLog;
 use App\Models\InventoryItem;
 use App\Models\InventoryUsageLog;
+use App\Models\MasterLocation;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -14,23 +16,52 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        // Summary Stats
+        // 1. Live Population (Total & By Cage)
         $activeAnimals = Animal::where('is_active', true)->count();
+        $populationByCage = MasterLocation::withCount(['animals' => function ($query) {
+            $query->where('is_active', true);
+        }])->get();
+
+        // 2. Growth Performance (Avg ADG)
+        $avgAdg = Animal::where('is_active', true)->avg('daily_adg');
+
+        // 3. Financials
+        // Total Estimated Asset Value
         $totalStockValue = InventoryItem::sum(DB::raw('current_stock * (SELECT AVG(price_total/qty) FROM inventory_purchases WHERE item_id = inventory_items.id)'));
-        // Fallback if no purchases yet
         if (!$totalStockValue) $totalStockValue = 0;
 
-        // Chart Data: Total Asset Value vs Monthly Feed Cost (Mock Data for now or simple calculation)
-        // For MVP demo, we can just pass some data or calculate real if possible.
+        // Sales This Month
+        $salesThisMonth = ExitLog::where('exit_type', 'SALE')
+            ->whereMonth('exit_date', Carbon::now()->month)
+            ->whereYear('exit_date', Carbon::now()->year)
+            ->sum('price');
 
-        $feedCost = InventoryUsageLog::whereMonth('usage_date', Carbon::now()->month)
-            ->join('inventory_items', 'inventory_usage_logs.item_id', '=', 'inventory_items.id')
-            // This is complex SQL for MVP, let's keep it simple for the view
-            ->count();
+        // Net Profit This Month
+        // Formula: Sum(Sale Price) - Sum(Purchase Price + Final HPP) for animals sold THIS MONTH.
+        // We need to fetch the animals that exited this month via SALE.
+        // ExitLog stores 'price' (Sale Price) and 'final_hpp'.
+        // We also need 'purchase_price' from the animal.
+
+        $exits = ExitLog::where('exit_type', 'SALE')
+            ->whereMonth('exit_date', Carbon::now()->month)
+            ->whereYear('exit_date', Carbon::now()->year)
+            ->with('animal')
+            ->get();
+
+        $netProfit = 0;
+        foreach ($exits as $exit) {
+            $purchasePrice = $exit->animal->purchase_price ?? 0;
+            $cost = $purchasePrice + $exit->final_hpp;
+            $netProfit += ($exit->price - $cost);
+        }
 
         return view('dashboard', [
             'activeAnimals' => $activeAnimals,
+            'populationByCage' => $populationByCage,
+            'avgAdg' => $avgAdg,
             'totalStockValue' => $totalStockValue,
+            'salesThisMonth' => $salesThisMonth,
+            'netProfit' => $netProfit,
         ]);
     }
 }

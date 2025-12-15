@@ -14,6 +14,7 @@ class InventoryUsageController extends Controller
     {
         $validated = $request->validate([
             'item_id' => 'required|exists:inventory_items,id',
+            'location_id' => 'nullable|exists:master_locations,id',
             'qty_used' => 'required|numeric|min:0',
             'qty_wasted' => 'required|numeric|min:0',
             'usage_date' => 'required|date',

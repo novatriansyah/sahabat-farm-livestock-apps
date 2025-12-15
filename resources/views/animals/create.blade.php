@@ -61,10 +61,18 @@
                 </div>
                 <div>
                     <label for="acquisition_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Acquisition Type</label>
-                     <select id="acquisition_type" name="acquisition_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                     <select id="acquisition_type" name="acquisition_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" onchange="togglePurchasePrice(this.value)">
                         <option value="BRED">Bred</option>
                         <option value="BOUGHT">Bought</option>
                     </select>
+                </div>
+                <div>
+                    <label for="initial_weight" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Initial Weight (kg)</label>
+                    <input type="number" id="initial_weight" name="initial_weight" step="0.01" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                </div>
+                <div id="purchase-price-container" style="display: none;">
+                    <label for="purchase_price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Purchase Price (IDR)</label>
+                    <input type="number" id="purchase_price" name="purchase_price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 </div>
                 <div class="col-span-2">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Upload Photo</label>
@@ -75,4 +83,15 @@
             <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
         </form>
     </div>
+
+    <script>
+        function togglePurchasePrice(value) {
+            const container = document.getElementById('purchase-price-container');
+            if (value === 'BOUGHT') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+    </script>
 </x-app-layout>

@@ -8,6 +8,7 @@ use App\Models\MasterBreed;
 use App\Models\MasterLocation;
 use App\Models\MasterPhysStatus;
 use App\Models\User;
+use App\Models\WeightLog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -45,10 +46,23 @@ class AnimalController extends Controller
             'gender' => 'required|in:MALE,FEMALE',
             'birth_date' => 'required|date',
             'acquisition_type' => 'required|in:BRED,BOUGHT',
+            'purchase_price' => 'nullable|required_if:acquisition_type,BOUGHT|numeric|min:0',
+            'initial_weight' => 'required|numeric|min:0.1',
             'photo' => 'nullable|image|max:20480', // 20MB Max
         ]);
 
+        if (isset($validated['purchase_price']) && $validated['acquisition_type'] !== 'BOUGHT') {
+            $validated['purchase_price'] = 0;
+        }
+
         $animal = Animal::create($validated);
+
+        // Record Initial Weight
+        WeightLog::create([
+            'animal_id' => $animal->id,
+            'weigh_date' => Carbon::now(),
+            'weight_kg' => $validated['initial_weight'],
+        ]);
 
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('animal-photos', 'public');

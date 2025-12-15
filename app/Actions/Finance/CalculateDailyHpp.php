@@ -15,44 +15,74 @@ class CalculateDailyHpp
         $date = $date ?? Carbon::yesterday();
 
         DB::transaction(function () use ($date) {
-            // 1. Calculate total feed cost for the target date
-            // We need to determine the price per unit of the used feed.
-            // This is a complex FIFO/Average Cost problem.
-            // For MVP, we will use the "Latest Purchase Price" strategy or Average Price.
-            // Let's go with Average Price from all purchases to keep it simple but functional.
-
+            // Get all usage logs for the date
             $usageLogs = InventoryUsageLog::whereDate('usage_date', $date)->get();
 
-            $totalDailyCost = 0;
+            if ($usageLogs->isEmpty()) {
+                return;
+            }
 
-            foreach ($usageLogs as $log) {
-                // Get average price per unit for this item
-                $totalPurchaseValue = InventoryPurchase::where('item_id', $log->item_id)->sum('price_total');
-                $totalPurchaseQty = InventoryPurchase::where('item_id', $log->item_id)->sum('qty');
+            // Cache item prices to avoid N+1 queries
+            $itemPrices = [];
 
-                if ($totalPurchaseQty > 0) {
-                    $pricePerUnit = $totalPurchaseValue / $totalPurchaseQty;
-                    $cost = ($log->qty_used + $log->qty_wasted) * $pricePerUnit;
-                    $totalDailyCost += $cost;
+            // Group logs by Location (Cage)
+            $logsByLocation = $usageLogs->groupBy('location_id');
+
+            // We also need to handle logs with NULL location (General usage).
+            // For MVP, if location is NULL, we might distribute to ALL cages or just ignore.
+            // Let's assume General Usage is distributed equally to all active animals.
+            $generalCost = 0;
+            if (isset($logsByLocation[''])) {
+                 foreach ($logsByLocation[''] as $log) {
+                    $price = $this->getItemPrice($log->item_id, $itemPrices);
+                    $generalCost += ($log->qty_used + $log->qty_wasted) * $price;
+                 }
+                 unset($logsByLocation['']);
+            }
+
+            // Process Location-Specific Costs
+            foreach ($logsByLocation as $locationId => $logs) {
+                $locationCost = 0;
+                foreach ($logs as $log) {
+                    $price = $this->getItemPrice($log->item_id, $itemPrices);
+                    $locationCost += ($log->qty_used + $log->qty_wasted) * $price;
+                }
+
+                $animalsInLocation = Animal::where('is_active', true)
+                    ->where('current_location_id', $locationId)
+                    ->count();
+
+                if ($animalsInLocation > 0) {
+                    $costPerHead = $locationCost / $animalsInLocation;
+                    Animal::where('is_active', true)
+                        ->where('current_location_id', $locationId)
+                        ->increment('current_hpp', $costPerHead);
                 }
             }
 
-            if ($totalDailyCost <= 0) {
-                return;
+            // Process General Cost (Distributed to ALL active animals)
+            if ($generalCost > 0) {
+                $totalActive = Animal::where('is_active', true)->count();
+                if ($totalActive > 0) {
+                    $generalCostPerHead = $generalCost / $totalActive;
+                    Animal::where('is_active', true)->increment('current_hpp', $generalCostPerHead);
+                }
             }
-
-            // 2. Count active animals
-            $activeAnimalsCount = Animal::where('is_active', true)->count();
-
-            if ($activeAnimalsCount === 0) {
-                return;
-            }
-
-            // 3. Formula
-            $dailyCostPerHead = $totalDailyCost / $activeAnimalsCount;
-
-            // 4. Bulk Update
-            Animal::where('is_active', true)->increment('current_hpp', $dailyCostPerHead);
         });
+    }
+
+    private function getItemPrice($itemId, array &$cache): float
+    {
+        if (isset($cache[$itemId])) {
+            return $cache[$itemId];
+        }
+
+        $totalValue = InventoryPurchase::where('item_id', $itemId)->sum('price_total');
+        $totalQty = InventoryPurchase::where('item_id', $itemId)->sum('qty');
+
+        $price = ($totalQty > 0) ? ($totalValue / $totalQty) : 0;
+        $cache[$itemId] = $price;
+
+        return $price;
     }
 }
