@@ -42,7 +42,7 @@
                     <td class="px-6 py-4">{{ $item->unit }}</td>
                     <td class="px-6 py-4">{{ $item->current_stock }}</td>
                     <td class="px-6 py-4">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                        <a href="{{ route('inventory.show', $item->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detail</a>
                     </td>
                 </tr>
                 @endforeach

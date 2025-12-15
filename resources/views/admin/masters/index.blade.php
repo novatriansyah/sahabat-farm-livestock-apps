@@ -53,7 +53,7 @@
             </form>
             <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 h-48 overflow-y-auto">
                 @foreach($items as $item)
-                    <li>{{ $item->name }} ({{ $item->category }}) - {{ $item->dosage_per_kg ? $item->dosage_per_kg . ' /kg' : '' }}</li>
+                    <li>{{ $item->name }} ({{ $item->category }}) <a href="{{ route('inventory.edit', $item->id) }}" class="text-blue-500 hover:underline text-xs ml-2">Edit</a></li>
                 @endforeach
             </ul>
         </div>
@@ -77,7 +77,7 @@
             </form>
             <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 h-48 overflow-y-auto">
                 @foreach($breeds as $breed)
-                    <li>{{ $breed->name }} ({{ $breed->category->name ?? '-' }})</li>
+                    <li>{{ $breed->name }} ({{ $breed->category->name ?? '-' }}) <a href="{{ route('masters.breed.edit', $breed->id) }}" class="text-blue-500 hover:underline text-xs ml-2">Edit</a></li>
                 @endforeach
             </ul>
         </div>
@@ -99,7 +99,7 @@
             </form>
             <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 h-48 overflow-y-auto">
                 @foreach($locations as $loc)
-                    <li>{{ $loc->name }} ({{ $loc->type }})</li>
+                    <li>{{ $loc->name }} ({{ $loc->type }}) <a href="{{ route('masters.location.edit', $loc->id) }}" class="text-blue-500 hover:underline text-xs ml-2">Edit</a></li>
                 @endforeach
             </ul>
         </div>
@@ -116,7 +116,7 @@
             </form>
             <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 h-48 overflow-y-auto">
                 @foreach($categories as $cat)
-                    <li>{{ $cat->name }}</li>
+                    <li>{{ $cat->name }} <a href="{{ route('masters.category.edit', $cat->id) }}" class="text-blue-500 hover:underline text-xs ml-2">Edit</a></li>
                 @endforeach
             </ul>
         </div>
@@ -134,7 +134,7 @@
             </form>
             <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 h-48 overflow-y-auto">
                 @foreach($diseases as $disease)
-                    <li>{{ $disease->name }}</li>
+                    <li>{{ $disease->name }} <a href="{{ route('masters.disease.edit', $disease->id) }}" class="text-blue-500 hover:underline text-xs ml-2">Edit</a></li>
                 @endforeach
             </ul>
         </div>

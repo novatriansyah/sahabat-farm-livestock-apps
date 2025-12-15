@@ -43,4 +43,43 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User registered successfully.');
     }
+
+    public function edit(User $user): View
+    {
+        return view('users.edit', compact('user'));
+    }
+
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'role' => ['required', 'in:OWNER,STAFF,BREEDER'],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user->fill([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+        ]);
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['msg' => 'Cannot delete yourself.']);
+        }
+
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'User deleted.');
+    }
 }
