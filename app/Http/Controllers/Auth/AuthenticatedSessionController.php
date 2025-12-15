@@ -32,7 +32,9 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            if (Auth::user()->role === 'STAFF') {
+            $role = Auth::user()->role;
+
+            if ($role === 'STAFF' || $role === 'BREEDER') {
                 return redirect()->route('scan.index');
             }
 
