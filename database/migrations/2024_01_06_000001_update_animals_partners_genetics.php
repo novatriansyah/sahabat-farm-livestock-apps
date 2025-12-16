@@ -21,8 +21,9 @@ return new class extends Migration
             $table->string('generation')->nullable()->after('ear_tag_color'); // F1, F2, F3, etc.
 
             // Allow owner_id to be null logic:
-            // 1. Drop FK
-            $table->dropForeign(['animals_owner_id_foreign']); // Use explicit name if standard logic fails, or array syntax
+            // 1. Drop FK (Pass column name array to generate 'animals_owner_id_foreign')
+            $table->dropForeign(['owner_id']);
+
             // 2. Modify Column to be nullable UUID
             // Note: 'users.id' is UUID, so this must be UUID/CHAR(36)
             $table->uuid('owner_id')->nullable()->change();
