@@ -42,6 +42,14 @@
             </a>
          </li>
          <li>
+            <a href="{{ route('partners.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.333 12.667a2.667 2.667 0 1 0 0-5.333 2.667 2.667 0 0 0 0 5.333ZM13.333 14c-2.4 0-4.667 1.2-4.667 3.6V18h9.334v-.4c0-2.4-2.267-3.6-4.667-3.6ZM6.667 12.667a2.667 2.667 0 1 0 0-5.333 2.667 2.667 0 0 0 0 5.333ZM6.667 14c-2.4 0-4.667 1.2-4.667 3.6V18h4.667v-.4c0-2.4-2.267-3.6-4.667-3.6Z"/>
+               </svg>
+               <span class="flex-1 ms-3 whitespace-nowrap">Mitra (Partners)</span>
+            </a>
+         </li>
+         <li>
             <a href="{{ route('reports.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M5 2a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2Z"/>
