@@ -38,6 +38,14 @@ class PartnerController extends Controller
         return view('admin.partners.edit', compact('partner'));
     }
 
+    public function show(MasterPartner $partner): View
+    {
+        $partner->load('animals');
+        $animals = $partner->animals()->with(['breed', 'location'])->paginate(10);
+
+        return view('admin.partners.show', compact('partner', 'animals'));
+    }
+
     public function update(Request $request, MasterPartner $partner): RedirectResponse
     {
         $validated = $request->validate([

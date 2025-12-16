@@ -55,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('users', UserController::class);
 
         // Partner Management
-        Route::resource('partners', PartnerController::class)->except(['show']);
+        Route::resource('partners', PartnerController::class);
 
         // Reports
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
