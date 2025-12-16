@@ -31,6 +31,7 @@ class InventoryUsageController extends Controller
         // Update Stock
         $item->decrement('current_stock', $validated['qty_used'] + $validated['qty_wasted']);
 
-        return redirect()->route('inventory.index')->with('success', 'Usage recorded successfully.');
+        // Use back() to support both Admin (Inventory Index) and Operator (Operator Inventory) views
+        return back()->with('success', 'Usage recorded successfully.');
     }
 }

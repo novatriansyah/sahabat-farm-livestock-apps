@@ -1,7 +1,9 @@
 <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
       <ul class="space-y-2 font-medium">
-         @if(Auth::user()->role == 'OWNER')
+
+         <!-- Managerial Routes (OWNER & BREEDER) -->
+         @if(Auth::user()->role == 'OWNER' || Auth::user()->role == 'BREEDER')
          <li>
             <a href="{{ route('dashboard') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
@@ -27,6 +29,10 @@
                <span class="flex-1 ms-3 whitespace-nowrap">Inventory</span>
             </a>
          </li>
+         @endif
+
+         <!-- Admin Routes (OWNER ONLY) -->
+         @if(Auth::user()->role == 'OWNER')
          <li>
             <a href="{{ route('masters.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -45,7 +51,8 @@
          </li>
          @endif
 
-         @if(Auth::user()->role == 'STAFF')
+         <!-- Operator Routes (STAFF & BREEDER option) -->
+         @if(Auth::user()->role == 'STAFF' || Auth::user()->role == 'BREEDER' || Auth::user()->role == 'OWNER')
          <li>
             <a href="{{ route('scan.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
@@ -54,6 +61,12 @@
                <span class="ms-3">Scan QR</span>
             </a>
          </li>
+         <!-- Only STAFF (Operator) needs pure feeding mode, but others can too if needed. Let's keep it inclusive or strict?
+              Requirement: "breeder and staff cannot manage user... breeder can go to dashboard..."
+              It implies Breeder is Managerial.
+              Let's allow everyone to Scan.
+         -->
+         @if(Auth::user()->role == 'STAFF')
          <li>
             <a href="{{ route('operator.inventory.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
@@ -62,6 +75,7 @@
                <span class="ms-3">Feeding / Usage</span>
             </a>
          </li>
+         @endif
          @endif
       </ul>
    </div>
