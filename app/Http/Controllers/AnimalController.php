@@ -7,6 +7,7 @@ use App\Models\MasterCategory;
 use App\Models\MasterBreed;
 use App\Models\MasterLocation;
 use App\Models\MasterPhysStatus;
+use App\Models\MasterPartner;
 use App\Models\User;
 use App\Models\WeightLog;
 use App\Services\TaskService;
@@ -30,16 +31,16 @@ class AnimalController extends Controller
         $breeds = MasterBreed::all();
         $locations = MasterLocation::all();
         $statuses = MasterPhysStatus::all();
-        $owners = User::all(); // Simplified for MVP
+        $partners = MasterPartner::all();
 
-        return view('animals.create', compact('categories', 'breeds', 'locations', 'statuses', 'owners'));
+        return view('animals.create', compact('categories', 'breeds', 'locations', 'statuses', 'partners'));
     }
 
     public function store(Request $request, TaskService $taskService): RedirectResponse
     {
         $validated = $request->validate([
             'tag_id' => 'required|unique:animals',
-            'owner_id' => 'required|exists:users,id',
+            'partner_id' => 'nullable|exists:master_partners,id',
             'category_id' => 'required|exists:master_categories,id',
             'breed_id' => 'required|exists:master_breeds,id',
             'current_location_id' => 'required|exists:master_locations,id',
@@ -49,8 +50,13 @@ class AnimalController extends Controller
             'acquisition_type' => 'required|in:BRED,BOUGHT',
             'purchase_price' => 'nullable|required_if:acquisition_type,BOUGHT|numeric|min:0',
             'initial_weight' => 'required|numeric|min:0.1',
+            'necklace_color' => 'nullable|string',
+            'generation' => 'nullable|string',
             'photo' => 'nullable|image|max:20480', // 20MB Max
         ]);
+
+        // Auto-assign owner_id to current user (System User)
+        $validated['owner_id'] = auth()->id();
 
         if (isset($validated['purchase_price']) && $validated['acquisition_type'] !== 'BOUGHT') {
             $validated['purchase_price'] = 0;
@@ -93,22 +99,24 @@ class AnimalController extends Controller
         $breeds = MasterBreed::all();
         $locations = MasterLocation::all();
         $statuses = MasterPhysStatus::all();
-        $owners = User::all();
+        $partners = MasterPartner::all();
 
-        return view('animals.edit', compact('animal', 'categories', 'breeds', 'locations', 'statuses', 'owners'));
+        return view('animals.edit', compact('animal', 'categories', 'breeds', 'locations', 'statuses', 'partners'));
     }
 
     public function update(Request $request, Animal $animal): RedirectResponse
     {
         $validated = $request->validate([
             'tag_id' => 'required|unique:animals,tag_id,' . $animal->id,
-            'owner_id' => 'required|exists:users,id',
+            'partner_id' => 'nullable|exists:master_partners,id',
             'category_id' => 'required|exists:master_categories,id',
             'breed_id' => 'required|exists:master_breeds,id',
             'current_location_id' => 'required|exists:master_locations,id',
             'current_phys_status_id' => 'required|exists:master_phys_statuses,id',
             'gender' => 'required|in:MALE,FEMALE',
             'birth_date' => 'required|date',
+            'necklace_color' => 'nullable|string',
+            'generation' => 'nullable|string',
             'photo' => 'nullable|image|max:20480',
         ]);
 

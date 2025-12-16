@@ -28,6 +28,11 @@ class Animal extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(MasterPartner::class, 'partner_id');
+    }
+
     public function sire(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'sire_id');
