@@ -33,15 +33,15 @@
             </div>
 
             <!-- Births Table -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-bold mb-4 text-green-600">Laporan Kelahiran (Births)</h3>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 dark:bg-gray-800">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="text-lg font-bold mb-4 text-green-600 dark:text-green-400">Laporan Kelahiran</h3>
                     @if($births->isEmpty())
-                        <p class="text-gray-500">Tidak ada data kelahiran bulan ini.</p>
+                        <p class="text-gray-500 dark:text-gray-400">Tidak ada data kelahiran bulan ini.</p>
                     @else
-                        <div class="relative overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-500">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
                                         <th class="px-6 py-3">Tgl Lahir</th>
                                         <th class="px-6 py-3">Tag ID</th>
@@ -53,10 +53,10 @@
                                 </thead>
                                 <tbody>
                                     @foreach($births as $birth)
-                                    <tr class="bg-white border-b">
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td class="px-6 py-4">{{ $birth->birth_date->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4 font-medium text-gray-900">{{ $birth->tag_id }}</td>
-                                        <td class="px-6 py-4">{{ $birth->gender }}</td>
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $birth->tag_id }}</td>
+                                        <td class="px-6 py-4">{{ $birth->gender == 'MALE' ? 'Jantan' : 'Betina' }}</td>
                                         <td class="px-6 py-4">{{ $birth->breed->name }} ({{ $birth->generation ?? '-' }})</td>
                                         <td class="px-6 py-4">{{ $birth->weightLogs->first()->weight_kg ?? '-' }} kg</td>
                                         <td class="px-6 py-4">
@@ -73,15 +73,15 @@
             </div>
 
             <!-- Deaths Table -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-bold mb-4 text-red-600">Laporan Kematian (Deaths)</h3>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-800">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="text-lg font-bold mb-4 text-red-600 dark:text-red-400">Laporan Kematian</h3>
                     @if($deaths->isEmpty())
-                        <p class="text-gray-500">Tidak ada data kematian bulan ini.</p>
+                        <p class="text-gray-500 dark:text-gray-400">Tidak ada data kematian bulan ini.</p>
                     @else
-                        <div class="relative overflow-x-auto">
-                            <table class="w-full text-sm text-left text-gray-500">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
                                         <th class="px-6 py-3">Tgl Mati</th>
                                         <th class="px-6 py-3">Tag ID</th>
@@ -93,10 +93,10 @@
                                 </thead>
                                 <tbody>
                                     @foreach($deaths as $death)
-                                    <tr class="bg-white border-b">
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td class="px-6 py-4">{{ $death->exit_date->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4 font-medium text-gray-900">{{ $death->animal->tag_id }}</td>
-                                        <td class="px-6 py-4">{{ $death->animal->gender }}</td>
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $death->animal->tag_id }}</td>
+                                        <td class="px-6 py-4">{{ $death->animal->gender == 'MALE' ? 'Jantan' : 'Betina' }}</td>
                                         <td class="px-6 py-4">{{ $death->animal->breed->name }}</td>
                                         <td class="px-6 py-4">{{ $death->animal->birth_date->diffInMonths($death->exit_date) }} bulan</td>
                                         <td class="px-6 py-4">Rp {{ number_format(($death->animal->purchase_price ?? 0) + $death->final_hpp, 0, ',', '.') }}</td>
