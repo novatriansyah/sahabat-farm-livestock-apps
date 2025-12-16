@@ -4,6 +4,7 @@ use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\AnimalPrintController;
 use App\Http\Controllers\BreedingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeploymentController;
 use App\Http\Controllers\ExitController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InventoryPurchaseController;
@@ -21,9 +22,10 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    // Manager Routes (Owner Only)
+    // --- GROUP 1: OWNER ONLY (Admin & Settings) ---
     Route::middleware(['role:OWNER'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // Deployment Utilities
+        Route::get('deploy/storage-link', [DeploymentController::class, 'linkStorage']);
 
         // Master Data
         Route::get('masters', [MasterDataController::class, 'index'])->name('masters.index');
@@ -48,8 +50,13 @@ Route::middleware(['auth'])->group(function () {
 
         // User Management (Full Resource)
         Route::resource('users', UserController::class);
+    });
 
-        // Animal Management (Full Resource)
+    // --- GROUP 2: MANAGERIAL (Owner & Breeder) ---
+    Route::middleware(['role:OWNER,BREEDER'])->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Animal Management
         Route::resource('animals', AnimalController::class);
         Route::get('animals/{animal}/print', [AnimalPrintController::class, 'show'])->name('animals.print');
 
@@ -61,13 +68,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('animals/{animal}/exit', [ExitController::class, 'create'])->name('animals.exit.create');
         Route::post('animals/{animal}/exit', [ExitController::class, 'store'])->name('animals.exit.store');
 
-        // Inventory Management (Full Resource + Purchase)
+        // Inventory Management
         Route::resource('inventory', InventoryController::class)->except(['destroy']);
         Route::post('inventory/purchase', [InventoryPurchaseController::class, 'store'])->name('inventory.purchase.store');
     });
 
-    // Operator Routes (Staff & Owner)
-    Route::middleware(['role:STAFF'])->group(function () {
+    // --- GROUP 3: OPERATIONAL (Staff & Owner & Breeder) ---
+    Route::middleware(['role:STAFF,BREEDER'])->group(function () {
         Route::get('scan', [ScanController::class, 'index'])->name('scan.index');
 
         // Operator Workflow
