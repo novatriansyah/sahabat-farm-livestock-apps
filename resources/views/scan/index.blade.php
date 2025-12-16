@@ -5,7 +5,11 @@
         <div id="reader" width="600px"></div>
 
         <div class="mt-4 text-center">
-             <p class="text-gray-600 dark:text-gray-400">Arahkan kamera ke QR Code di telinga ternak.</p>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">Arahkan kamera ke QR Code di telinga ternak.</p>
+
+            <button id="request-permission-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition hidden">
+                Izinkan Kamera
+            </button>
         </div>
     </div>
 
@@ -24,15 +28,37 @@
             // console.warn(`Code scan error = ${error}`);
         }
 
-        try {
-            let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader",
-            { fps: 10, qrbox: {width: 250, height: 250} },
-            /* verbose= */ false);
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        } catch (e) {
-            console.error("Scanner initialization failed:", e);
-            alert("Scanner initialization failed. Please check camera permissions or connection. Error: " + e.message);
+        function startScanner() {
+            try {
+                let html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: {width: 250, height: 250} },
+                /* verbose= */ false);
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+                // Hide button if successful
+                document.getElementById('request-permission-btn').classList.add('hidden');
+            } catch (e) {
+                console.error("Scanner initialization failed:", e);
+                // Show button if failed (likely due to permission)
+                document.getElementById('request-permission-btn').classList.remove('hidden');
+                alert("Gagal memulai kamera. Pastikan izin kamera diberikan.");
+            }
         }
+
+        // Attempt to start immediately
+        startScanner();
+
+        // Button handler to retry
+        document.getElementById('request-permission-btn').addEventListener('click', function() {
+            // Explicitly request permissions via API if possible, or just retry initialization
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    startScanner();
+                }
+            }).catch(err => {
+                alert("Izin kamera ditolak atau tidak ada kamera yang ditemukan.");
+            });
+        });
     </script>
 </x-app-layout>
