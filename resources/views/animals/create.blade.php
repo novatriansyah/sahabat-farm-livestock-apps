@@ -1,23 +1,24 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800">
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Add New Animal</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Tambah Ternak Baru</h2>
         <form action="{{ route('animals.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="grid gap-6 mb-6 md:grid-cols-2">
                 <div>
-                    <label for="tag_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tag ID</label>
+                    <label for="tag_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tag ID (No. Telinga)</label>
                     <input type="text" id="tag_id" name="tag_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
                 <div>
-                    <label for="owner_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Owner</label>
-                    <select id="owner_id" name="owner_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        @foreach($owners as $owner)
-                            <option value="{{ $owner->id }}">{{ $owner->name }}</option>
+                    <label for="partner_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mitra (Kepemilikan)</label>
+                    <select id="partner_id" name="partner_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Pilih Mitra --</option>
+                        @foreach($partners as $partner)
+                            <option value="{{ $partner->id }}">{{ $partner->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label for="category_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+                    <label for="category_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori</label>
                     <select id="category_id" name="category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -25,7 +26,7 @@
                     </select>
                 </div>
                 <div>
-                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Breed</label>
+                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ras (Breed)</label>
                     <select id="breed_id" name="breed_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         @foreach($breeds as $breed)
                             <option value="{{ $breed->id }}">{{ $breed->name }}</option>
@@ -33,18 +34,32 @@
                     </select>
                 </div>
                 <div>
-                    <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Gender</label>
-                    <select id="gender" name="gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
+                    <label for="generation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Generasi (F1, F2, dst)</label>
+                    <select id="generation" name="generation" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Non-Genetik --</option>
+                        <option value="F1">F1</option>
+                        <option value="F2">F2</option>
+                        <option value="F3">F3</option>
+                        <option value="F4">F4</option>
+                        <option value="F5">F5</option>
+                        <option value="F6">F6</option>
+                        <option value="PURE">Purebred</option>
+                        <option value="CROSS">Crossbred</option>
                     </select>
                 </div>
                 <div>
-                    <label for="birth_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth Date</label>
+                    <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis Kelamin</label>
+                    <select id="gender" name="gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="MALE">Jantan</option>
+                        <option value="FEMALE">Betina</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="birth_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Lahir</label>
                     <input type="date" id="birth_date" name="birth_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
                  <div>
-                    <label for="current_location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Location</label>
+                    <label for="current_location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lokasi Kandang</label>
                     <select id="current_location_id" name="current_location_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         @foreach($locations as $location)
                             <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -52,30 +67,34 @@
                     </select>
                 </div>
                  <div>
-                    <label for="current_phys_status_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Physical Status</label>
+                    <label for="current_phys_status_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status Fisik</label>
                     <select id="current_phys_status_id" name="current_phys_status_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         @foreach($statuses as $status)
                             <option value="{{ $status->id }}">{{ $status->name }}</option>
                         @endforeach
                     </select>
                 </div>
+                 <div>
+                    <label for="necklace_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Kalung</label>
+                    <input type="text" id="necklace_color" name="necklace_color" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                </div>
                 <div>
-                    <label for="acquisition_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Acquisition Type</label>
+                    <label for="acquisition_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipe Perolehan</label>
                      <select id="acquisition_type" name="acquisition_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" onchange="togglePurchasePrice(this.value)">
-                        <option value="BRED">Bred</option>
-                        <option value="BOUGHT">Bought</option>
+                        <option value="BRED">Hasil Breeding (Lahir di Farm)</option>
+                        <option value="BOUGHT">Beli (Purchase)</option>
                     </select>
                 </div>
                 <div>
-                    <label for="initial_weight" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Initial Weight (kg)</label>
+                    <label for="initial_weight" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Berat Awal (kg)</label>
                     <input type="number" id="initial_weight" name="initial_weight" step="0.01" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
                 <div id="purchase-price-container" style="display: none;">
-                    <label for="purchase_price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Purchase Price (IDR)</label>
+                    <label for="purchase_price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga Beli (Rp)</label>
                     <input type="number" id="purchase_price" name="purchase_price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 </div>
                 <div class="col-span-2">
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Upload Photo</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Upload Foto Hewan</label>
                     <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="photo" name="photo" type="file">
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 20MB).</p>
                 </div>

@@ -108,6 +108,37 @@ class DashboardController extends Controller
             $deathValue += ($log->animal->purchase_price ?? 0) + $log->final_hpp;
         }
 
+        // 7. Breakdown by Sex (Live)
+        $liveMale = Animal::where('is_active', true)->where('gender', 'MALE')->count();
+        $liveFemale = Animal::where('is_active', true)->where('gender', 'FEMALE')->count();
+
+        // 8. Breakdown by Sex (Dead - This Month)
+        $deadMale = ExitLog::where('exit_type', 'DEATH')
+            ->whereMonth('exit_date', Carbon::now()->month)
+            ->whereHas('animal', function($q) { $q->where('gender', 'MALE'); })
+            ->count();
+        $deadFemale = ExitLog::where('exit_type', 'DEATH')
+            ->whereMonth('exit_date', Carbon::now()->month)
+            ->whereHas('animal', function($q) { $q->where('gender', 'FEMALE'); })
+            ->count();
+
+        // 9. Separation Alerts (Pisah Koloni)
+        // Animals > 2 months old (60 days) who are still 'Cempe' or have not been weaned manually.
+        // Assuming 'Cempe' status ID or Name.
+        $separationCandidates = Animal::where('is_active', true)
+            ->whereDate('birth_date', '<=', Carbon::now()->subDays(60))
+            ->whereHas('physStatus', function($q) {
+                $q->where('name', 'Cempe'); // Assuming 'Cempe' is the status name
+            })
+            ->get();
+
+        // 10. Mating Separation Alerts (Pisah Pejantan)
+        // Breeding events active > 60 days
+        $matingSeparationCandidates = BreedingEvent::where('status', 'PENDING')
+             ->whereDate('mating_date', '<=', Carbon::now()->subDays(60))
+             ->with(['dam', 'sire'])
+             ->get();
+
         return view('dashboard', [
             'activeAnimals' => $activeAnimals,
             'populationByCage' => $populationByCage,
@@ -121,6 +152,12 @@ class DashboardController extends Controller
             'medicineCost' => $medicineCost,
             'deathCount' => $deathCount,
             'deathValue' => $deathValue,
+            'liveMale' => $liveMale,
+            'liveFemale' => $liveFemale,
+            'deadMale' => $deadMale,
+            'deadFemale' => $deadFemale,
+            'separationCandidates' => $separationCandidates,
+            'matingSeparationCandidates' => $matingSeparationCandidates,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AnimalController;
 use App\Http\Controllers\AnimalPrintController;
+use App\Http\Controllers\BirthController;
 use App\Http\Controllers\BreedingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeploymentController;
@@ -14,6 +15,8 @@ use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\OperatorInventoryController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\PartnerController;
+use App\Http\Controllers\Admin\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -50,6 +53,12 @@ Route::middleware(['auth'])->group(function () {
 
         // User Management (Full Resource)
         Route::resource('users', UserController::class);
+
+        // Partner Management
+        Route::resource('partners', PartnerController::class)->except(['show']);
+
+        // Reports
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     });
 
     // --- GROUP 2: MANAGERIAL (Owner & Breeder) ---
@@ -63,6 +72,10 @@ Route::middleware(['auth'])->group(function () {
         // Breeding Flow
         Route::get('animals/{animal}/breeding/create', [BreedingController::class, 'create'])->name('breeding.create');
         Route::post('animals/{animal}/breeding', [BreedingController::class, 'store'])->name('breeding.store');
+
+        // Birth Registry
+        Route::get('birth/create', [BirthController::class, 'create'])->name('birth.create');
+        Route::post('birth/store', [BirthController::class, 'store'])->name('birth.store');
 
         // Exit Flow
         Route::get('animals/{animal}/exit', [ExitController::class, 'create'])->name('animals.exit.create');
