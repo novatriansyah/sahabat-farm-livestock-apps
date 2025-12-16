@@ -1,11 +1,11 @@
 <x-app-layout>
     <div class="max-w-xl mx-auto">
-        <h2 class="text-2xl font-bold mb-4 text-center dark:text-white">Scan Animal QR Code</h2>
+        <h2 class="text-2xl font-bold mb-4 text-center dark:text-white">Scan QR Code Ternak</h2>
 
         <div id="reader" width="600px"></div>
 
         <div class="mt-4 text-center">
-             <p class="text-gray-600 dark:text-gray-400">Point your camera at the Animal's QR Code.</p>
+             <p class="text-gray-600 dark:text-gray-400">Arahkan kamera ke QR Code di telinga ternak.</p>
         </div>
     </div>
 

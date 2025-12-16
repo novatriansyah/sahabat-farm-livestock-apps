@@ -9,13 +9,13 @@
             </svg>
          </button>
         <a href="{{ Auth::user()->role == 'OWNER' ? route('dashboard') : route('scan.index') }}" class="flex ms-2 md:ms-24">
-          <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Sahabat Farm</span>
+          <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Sahabat Farm Indonesia</span>
         </a>
 
         @if(Auth::user()->role == 'STAFF')
         <div class="ml-4 flex gap-4">
              <a href="{{ route('scan.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-white">Scan QR</a>
-             <a href="{{ route('operator.inventory.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-white">Feeding</a>
+             <a href="{{ route('operator.inventory.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-white">Pakan/Stok</a>
         </div>
         @endif
       </div>
@@ -42,7 +42,7 @@
                 <li>
                   <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Sign out</a>
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Keluar (Sign out)</a>
                   </form>
                 </li>
               </ul>

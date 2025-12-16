@@ -14,6 +14,7 @@ class BreedingEvent extends Model
 
     protected $casts = [
         'mating_date' => 'date',
+        'est_birth_date' => 'date',
     ];
 
     public function dam(): BelongsTo
