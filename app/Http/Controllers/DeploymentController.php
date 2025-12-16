@@ -25,7 +25,10 @@ class DeploymentController extends Controller
 
         // Attempt native PHP symlink
         try {
-            symlink($target, $link);
+            if (!function_exists('symlink')) {
+                throw new \Exception("Function 'symlink' is disabled or undefined in this PHP environment.");
+            }
+            \symlink($target, $link);
             return "Successfully created symlink from [$target] to [$link].";
         } catch (\Throwable $e) {
             return "Failed to create symlink: " . $e->getMessage();
