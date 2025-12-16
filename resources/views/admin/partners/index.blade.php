@@ -12,11 +12,11 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="relative overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-800">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" class="px-6 py-3">Nama Mitra</th>
                                     <th scope="col" class="px-6 py-3">Kontak</th>
@@ -26,12 +26,17 @@
                             </thead>
                             <tbody>
                                 @foreach($partners as $partner)
-                                <tr class="bg-white border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">{{ $partner->name }}</td>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $partner->name }}</td>
                                     <td class="px-6 py-4">{{ $partner->contact_info ?? '-' }}</td>
                                     <td class="px-6 py-4">{{ $partner->animals_count ?? $partner->animals()->count() }}</td>
                                     <td class="px-6 py-4 flex space-x-2">
-                                        <a href="{{ route('partners.edit', $partner) }}" class="text-blue-600 hover:underline">Edit</a>
+                                        <a href="{{ route('partners.edit', $partner) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                        <form action="{{ route('partners.destroy', $partner) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus mitra ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">Hapus</button>
+                                        </form>
                                     </td>
                                 </tr>
                                 @endforeach
