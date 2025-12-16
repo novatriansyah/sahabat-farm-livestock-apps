@@ -22,9 +22,11 @@ return new class extends Migration
 
             // Allow owner_id to be null logic:
             // 1. Drop FK
-            $table->dropForeign(['owner_id']);
-            // 2. Modify Column
-            $table->unsignedBigInteger('owner_id')->nullable()->change();
+            $table->dropForeign(['animals_owner_id_foreign']); // Use explicit name if standard logic fails, or array syntax
+            // 2. Modify Column to be nullable UUID
+            // Note: 'users.id' is UUID, so this must be UUID/CHAR(36)
+            $table->uuid('owner_id')->nullable()->change();
+
             // 3. Re-add FK
             $table->foreign('owner_id')->references('id')->on('users');
         });
@@ -41,8 +43,8 @@ return new class extends Migration
 
             // Revert owner_id
             $table->dropForeign(['owner_id']);
-            $table->unsignedBigInteger('owner_id')->nullable(false)->change();
-            $table->foreign('owner_id')->references('id')->on('users');
+            $table->uuid('owner_id')->nullable(false)->change();
+            $table->foreign('owner_id')->references('id')->on('users')->cascadeOnDelete();
         });
     }
 };
