@@ -90,10 +90,14 @@ class RealTimeFarmSeeder extends Seeder
 
     protected function purchaseInitialStock()
     {
+        // Fetch System Owner (First User)
+        $owner = User::where('role', 'OWNER')->first() ?? User::first();
+        $ownerId = $owner ? $owner->id : null;
+
         // 1 Sire (Dorper Pure)
         Animal::create([
             'tag_id' => 'SIRE-001',
-            'owner_id' => 1, // System Admin
+            'owner_id' => $ownerId,
             'partner_id' => $this->partners['A']->id,
             'category_id' => $this->breeds['Dorper']->category_id,
             'breed_id' => $this->breeds['Dorper']->id,
@@ -112,7 +116,7 @@ class RealTimeFarmSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             Animal::create([
                 'tag_id' => 'DAM-' . str_pad($i, 3, '0', STR_PAD_LEFT),
-                'owner_id' => 1,
+                'owner_id' => $ownerId,
                 'partner_id' => $this->partners['A']->id,
                 'category_id' => $this->breeds['Garut']->category_id,
                 'breed_id' => $this->breeds['Garut']->id,
@@ -204,10 +208,13 @@ class RealTimeFarmSeeder extends Seeder
 
                     // Generate 1-2 offspring
                     $count = rand(1, 2);
+                    // Fetch System Owner (First User) again just in case, or inherit from Dam
+                    $ownerId = $animal->owner_id;
+
                     for ($k = 0; $k < $count; $k++) {
                         Animal::create([
                             'tag_id' => 'KID-' . Str::random(5),
-                            'owner_id' => 1,
+                            'owner_id' => $ownerId,
                             'partner_id' => $animal->partner_id, // Inherit
                             'dam_id' => $animal->id,
                             'sire_id' => $mating->sire_id,
