@@ -47,11 +47,16 @@ class BreedingController extends Controller
             'mating_date' => 'required|date',
         ]);
 
+        // Calculate Expected Birth Date (approx 150 days / 5 months)
+        $matingDate = Carbon::parse($validated['mating_date']);
+        $estBirthDate = $matingDate->copy()->addDays(150);
+
         // Create Event
         BreedingEvent::create([
             'dam_id' => $animal->id,
             'sire_id' => $validated['sire_id'],
             'mating_date' => $validated['mating_date'],
+            'est_birth_date' => $estBirthDate,
             'status' => 'PENDING',
         ]);
 

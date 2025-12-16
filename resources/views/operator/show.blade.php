@@ -50,13 +50,13 @@
         <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg" id="weight-tab" data-tabs-target="#weight" type="button" role="tab" aria-controls="weight" aria-selected="false">Weighing</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg" id="weight-tab" data-tabs-target="#weight" type="button" role="tab" aria-controls="weight" aria-selected="false">Timbang</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="health-tab" data-tabs-target="#health" type="button" role="tab" aria-controls="health" aria-selected="false">Health</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="health-tab" data-tabs-target="#health" type="button" role="tab" aria-controls="health" aria-selected="false">Kesehatan</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="move-tab" data-tabs-target="#move" type="button" role="tab" aria-controls="move" aria-selected="false">Move Cage</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="move-tab" data-tabs-target="#move" type="button" role="tab" aria-controls="move" aria-selected="false">Pindah Kandang</button>
                 </li>
             </ul>
         </div>
@@ -67,10 +67,10 @@
                 <form action="{{ route('operator.weight.store', $animal->id) }}" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <label for="weight_kg" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Current Weight (kg)</label>
+                        <label for="weight_kg" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Berat Saat Ini (kg)</label>
                         <input type="number" id="weight_kg" name="weight_kg" step="0.01" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                     </div>
-                    <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save Weight</button>
+                    <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Simpan Berat</button>
                 </form>
             </div>
 
@@ -81,17 +81,17 @@
                     <div class="mb-4">
                         <label for="health_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
                         <select id="health_status" name="health_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                            <option value="HEALTHY" {{ $animal->health_status == 'HEALTHY' ? 'selected' : '' }}>Healthy</option>
-                            <option value="SICK" {{ $animal->health_status == 'SICK' ? 'selected' : '' }}>Sick</option>
-                            <option value="QUARANTINE" {{ $animal->health_status == 'QUARANTINE' ? 'selected' : '' }}>Quarantine</option>
+                            <option value="HEALTHY" {{ $animal->health_status == 'HEALTHY' ? 'selected' : '' }}>Sehat (Healthy)</option>
+                            <option value="SICK" {{ $animal->health_status == 'SICK' ? 'selected' : '' }}>Sakit (Sick)</option>
+                            <option value="QUARANTINE" {{ $animal->health_status == 'QUARANTINE' ? 'selected' : '' }}>Karantina</option>
                         </select>
                     </div>
 
                     <!-- Disease Selection -->
                     <div class="mb-4">
-                        <label for="disease_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Diagnosis (Optional)</label>
+                        <label for="disease_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Diagnosa (Opsional)</label>
                         <select id="disease_id" name="disease_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                            <option value="">-- None --</option>
+                            <option value="">-- Tidak Ada --</option>
                             @foreach($diseases as $disease)
                                 <option value="{{ $disease->id }}">{{ $disease->name }}</option>
                             @endforeach
@@ -99,17 +99,17 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="symptoms" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Symptoms / Notes</label>
+                        <label for="symptoms" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Gejala / Catatan</label>
                         <textarea id="symptoms" name="symptoms" rows="2" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
                     </div>
 
                     <hr class="my-4 border-gray-200 dark:border-gray-700">
-                    <p class="mb-2 text-sm font-medium text-gray-900 dark:text-white">Medicine Used (Optional)</p>
+                    <p class="mb-2 text-sm font-medium text-gray-900 dark:text-white">Obat yang Digunakan (Opsional)</p>
 
                     <div class="mb-4">
-                        <label for="medicine_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item</label>
+                        <label for="medicine_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Obat</label>
                         <select id="medicine_id" name="medicine_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" onchange="calculateDosage(this)">
-                            <option value="">-- Select Medicine --</option>
+                            <option value="">-- Pilih Obat --</option>
                             @foreach($medicines as $med)
                                 <option value="{{ $med->id }}" data-dosage="{{ $med->dosage_per_kg }}">{{ $med->name }} ({{ $med->current_stock }} {{ $med->unit }})</option>
                             @endforeach
@@ -117,11 +117,11 @@
                         <p id="dosage-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
                     </div>
                     <div class="mb-4">
-                        <label for="medicine_qty" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quantity</label>
+                        <label for="medicine_qty" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jumlah (Dosis)</label>
                         <input type="number" id="medicine_qty" name="medicine_qty" step="0.01" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                     </div>
 
-                    <button type="submit" class="w-full text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">Update Health</button>
+                    <button type="submit" class="w-full text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">Update Kesehatan</button>
                 </form>
             </div>
 
@@ -130,14 +130,14 @@
                  <form action="{{ route('operator.cage.move', $animal->id) }}" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <label for="location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Move to New Location</label>
+                        <label for="location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pindah ke Kandang</label>
                         <select id="location_id" name="location_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                             @foreach($locations as $loc)
                                 <option value="{{ $loc->id }}" {{ $animal->current_location_id == $loc->id ? 'selected' : '' }}>{{ $loc->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Move Cage</button>
+                    <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Pindah Kandang</button>
                  </form>
             </div>
         </div>
