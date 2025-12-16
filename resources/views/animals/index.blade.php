@@ -60,6 +60,9 @@
                             @if($animal->gender === 'FEMALE')
                                 <a href="{{ route('breeding.create', $animal->id) }}" class="font-medium text-purple-600 dark:text-purple-500 hover:underline">Mate</a>
                             @endif
+                            @if($animal->is_active && in_array(Auth::user()->role, ['OWNER', 'BREEDER']))
+                                <a href="{{ route('animals.exit.create', $animal->id) }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">Exit</a>
+                            @endif
                         </div>
                     </td>
                 </tr>
