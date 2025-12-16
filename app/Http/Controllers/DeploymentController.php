@@ -34,4 +34,18 @@ class DeploymentController extends Controller
             return "Failed to create symlink: " . $e->getMessage();
         }
     }
+
+    /**
+     * Serve storage files via PHP proxy.
+     */
+    public function serveFile($path)
+    {
+        $target = storage_path('app/public/' . $path);
+
+        if (!file_exists($target)) {
+            abort(404);
+        }
+
+        return response()->file($target);
+    }
 }

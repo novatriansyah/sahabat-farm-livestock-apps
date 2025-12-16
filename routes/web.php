@@ -23,6 +23,9 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+// Storage Proxy for Restricted Environments (Symlink disabled)
+Route::get('storage/{path}', [DeploymentController::class, 'serveFile'])->where('path', '.*');
+
 Route::middleware(['auth'])->group(function () {
 
     // --- GROUP 1: OWNER ONLY (Admin & Settings) ---
