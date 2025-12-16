@@ -1,7 +1,10 @@
 <x-app-layout>
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Animals</h2>
-        <a href="{{ route('animals.create') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Add New Animal</a>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Data Ternak</h2>
+        <div class="flex gap-2">
+            <a href="{{ route('birth.create') }}" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-500 dark:hover:bg-green-600 focus:outline-none dark:focus:ring-green-800">+ Kelahiran</a>
+            <a href="{{ route('animals.create') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">+ Ternak Baru</a>
+        </div>
     </div>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -9,21 +12,26 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="px-6 py-3">Tag ID</th>
-                    <th scope="col" class="px-6 py-3">Photo</th>
-                    <th scope="col" class="px-6 py-3">Breed</th>
-                    <th scope="col" class="px-6 py-3">Gender</th>
+                    <th scope="col" class="px-6 py-3">Foto</th>
+                    <th scope="col" class="px-6 py-3">Ras (Breed)</th>
+                    <th scope="col" class="px-6 py-3">Kelamin</th>
                     <th scope="col" class="px-6 py-3">Status</th>
-                    <th scope="col" class="px-6 py-3">Location</th>
-                    <th scope="col" class="px-6 py-3">ADG (kg/day)</th>
-                    <th scope="col" class="px-6 py-3">HPP (IDR)</th>
-                    <th scope="col" class="px-6 py-3">Action</th>
+                    <th scope="col" class="px-6 py-3">Lokasi</th>
+                    <th scope="col" class="px-6 py-3">ADG (kg/hari)</th>
+                    <th scope="col" class="px-6 py-3">HPP (Rp)</th>
+                    <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($animals as $animal)
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ $animal->tag_id }}
+                        <a href="{{ route('animals.show', $animal->id) }}" class="hover:underline text-blue-600">
+                            {{ $animal->tag_id }}
+                        </a>
+                        @if($animal->generation)
+                            <span class="bg-gray-100 text-gray-800 text-xs font-medium ml-1 px-1.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{ $animal->generation }}</span>
+                        @endif
                     </th>
                     <td class="px-6 py-4">
                         @if($animal->photos->count() > 0)
@@ -35,12 +43,12 @@
                         @endif
                     </td>
                     <td class="px-6 py-4">{{ $animal->breed->name ?? '-' }}</td>
-                    <td class="px-6 py-4">{{ $animal->gender }}</td>
+                    <td class="px-6 py-4">{{ $animal->gender == 'MALE' ? 'Jantan' : 'Betina' }}</td>
                     <td class="px-6 py-4">
                         @if($animal->health_status == 'HEALTHY')
-                            <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Healthy</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Sehat</span>
                         @elseif($animal->health_status == 'SICK')
-                            <span class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Sick</span>
+                            <span class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Sakit</span>
                         @else
                             <span class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">{{ $animal->health_status }}</span>
                         @endif
@@ -56,10 +64,11 @@
                     <td class="px-6 py-4">{{ number_format($animal->current_hpp, 0, ',', '.') }}</td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
-                            <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Tag</a>
+                            <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">QR</a>
                             @if($animal->gender === 'FEMALE')
-                                <a href="{{ route('breeding.create', $animal->id) }}" class="font-medium text-purple-600 dark:text-purple-500 hover:underline">Mate</a>
+                                <a href="{{ route('breeding.create', $animal->id) }}" class="font-medium text-purple-600 dark:text-purple-500 hover:underline">Kawin</a>
                             @endif
+                            <a href="{{ route('animals.exit.create', $animal->id) }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">Keluar</a>
                         </div>
                     </td>
                 </tr>

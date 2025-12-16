@@ -20,8 +20,13 @@ return new class extends Migration
             $table->string('ear_tag_color')->nullable()->after('necklace_color');
             $table->string('generation')->nullable()->after('ear_tag_color'); // F1, F2, F3, etc.
 
-            // Allow owner_id to be null if we are moving to partner_id
-            $table->foreignId('owner_id')->nullable()->change();
+            // Allow owner_id to be null logic:
+            // 1. Drop FK
+            $table->dropForeign(['owner_id']);
+            // 2. Modify Column
+            $table->unsignedBigInteger('owner_id')->nullable()->change();
+            // 3. Re-add FK
+            $table->foreign('owner_id')->references('id')->on('users');
         });
     }
 
@@ -33,7 +38,11 @@ return new class extends Migration
         Schema::table('animals', function (Blueprint $table) {
             $table->dropForeign(['partner_id']);
             $table->dropColumn(['partner_id', 'necklace_color', 'ear_tag_color', 'generation']);
-            $table->foreignId('owner_id')->nullable(false)->change();
+
+            // Revert owner_id
+            $table->dropForeign(['owner_id']);
+            $table->unsignedBigInteger('owner_id')->nullable(false)->change();
+            $table->foreign('owner_id')->references('id')->on('users');
         });
     }
 };
