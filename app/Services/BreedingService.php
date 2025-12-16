@@ -45,6 +45,25 @@ class BreedingService
             ];
         }
 
+        // Rule 3: Post-Birth Recovery (Nifas) - 40 Days
+        // Check last birth date (We need a way to track this. For now, check last BreedingEvent where status=SUCCESS/BIRTH?)
+        // Or check if we have a 'last_birth_date' column. We don't.
+        // But we can check if there are any offspring (animals where dam_id = this animal) born < 40 days ago.
+
+        $lastBirth = Animal::where('dam_id', $animal->id)
+            ->orderByDesc('birth_date')
+            ->first();
+
+        if ($lastBirth) {
+            $daysSinceBirth = $lastBirth->birth_date->diffInDays(Carbon::now());
+            if ($daysSinceBirth < 40) {
+                return [
+                    'eligible' => false,
+                    'reason' => "Indukan dalam masa pemulihan (nifas). Baru {$daysSinceBirth} hari sejak melahirkan."
+                ];
+            }
+        }
+
         return ['eligible' => true];
     }
 }
