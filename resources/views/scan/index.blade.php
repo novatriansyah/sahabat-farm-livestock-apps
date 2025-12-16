@@ -24,10 +24,15 @@
             // console.warn(`Code scan error = ${error}`);
         }
 
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader",
-        { fps: 10, qrbox: {width: 250, height: 250} },
-        /* verbose= */ false);
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        try {
+            let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: {width: 250, height: 250} },
+            /* verbose= */ false);
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        } catch (e) {
+            console.error("Scanner initialization failed:", e);
+            alert("Scanner initialization failed. Please check camera permissions or connection. Error: " + e.message);
+        }
     </script>
 </x-app-layout>
