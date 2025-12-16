@@ -1,15 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Laporan Kelahiran & Kematian') }}
-        </h2>
-    </x-slot>
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('Laporan Kelahiran & Kematian') }}</h2>
+    </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            <!-- Filter -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 p-4">
+    <!-- Filter -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 p-4 dark:bg-gray-800">
                 <form method="GET" action="{{ route('reports.index') }}" class="flex gap-4 items-end">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Bulan</label>
@@ -32,8 +27,8 @@
                 </form>
             </div>
 
-            <!-- Births Table -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 dark:bg-gray-800">
+    <!-- Births Table -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 dark:bg-gray-800">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-bold mb-4 text-green-600 dark:text-green-400">Laporan Kelahiran</h3>
                     @if($births->isEmpty())
@@ -109,6 +104,4 @@
                 </div>
             </div>
 
-        </div>
-    </div>
 </x-app-layout>
