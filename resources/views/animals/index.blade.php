@@ -15,7 +15,8 @@
                     <th scope="col" class="px-6 py-3">Foto</th>
                     <th scope="col" class="px-6 py-3">Ras (Breed)</th>
                     <th scope="col" class="px-6 py-3">Kelamin</th>
-                    <th scope="col" class="px-6 py-3">Status</th>
+                    <th scope="col" class="px-6 py-3">Status Kesehatan</th>
+                    <th scope="col" class="px-6 py-3">Status Fisik</th>
                     <th scope="col" class="px-6 py-3">Lokasi</th>
                     <th scope="col" class="px-6 py-3">ADG (kg/hari)</th>
                     <th scope="col" class="px-6 py-3">HPP (Rp)</th>
@@ -52,6 +53,9 @@
                         @else
                             <span class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">{{ $animal->health_status }}</span>
                         @endif
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ $animal->physStatus->name ?? '-' }}</span>
                     </td>
                     <td class="px-6 py-4">{{ $animal->location->name ?? '-' }}</td>
                     <td class="px-6 py-4">
