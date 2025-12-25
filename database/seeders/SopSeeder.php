@@ -16,13 +16,13 @@ class SopSeeder extends Seeder
     {
         // 1. Lifecycle States (Status Fisik)
         $statuses = [
-            ['name' => 'SUCKLING', 'rules' => 'Cempe 0-3 bulan'],
-            ['name' => 'WEANED', 'rules' => 'Lepas Sapih 3-6 bulan'],
-            ['name' => 'READY_TO_MATE', 'rules' => 'Siap Kawin >6 bulan'],
-            ['name' => 'PREGNANT', 'rules' => 'Bunting'],
-            ['name' => 'LACTATING', 'rules' => 'Menyusui'],
-            ['name' => 'FATTENING', 'rules' => 'Penggemukan - Siap Jual'],
-            ['name' => 'QUARANTINE', 'rules' => 'Baru Datang/Sakit'],
+            ['name' => 'Cempe Lahir', 'rules' => 'Cempe 0-3 bulan'],
+            ['name' => 'Cempe Sapih', 'rules' => 'Lepas Sapih 3-6 bulan'],
+            ['name' => 'Dara', 'rules' => 'Siap Kawin >6 bulan'],
+            ['name' => 'Bunting', 'rules' => 'Bunting'],
+            ['name' => 'Menyusui', 'rules' => 'Menyusui'],
+            ['name' => 'Penggemukan - Siap Jual', 'rules' => 'Penggemukan - Siap Jual'],
+            ['name' => 'Karantina', 'rules' => 'Baru Datang/Sakit'],
         ];
 
         foreach ($statuses as $status) {
