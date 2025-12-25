@@ -57,16 +57,13 @@ class DashboardController extends Controller
 
         // 5. Conception Rate (Updated Formula)
         // (Successful Pregnancies / (Total Completed Breedings - Pending)) * 100
-        // "Completed Breedings" here implicitly means we exclude PENDING from the denominator?
-        // Actually, user said: "Exclude 'PENDING' events... New Formula: (Successful / (Total Completed - Pending))"
-        // Wait, "Total Completed - Pending"? If Total is ALL, then (Total - Pending) is Completed.
-        // So: Success / (Total - Pending).
-        $totalBreeding = BreedingEvent::count();
-        $pendingBreeding = BreedingEvent::where('status', 'PENDING')->count();
+        // Denominator should explicitly be SUCCESS + FAILED.
+        // We do NOT count PENDING or COMPLETED (waiting for check) in the stats yet.
         $successfulBreeding = BreedingEvent::where('status', 'SUCCESS')->count();
+        $failedBreeding = BreedingEvent::where('status', 'FAILED')->count();
 
-        $completedBreeding = $totalBreeding - $pendingBreeding;
-        $conceptionRate = $completedBreeding > 0 ? ($successfulBreeding / $completedBreeding) * 100 : 0;
+        $totalCompleted = $successfulBreeding + $failedBreeding;
+        $conceptionRate = $totalCompleted > 0 ? ($successfulBreeding / $totalCompleted) * 100 : 0;
 
         // 6. Full Performance Stats
         // Feed Usage This Month (kg)
