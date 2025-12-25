@@ -42,9 +42,9 @@ class UpdateAnimalCategory extends Command
         // I need to find the IDs for these statuses.
         // Assuming MasterPhysStatus has these names.
 
-        $cempe = MasterPhysStatus::where('name', 'Cempe')->first();
-        $weaned = MasterPhysStatus::where('name', 'Lepas Sapih')->first();
-        $ready = MasterPhysStatus::where('name', 'Siap Kawin')->first();
+        $cempe = MasterPhysStatus::where('name', 'Cempe Lahir')->first();
+        $weaned = MasterPhysStatus::where('name', 'Cempe Sapih')->first();
+        $ready = MasterPhysStatus::where('name', 'Dara')->first();
 
         if (!$cempe || !$weaned || !$ready) {
             $this->error('Master Physical Statuses not found. Please seed DB.');
@@ -55,8 +55,10 @@ class UpdateAnimalCategory extends Command
 
         foreach ($animals as $animal) {
             // Safety Check: Do not auto-update Sick or Quarantine animals
+            // Note: SICK, QUARANTINE, ISOLATION might be in health_status Enum or PhysStatus.
+            // PhysStatus 'Karantina' exists.
             $currentStatusName = $animal->physStatus->name ?? '';
-            if (in_array($currentStatusName, ['SICK', 'QUARANTINE', 'ISOLATION'])) {
+            if (in_array($currentStatusName, ['SICK', 'Karantina', 'ISOLATION'])) {
                 continue;
             }
 
@@ -70,7 +72,7 @@ class UpdateAnimalCategory extends Command
                 $newStatusId = $weaned->id;
             } elseif ($ageMonths >= 8) {
                 // Only update to Ready if not currently Pregnant or Lactating
-                if (!in_array($currentStatusName, ['PREGNANT', 'LACTATING'])) {
+                if (!in_array($currentStatusName, ['Bunting', 'Menyusui'])) {
                     $newStatusId = $ready->id;
                 }
             }

@@ -71,12 +71,12 @@ class RealTimeFarmSeeder extends Seeder
         $this->locations['Nursery'] = MasterLocation::firstOrCreate(['name' => 'Kandang Cempe', 'type' => 'Kandang Individu']);
 
         // Statuses
-        $this->statuses['Ready'] = MasterPhysStatus::where('name', 'READY_TO_MATE')->first();
-        $this->statuses['Pregnant'] = MasterPhysStatus::where('name', 'PREGNANT')->first();
-        $this->statuses['Lactating'] = MasterPhysStatus::where('name', 'LACTATING')->first();
-        $this->statuses['Cempe'] = MasterPhysStatus::where('name', 'SUCKLING')->first();
-        $this->statuses['Weaned'] = MasterPhysStatus::where('name', 'WEANED')->first();
-        $this->statuses['Fattening'] = MasterPhysStatus::where('name', 'FATTENING')->first();
+        $this->statuses['Ready'] = MasterPhysStatus::where('name', 'Dara')->first();
+        $this->statuses['Pregnant'] = MasterPhysStatus::where('name', 'Bunting')->first();
+        $this->statuses['Lactating'] = MasterPhysStatus::where('name', 'Menyusui')->first();
+        $this->statuses['Cempe'] = MasterPhysStatus::where('name', 'Cempe Lahir')->first();
+        $this->statuses['Weaned'] = MasterPhysStatus::where('name', 'Cempe Sapih')->first();
+        $this->statuses['Fattening'] = MasterPhysStatus::where('name', 'Penggemukan - Siap Jual')->first();
 
         // Feed
         $this->feedItems['Concentrate'] = InventoryItem::where('name', 'like', '%Konsentrat%')->first();
@@ -150,8 +150,8 @@ class RealTimeFarmSeeder extends Seeder
             // 1. Growth (Weight Log)
             // Sires grow slow, Dams fluctuate, Cempe grows fast
             $growth = 0;
-            if ($animal->physStatus->name == 'SUCKLING') $growth = rand(300, 500) / 30; // 300-500g/day
-            elseif ($animal->physStatus->name == 'FATTENING') $growth = rand(150, 300) / 30;
+            if ($animal->physStatus->name == 'Cempe Lahir') $growth = rand(300, 500) / 30; // 300-500g/day
+            elseif ($animal->physStatus->name == 'Penggemukan - Siap Jual') $growth = rand(150, 300) / 30;
             else $growth = rand(-50, 50) / 30; // Adults stable
 
             $lastWeight = $animal->weightLogs()->latest('weigh_date')->first()->weight_kg ?? 30;
