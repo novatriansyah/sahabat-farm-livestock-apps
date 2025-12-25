@@ -19,15 +19,10 @@ class AnimalObserver
 
     public function saving(Animal $animal): void
     {
-        // 1. Auto-Assign Ear Tag Color & Necklace Color based on Generation/Breed
+        // 1. Auto-Assign Ear Tag Color based on Generation
         // Trigger if generation/breed changes OR if it's a new record (creating)
         if ($animal->isDirty('generation') || $animal->isDirty('breed_id') || !$animal->exists) {
-            $color = $this->determineEarTagColor($animal);
-            $animal->ear_tag_color = $color;
-            // User requested to auto-fill necklace color as well
-            if (!$animal->necklace_color) {
-                $animal->necklace_color = $color;
-            }
+            $animal->ear_tag_color = $this->determineEarTagColor($animal);
         }
     }
 
@@ -67,38 +62,29 @@ class AnimalObserver
 
         $generation = $animal->generation ? strtoupper($animal->generation) : '';
 
-        // Logic from New Requirements:
-        // 1. FB Dorper -> Original (no color / white)
-        // 2. F1 Dorper -> Kuning
-        // 3. F2 Dorper -> Orange
-        // 4. F3 Dorper -> Orange Persegi
-        // 5. F4 Dorper -> Hijau Persegi
-        // 6. F5 Dorper -> Hijau Kuning
-        // 7. F6 Dorper -> Kuning Orange
-        // 8-14. Others (Garut, Cross Texel, Komposit, Cross Merino, Cross Dorper, Dombos, Lokal DET) -> Hijau
+        // Logic from Requirements:
+        // F1 Dorper: Kuning
+        // F2 Dorper: Orange
+        // F3 Dorper: Kuning Orange
+        // F4 Dorper: Orange Persegi
+        // F5 Dorper: Hijau Persegi
+        // F6 Dorper: Kuning Orange
+        // other jenis domba: Hijau
 
-        // Check for Dorper specific logic
-        // Note: "Cross Dorper" is listed as "Hijau" (No 12). So only "Dorper" (Full/Pure) + F-gens get colors?
-        // Let's assume the user means Pure Dorper Breeding Program logic.
-
-        if (str_contains($breedName, 'dorper') && !str_contains($breedName, 'cross')) {
-            // FB = Full Blood? Assume FB or empty generation implies Pure if breed is just 'Dorper'
-            if ($generation === 'FB' || $generation === 'PURE' || $generation === 'ORIGINAL') {
-                return 'Original (Putih)';
-            }
-
+        // Check if Breed is Dorper
+        if (str_contains($breedName, 'dorper')) {
             return match ($generation) {
                 'F1' => 'Kuning',
                 'F2' => 'Orange',
-                'F3' => 'Orange Persegi',
-                'F4' => 'Hijau Persegi',
-                'F5' => 'Hijau Kuning',
-                'F6' => 'Kuning Orange',
-                default => 'Kuning', // Fallback
+                'F3' => 'Kuning Orange',
+                'F4' => 'Orange Persegi',
+                'F5' => 'Hijau Persegi',
+                'F6' => 'Kuning Orange', // Following prompt literally
+                default => 'Kuning', // Fallback for Dorper
             };
         }
 
-        // Default for all other listed breeds (Garut, Cross Texel, etc.)
+        // Other breeds
         return 'Hijau';
     }
 }
