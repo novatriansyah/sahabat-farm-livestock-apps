@@ -18,6 +18,10 @@ class ExitController extends Controller
 
     public function store(Request $request, Animal $animal): RedirectResponse
     {
+        if (!$animal->is_active) {
+            return redirect()->route('animals.index')->with('error', 'Animal is already exited.');
+        }
+
         $validated = $request->validate([
             'exit_type' => 'required|in:SALE,DEATH',
             'exit_date' => 'required|date',

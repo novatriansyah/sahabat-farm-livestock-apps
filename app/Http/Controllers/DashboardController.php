@@ -55,10 +55,18 @@ class DashboardController extends Controller
         // 4. Low Stock Alerts
         $lowStockItems = InventoryItem::where('current_stock', '<', 10)->get();
 
-        // 5. Conception Rate
+        // 5. Conception Rate (Updated Formula)
+        // (Successful Pregnancies / (Total Completed Breedings - Pending)) * 100
+        // "Completed Breedings" here implicitly means we exclude PENDING from the denominator?
+        // Actually, user said: "Exclude 'PENDING' events... New Formula: (Successful / (Total Completed - Pending))"
+        // Wait, "Total Completed - Pending"? If Total is ALL, then (Total - Pending) is Completed.
+        // So: Success / (Total - Pending).
         $totalBreeding = BreedingEvent::count();
+        $pendingBreeding = BreedingEvent::where('status', 'PENDING')->count();
         $successfulBreeding = BreedingEvent::where('status', 'SUCCESS')->count();
-        $conceptionRate = $totalBreeding > 0 ? ($successfulBreeding / $totalBreeding) * 100 : 0;
+
+        $completedBreeding = $totalBreeding - $pendingBreeding;
+        $conceptionRate = $completedBreeding > 0 ? ($successfulBreeding / $completedBreeding) * 100 : 0;
 
         // 6. Full Performance Stats
         // Feed Usage This Month (kg)
@@ -69,10 +77,6 @@ class DashboardController extends Controller
             ->sum('qty_used');
 
         // Medicine Usage Cost This Month (Est)
-        // We need to sum cost of med usage.
-        // We can use the logic from OperatorController or HPP calc.
-        // For dashboard, we can query logs where category=MEDICINE/VACCINE/VITAMIN
-        // and multiply by avg price.
         $medicineLogs = InventoryUsageLog::whereHas('item', function($q) {
                 $q->whereIn('category', ['MEDICINE', 'VITAMIN', 'VACCINE']);
             })
@@ -82,8 +86,6 @@ class DashboardController extends Controller
 
         $medicineCost = 0;
         foreach ($medicineLogs as $log) {
-            // Re-calculate price (simplified, ideally usage log should store cost snapshot)
-            // But for MVP dashboard, dynamic calc is fine.
             $avgPrice = DB::table('inventory_purchases')
                 ->where('item_id', $log->item_id)
                 ->selectRaw('SUM(price_total) / SUM(qty) as avg_price')
@@ -123,21 +125,102 @@ class DashboardController extends Controller
             ->count();
 
         // 9. Separation Alerts (Pisah Koloni)
-        // Animals > 2 months old (60 days) who are still 'Cempe' or have not been weaned manually.
-        // Assuming 'Cempe' status ID or Name.
+        // Update check for 'Cempe Lahir' instead of 'Cempe' due to translation update
         $separationCandidates = Animal::where('is_active', true)
             ->whereDate('birth_date', '<=', Carbon::now()->subDays(60))
             ->whereHas('physStatus', function($q) {
-                $q->where('name', 'Cempe'); // Assuming 'Cempe' is the status name
+                // We use LIKE or multiple checks to be safe, but exact name 'Cempe Lahir' is target.
+                $q->where('name', 'Cempe Lahir');
             })
             ->get();
 
         // 10. Mating Separation Alerts (Pisah Pejantan)
-        // Breeding events active > 60 days
         $matingSeparationCandidates = BreedingEvent::where('status', 'PENDING')
              ->whereDate('mating_date', '<=', Carbon::now()->subDays(60))
              ->with(['dam', 'sire'])
              ->get();
+
+        // --- NEW CHARTS DATA ---
+
+        // A. Mortality Trend (Last 6 Months)
+        $mortalityTrendLabels = [];
+        $mortalityTrendData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $monthName = $date->format('M Y');
+            $count = ExitLog::where('exit_type', 'DEATH')
+                ->whereMonth('exit_date', $date->month)
+                ->whereYear('exit_date', $date->year)
+                ->count();
+            $mortalityTrendLabels[] = $monthName;
+            $mortalityTrendData[] = $count;
+        }
+
+        // B. Financial Summary (Last 6 Months: Sales Revenue vs Death Loss)
+        $financialLabels = [];
+        $financialRevenue = [];
+        $financialLoss = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $financialLabels[] = $date->format('M Y');
+
+            // Revenue
+            $rev = ExitLog::where('exit_type', 'SALE')
+                ->whereMonth('exit_date', $date->month)
+                ->whereYear('exit_date', $date->year)
+                ->sum('price');
+            $financialRevenue[] = $rev;
+
+            // Loss
+            $loss = 0;
+            $deaths = ExitLog::where('exit_type', 'DEATH')
+                ->whereMonth('exit_date', $date->month)
+                ->whereYear('exit_date', $date->year)
+                ->with('animal')
+                ->get();
+            foreach ($deaths as $d) {
+                $loss += ($d->animal->purchase_price ?? 0) + $d->final_hpp;
+            }
+            $financialLoss[] = $loss;
+        }
+
+        // C. Population Demographics (Pie Chart)
+        $demographics = Animal::where('is_active', true)
+            ->join('master_phys_statuses', 'animals.current_phys_status_id', '=', 'master_phys_statuses.id')
+            ->select('master_phys_statuses.name', DB::raw('count(*) as total'))
+            ->groupBy('master_phys_statuses.name')
+            ->pluck('total', 'name')
+            ->toArray();
+        $demographicsLabels = array_keys($demographics);
+        $demographicsData = array_values($demographics);
+
+        // D. Expense Breakdown (This Month: Feed vs Medicine vs Others)
+        // Feed Cost this month
+        // We can estimate from usage logs logic
+        // Feed:
+        $feedLogs = InventoryUsageLog::whereHas('item', function($q) {
+            $q->where('category', 'FEED');
+        })->whereMonth('usage_date', Carbon::now()->month)->get();
+
+        $totalFeedCost = 0;
+        // Simple cache for prices to avoid N+1 inside loop (basic optimization)
+        $priceCache = [];
+        foreach ($feedLogs as $log) {
+            if (!isset($priceCache[$log->item_id])) {
+                $priceCache[$log->item_id] = DB::table('inventory_purchases')
+                    ->where('item_id', $log->item_id)
+                    ->selectRaw('SUM(price_total) / SUM(qty) as avg_price')
+                    ->value('avg_price') ?? 0;
+            }
+            $totalFeedCost += ($log->qty_used + $log->qty_wasted) * $priceCache[$log->item_id];
+        }
+
+        // Medicine Cost (Already calculated as $medicineCost)
+        $totalMedicineCost = $medicineCost;
+
+        // Operational/Other? We don't have operational cost module yet. Just Feed vs Meds.
+        $expenseLabels = ['Pakan (Feed)', 'Obat & Vitamin'];
+        $expenseData = [$totalFeedCost, $totalMedicineCost];
 
         return view('dashboard', [
             'activeAnimals' => $activeAnimals,
@@ -158,6 +241,16 @@ class DashboardController extends Controller
             'deadFemale' => $deadFemale,
             'separationCandidates' => $separationCandidates,
             'matingSeparationCandidates' => $matingSeparationCandidates,
+            // Chart Data
+            'mortalityTrendLabels' => $mortalityTrendLabels,
+            'mortalityTrendData' => $mortalityTrendData,
+            'financialLabels' => $financialLabels,
+            'financialRevenue' => $financialRevenue,
+            'financialLoss' => $financialLoss,
+            'demographicsLabels' => $demographicsLabels,
+            'demographicsData' => $demographicsData,
+            'expenseLabels' => $expenseLabels,
+            'expenseData' => $expenseData,
         ]);
     }
 }

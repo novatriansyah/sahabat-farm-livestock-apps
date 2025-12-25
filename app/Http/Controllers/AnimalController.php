@@ -62,6 +62,13 @@ class AnimalController extends Controller
             $validated['purchase_price'] = 0;
         }
 
+        // Set entry_date logic
+        // If BOUGHT: entry_date is assumed to be today (or could be added to form later). We default to now.
+        // If BRED: entry_date is birth_date.
+        $validated['entry_date'] = ($validated['acquisition_type'] === 'BRED')
+            ? $validated['birth_date']
+            : Carbon::now();
+
         $animal = Animal::create($validated);
 
         // Record Initial Weight

@@ -65,10 +65,12 @@
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
                             <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">QR</a>
-                            @if($animal->gender === 'FEMALE')
+                            @if($animal->gender === 'FEMALE' && $animal->is_active)
                                 <a href="{{ route('breeding.create', $animal->id) }}" class="font-medium text-purple-600 dark:text-purple-500 hover:underline">Kawin</a>
                             @endif
-                            <a href="{{ route('animals.exit.create', $animal->id) }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">Keluar</a>
+                            @if($animal->is_active)
+                                <a href="{{ route('animals.exit.create', $animal->id) }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">Keluar</a>
+                            @endif
                         </div>
                     </td>
                 </tr>

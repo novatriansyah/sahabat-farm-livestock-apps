@@ -53,30 +53,47 @@ class CalculateDailyHpp
                     $locationCost += ($log->qty_used + $log->qty_wasted) * $price;
                 }
 
-                $animalsInLocation = Animal::where('is_active', true)
+                // FIX: Only count animals that were actually physically present on this date.
+                // We use 'entry_date' (if available) or fall back to 'created_at'.
+                // If the animal was born on farm, entry_date should be birth_date.
+                $animalsInLocationQuery = Animal::where('is_active', true)
                     ->where('current_location_id', $locationId)
-                    ->count();
+                    ->where(function($q) use ($date) {
+                        $q->whereDate('entry_date', '<=', $date)
+                          ->orWhere(function($sub) use ($date) {
+                              $sub->whereNull('entry_date')
+                                  ->whereDate('created_at', '<=', $date);
+                          });
+                    });
 
-                if ($animalsInLocation > 0) {
-                    $costPerHead = $locationCost / $animalsInLocation;
-                    Animal::where('is_active', true)
-                        ->where('current_location_id', $locationId)
-                        ->increment('accumulated_feed_cost', $costPerHead);
+                $animalsInLocationCount = $animalsInLocationQuery->count();
 
-                    // Also update total HPP
-                    Animal::where('is_active', true)
-                        ->where('current_location_id', $locationId)
-                        ->increment('current_hpp', $costPerHead);
+                if ($animalsInLocationCount > 0) {
+                    $costPerHead = $locationCost / $animalsInLocationCount;
+
+                    // Update only those specific animals
+                    $animalsInLocationQuery->increment('accumulated_feed_cost', $costPerHead);
+                    $animalsInLocationQuery->increment('current_hpp', $costPerHead);
                 }
             }
 
-            // Process General Cost (Distributed to ALL active animals)
+            // Process General Cost (Distributed to ALL active animals present on date)
             if ($generalCost > 0) {
-                $totalActive = Animal::where('is_active', true)->count();
-                if ($totalActive > 0) {
-                    $generalCostPerHead = $generalCost / $totalActive;
-                    Animal::where('is_active', true)->increment('accumulated_feed_cost', $generalCostPerHead);
-                    Animal::where('is_active', true)->increment('current_hpp', $generalCostPerHead);
+                $totalActiveQuery = Animal::where('is_active', true)
+                    ->where(function($q) use ($date) {
+                        $q->whereDate('entry_date', '<=', $date)
+                          ->orWhere(function($sub) use ($date) {
+                              $sub->whereNull('entry_date')
+                                  ->whereDate('created_at', '<=', $date);
+                          });
+                    });
+
+                $totalActiveCount = $totalActiveQuery->count();
+
+                if ($totalActiveCount > 0) {
+                    $generalCostPerHead = $generalCost / $totalActiveCount;
+                    $totalActiveQuery->increment('accumulated_feed_cost', $generalCostPerHead);
+                    $totalActiveQuery->increment('current_hpp', $generalCostPerHead);
                 }
             }
         });
