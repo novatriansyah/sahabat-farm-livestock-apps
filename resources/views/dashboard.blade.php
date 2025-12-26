@@ -6,7 +6,7 @@
         <span class="font-medium">⚠️ Waktunya Sapih (Pisah Induk)!</span> Cempe berikut sudah berusia > 2 bulan:
         <ul class="mt-1.5 list-disc list-inside">
             @foreach($separationCandidates as $animal)
-                <li>ID: {{ $animal->tag_id }} (Usia: {{ $animal->birth_date->diffInMonths(now()) }} bulan)</li>
+                <li>ID: {{ $animal->tag_id }} (Usia: {{ number_format($animal->birth_date->floatDiffInMonths(now()), 1) }} bulan)</li>
             @endforeach
         </ul>
     </div>
