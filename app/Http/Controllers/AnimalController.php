@@ -69,13 +69,17 @@ class AnimalController extends Controller
             ? $validated['birth_date']
             : Carbon::now();
 
+        // Extract initial_weight before creating Animal (as it's not in animals table)
+        $initialWeight = $validated['initial_weight'];
+        unset($validated['initial_weight']);
+
         $animal = Animal::create($validated);
 
         // Record Initial Weight
         WeightLog::create([
             'animal_id' => $animal->id,
             'weigh_date' => Carbon::now(),
-            'weight_kg' => $validated['initial_weight'],
+            'weight_kg' => $initialWeight,
         ]);
 
         // Generate Tasks if Bought (SOP Kedatangan)
