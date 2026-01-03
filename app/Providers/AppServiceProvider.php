@@ -22,5 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Animal::observe(AnimalObserver::class);
+        \App\Models\WeightLog::observe(\App\Observers\WeightLogObserver::class);
+        \App\Models\ExitLog::observe(\App\Observers\ExitLogObserver::class);
     }
 }

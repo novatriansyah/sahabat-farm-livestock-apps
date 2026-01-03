@@ -9,6 +9,7 @@
             </svg>
          </button>
         <a href="{{ Auth::user()->role == 'OWNER' ? route('dashboard') : route('scan.index') }}" class="flex ms-2 md:ms-24">
+          <img src="{{ asset('img/logo.png') }}" class="h-8 me-3" alt="Sahabat Farm Logo" />
           <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Sahabat Farm Indonesia</span>
         </a>
 

@@ -16,7 +16,13 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'partner_id',
     ];
+
+    public function partner()
+    {
+        return $this->belongsTo(\App\Models\MasterPartner::class, 'partner_id');
+    }
 
     protected $hidden = [
         'password',

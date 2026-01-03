@@ -47,6 +47,12 @@ class BreedingController extends Controller
             'mating_date' => 'required|date',
         ]);
 
+        // Enforcement: Check Eligibility
+        $eligibility = $this->breedingService->isEligibleForMating($animal);
+        if (!$eligibility['eligible']) {
+            return back()->with('error', 'Gagal mencatat breeding: ' . $eligibility['reason']);
+        }
+
         // Calculate Expected Birth Date (approx 150 days / 5 months)
         $matingDate = Carbon::parse($validated['mating_date']);
         $estBirthDate = $matingDate->copy()->addDays(150);

@@ -17,6 +17,8 @@ use App\Http\Controllers\ScanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PartnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -55,18 +57,18 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('users', UserController::class);
 
         // Partner Management
+        // Partner Management
         Route::resource('partners', PartnerController::class);
 
-        // Reports
-        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+        // Reports (Moved to Shared)
     });
 
     // --- GROUP 2: MANAGERIAL (Owner & Breeder) ---
     Route::middleware(['role:OWNER,BREEDER'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Animal Management
-        Route::resource('animals', AnimalController::class);
+        // Animal Management (Write Access)
+        Route::resource('animals', AnimalController::class)->except(['index', 'show']);
         Route::get('animals/{animal}/print', [AnimalPrintController::class, 'show'])->name('animals.print');
 
         // Breeding Flow
@@ -84,6 +86,18 @@ Route::middleware(['auth'])->group(function () {
         // Inventory Management
         Route::resource('inventory', InventoryController::class)->except(['destroy']);
         Route::post('inventory/purchase', [InventoryPurchaseController::class, 'store'])->name('inventory.purchase.store');
+
+        // Financial & Invoicing
+        Route::resource('invoices', InvoiceController::class);
+        Route::post('invoices/{invoice}/convert', [InvoiceController::class, 'convert'])->name('invoices.convert');
+        Route::post('invoices/{invoice}/paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.paid');
+    });
+
+    // --- SHARED READ-ONLY (Owner, Breeder, Partner) ---
+    Route::middleware(['role:OWNER,BREEDER,PARTNER'])->group(function () {
+        Route::get('animals', [AnimalController::class, 'index'])->name('animals.index');
+        Route::get('animals/{animal}', [AnimalController::class, 'show'])->where('animal', '[0-9a-fA-F\-]+')->name('animals.show');
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     });
 
     // --- GROUP 3: OPERATIONAL (Staff & Owner & Breeder) ---
@@ -98,6 +112,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('operator/{animal}/weight', [OperatorController::class, 'storeWeight'])->name('operator.weight.store');
         Route::post('operator/{animal}/health', [OperatorController::class, 'storeHealth'])->name('operator.health.store');
         Route::post('operator/{animal}/move', [OperatorController::class, 'moveCage'])->name('operator.cage.move');
+    });
+
+    // --- GROUP 4: PARTNER DASHBOARD ---
+    Route::middleware(['role:PARTNER'])->group(function () {
+        Route::get('/partner/dashboard', [PartnerDashboardController::class, 'index'])->name('partner.dashboard');
     });
 });
 

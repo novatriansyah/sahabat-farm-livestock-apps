@@ -12,3 +12,5 @@ Artisan::command('inspire', function () {
 Schedule::call(function () {
     app(CalculateDailyHpp::class)->execute();
 })->dailyAt('00:00');
+
+Schedule::command('animals:update-status')->dailyAt('01:00');

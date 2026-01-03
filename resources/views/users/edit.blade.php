@@ -25,8 +25,27 @@
                         <option value="STAFF" {{ $user->role == 'STAFF' ? 'selected' : '' }}>Staff (Operator)</option>
                         <option value="BREEDER" {{ $user->role == 'BREEDER' ? 'selected' : '' }}>Breeder</option>
                         <option value="OWNER" {{ $user->role == 'OWNER' ? 'selected' : '' }}>Owner (Manager)</option>
+                        <option value="PARTNER" {{ $user->role == 'PARTNER' ? 'selected' : '' }}>Partner (Investor)</option>
                     </select>
                 </div>
+
+                <!-- Partner Select (Hidden by Default) -->
+                <div id="partner-select-wrapper" style="display: {{ $user->role === 'PARTNER' ? 'block' : 'none' }};">
+                    <label for="partner_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Assign Partner Profile</label>
+                    <select id="partner_id" name="partner_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">Select Partner entity...</option>
+                        @foreach($partners as $partner)
+                            <option value="{{ $partner->id }}" {{ $user->partner_id == $partner->id ? 'selected' : '' }}>{{ $partner->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <script>
+                    document.getElementById('role').addEventListener('change', function() {
+                        const wrapper = document.getElementById('partner-select-wrapper');
+                        wrapper.style.display = (this.value === 'PARTNER') ? 'block' : 'none';
+                    });
+                </script>
                 <div class="border-t pt-4 mt-4">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Change Password (Optional)</h3>
                     <div class="grid gap-6 mb-6">

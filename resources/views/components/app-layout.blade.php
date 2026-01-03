@@ -13,6 +13,8 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('img/logo.png') }}">
 </head>
 <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900">
 

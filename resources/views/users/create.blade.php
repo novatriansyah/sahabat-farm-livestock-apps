@@ -21,11 +21,30 @@
                 <div>
                     <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role</label>
                     <select id="role" name="role" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        <option value="STAFF">Staff (Operator)</option>
-                        <option value="BREEDER">Breeder</option>
-                        <option value="OWNER">Owner (Manager)</option>
+                        <option value="STAFF" {{ (isset($preselectedRole) && $preselectedRole == 'STAFF') ? 'selected' : '' }}>Staff (Operator)</option>
+                        <option value="BREEDER" {{ (isset($preselectedRole) && $preselectedRole == 'BREEDER') ? 'selected' : '' }}>Breeder</option>
+                        <option value="OWNER" {{ (isset($preselectedRole) && $preselectedRole == 'OWNER') ? 'selected' : '' }}>Owner (Manager)</option>
+                        <option value="PARTNER" {{ (isset($preselectedRole) && $preselectedRole == 'PARTNER') ? 'selected' : '' }}>Partner (Investor)</option>
                     </select>
                 </div>
+                
+                <!-- Partner Select (Hidden by Default) -->
+                <div id="partner-select-wrapper" style="display: {{ (isset($preselectedRole) && $preselectedRole == 'PARTNER') ? 'block' : 'none' }};">
+                    <label for="partner_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Assign Partner Profile</label>
+                    <select id="partner_id" name="partner_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">Select Partner entity...</option>
+                        @foreach($partners as $partner)
+                            <option value="{{ $partner->id }}" {{ (isset($preselectedPartnerId) && $preselectedPartnerId == $partner->id) ? 'selected' : '' }}>{{ $partner->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <script>
+                    document.getElementById('role').addEventListener('change', function() {
+                        const wrapper = document.getElementById('partner-select-wrapper');
+                        wrapper.style.display = (this.value === 'PARTNER') ? 'block' : 'none';
+                    });
+                </script>
                 <div>
                     <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                     <input type="password" id="password" name="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>

@@ -17,17 +17,26 @@ class ReportController extends Controller
         $year = $request->input('year', Carbon::now()->year);
 
         // 1. Births (Animals born in this month)
-        $births = Animal::whereMonth('birth_date', $month)
+        $birthsQuery = Animal::whereMonth('birth_date', $month)
             ->whereYear('birth_date', $year)
-            ->with(['dam', 'sire', 'breed', 'weightLogs'])
-            ->get();
-
+            ->with(['dam', 'sire', 'breed', 'weightLogs']);
+        
         // 2. Deaths (Exit Logs type DEATH)
-        $deaths = ExitLog::where('exit_type', 'DEATH')
+        $deathsQuery = ExitLog::where('exit_type', 'DEATH')
             ->whereMonth('exit_date', $month)
             ->whereYear('exit_date', $year)
-            ->with(['animal.breed'])
-            ->get();
+            ->with(['animal.breed']);
+
+        if ($request->user()->role === 'PARTNER') {
+            $partnerId = $request->user()->partner_id;
+            $birthsQuery->where('partner_id', $partnerId);
+            $deathsQuery->whereHas('animal', function($q) use ($partnerId) {
+                $q->where('partner_id', $partnerId);
+            });
+        }
+
+        $births = $birthsQuery->get();
+        $deaths = $deathsQuery->get();
 
         return view('admin.reports.index', compact('births', 'deaths', 'month', 'year'));
     }

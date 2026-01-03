@@ -64,6 +64,17 @@ class BreedingService
             }
         }
 
+        // Rule 4: Health Status
+        // ID 7 = Karantina (Sick/Compromised), ID 4 = Bunting (Already Pregnant)
+        $restrictedStatuses = [4, 7]; 
+        if (in_array($animal->current_phys_status_id, $restrictedStatuses)) {
+            $statusName = $animal->physStatus->name ?? 'Unknown';
+            return [
+                'eligible' => false,
+                'reason' => "Status Hewan tidak memungkinkan: {$statusName}"
+            ];
+        }
+
         return ['eligible' => true];
     }
 }

@@ -21,7 +21,13 @@ class AnimalController extends Controller
 {
     public function index(): View
     {
-        $animals = Animal::with(['category', 'breed', 'location', 'physStatus', 'photos'])->paginate(10);
+        $query = Animal::with(['category', 'breed', 'location', 'physStatus', 'photos']);
+
+        if (auth()->user()->role === 'PARTNER') {
+            $query->where('partner_id', auth()->user()->partner_id);
+        }
+
+        $animals = $query->paginate(10);
         return view('animals.index', compact('animals'));
     }
 
@@ -65,6 +71,16 @@ class AnimalController extends Controller
         // Set entry_date logic
         // If BOUGHT: entry_date is assumed to be today (or could be added to form later). We default to now.
         // If BRED: entry_date is birth_date.
+        // Calculate Age
+        $birthDate = Carbon::parse($validated['birth_date']);
+        $ageInDays = $birthDate->diffInDays(Carbon::now());
+
+        // Auto-assign Status/Location for Kids (< 40 days)
+        if ($ageInDays < 40) {
+            $validated['current_phys_status_id'] = 1; // Cempe Lahir
+            $validated['current_location_id'] = 3;    // Kandang Cempe
+        }
+
         $validated['entry_date'] = ($validated['acquisition_type'] === 'BRED')
             ? $validated['birth_date']
             : Carbon::now();
@@ -101,7 +117,13 @@ class AnimalController extends Controller
     public function show(Animal $animal): View
     {
         $animal->load(['category', 'breed', 'location', 'physStatus', 'photos', 'weightLogs', 'treatmentLogs', 'owner']);
-        return view('animals.show', compact('animal'));
+
+        // Prepare Chart Data
+        $weightLogs = $animal->weightLogs()->orderBy('weigh_date', 'asc')->get();
+        $weightLabels = $weightLogs->pluck('weigh_date')->map(fn($d) => $d->format('d M Y'));
+        $weightData = $weightLogs->pluck('weight_kg');
+
+        return view('animals.show', compact('animal', 'weightLabels', 'weightData'));
     }
 
     public function edit(Animal $animal): View

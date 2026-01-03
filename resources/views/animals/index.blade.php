@@ -22,7 +22,9 @@
                     <th scope="col" class="px-6 py-3">Lokasi</th>
                     <th scope="col" class="px-6 py-3">ADG (kg/hari)</th>
                     <th scope="col" class="px-6 py-3">HPP (Rp)</th>
-                    <th scope="col" class="px-6 py-3">Aksi</th>
+                    @if(auth()->user()->role !== 'PARTNER')
+                        <th scope="col" class="px-6 py-3">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -70,6 +72,7 @@
                         @endif
                     </td>
                     <td class="px-6 py-4">{{ number_format($animal->current_hpp, 0, ',', '.') }}</td>
+                    @if(auth()->user()->role !== 'PARTNER')
                     <td class="px-6 py-4">
                         <div class="flex gap-2">
                             <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">QR</a>
@@ -81,6 +84,7 @@
                             @endif
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @endforeach
             </tbody>
