@@ -87,4 +87,14 @@ class Animal extends Model
     {
         return $this->hasMany(AnimalPhoto::class);
     }
+
+    public function invoiceItem()
+    {
+        return $this->hasOne(InvoiceItem::class, 'related_animal_id');
+    }
+
+    public function offspring(): HasMany
+    {
+        return $this->hasMany(Animal::class, 'dam_id');
+    }
 }
