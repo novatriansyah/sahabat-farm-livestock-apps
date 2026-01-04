@@ -27,6 +27,8 @@
             -moz-appearance: textfield;
         }
     </style>
+    
+    {{ $styles ?? '' }}
 </head>
 <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900">
 

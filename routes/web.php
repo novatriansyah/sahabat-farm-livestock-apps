@@ -99,7 +99,14 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:OWNER,BREEDER,PARTNER'])->group(function () {
         Route::get('animals', [AnimalController::class, 'index'])->name('animals.index');
         Route::get('animals/{animal}', [AnimalController::class, 'show'])->where('animal', '[0-9a-fA-F\-]+')->name('animals.show');
-        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index'); // Birth & Death
+        Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+        Route::get('reports/stock', [ReportController::class, 'stock'])->name('reports.stock');
+        Route::get('reports/partners', [ReportController::class, 'partners'])->name('reports.partners');
+        Route::get('reports/operational', [ReportController::class, 'operational'])->name('reports.operational');
+        Route::get('reports/performance', [ReportController::class, 'performance'])->name('reports.performance');
+        Route::get('reports/reproduction', [ReportController::class, 'reproduction'])->name('reports.reproduction');
+        Route::get('reports/audit', [ReportController::class, 'audit'])->name('reports.audit');
     });
 
     // --- GROUP 3: OPERATIONAL (Staff & Owner & Breeder) ---

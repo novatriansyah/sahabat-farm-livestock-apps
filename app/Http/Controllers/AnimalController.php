@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use App\Exports\AnimalsExport;
 use App\Imports\AnimalsImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Intervention\Image\Laravel\Facades\Image;
 
 class AnimalController extends Controller
 {
@@ -155,9 +156,18 @@ class AnimalController extends Controller
         }
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('animal-photos', 'public');
+            $file = $request->file('photo');
+            $filename = 'animal-photos/' . uniqid() . '.webp';
+
+            // Optimize: Resize to 800px width, convert to WebP, Quality 75%
+            $image = Image::read($file);
+            $image->scale(width: 800);
+            $encoded = $image->toWebp(75);
+
+            Storage::disk('public')->put($filename, (string) $encoded);
+
             $animal->photos()->create([
-                'photo_url' => $path,
+                'photo_url' => $filename,
                 'capture_date' => Carbon::now(),
             ]);
         }
@@ -207,9 +217,18 @@ class AnimalController extends Controller
         $animal->update($validated);
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('animal-photos', 'public');
+            $file = $request->file('photo');
+            $filename = 'animal-photos/' . uniqid() . '.webp';
+
+            // Optimize: Resize to 800px width, convert to WebP, Quality 75%
+            $image = Image::read($file);
+            $image->scale(width: 800);
+            $encoded = $image->toWebp(75);
+
+            Storage::disk('public')->put($filename, (string) $encoded);
+
             $animal->photos()->create([
-                'photo_url' => $path,
+                'photo_url' => $filename,
                 'capture_date' => Carbon::now(),
             ]);
         }

@@ -25,7 +25,7 @@
          </li>
          @endif
 
-         <!-- Shared Routes (OWNER, BREEDER, PARTNER) -->
+         <!-- Data Ternak (Single) -->
          @if(in_array(Auth::user()->role, ['OWNER', 'BREEDER', 'PARTNER']))
          <li>
             <a href="{{ route('animals.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
@@ -35,65 +35,99 @@
                <span class="flex-1 ms-3 whitespace-nowrap">Data Ternak</span>
             </a>
          </li>
-         <li>
-            <a href="{{ route('reports.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5 2a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2Z"/>
-               </svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Laporan (Reports)</span>
-            </a>
+         @endif
+
+        <!-- Reports Group (Dropdown) -->
+        @if(in_array(Auth::user()->role, ['OWNER', 'BREEDER', 'PARTNER']))
+        <li x-data="{ open: {{ request()->routeIs('reports.*') ? 'true' : 'false' }} }">
+            <button @click="open = !open" type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-reports" :aria-expanded="open">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5 2a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2Z"/>
+                </svg>
+                <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Laporan (Reports)</span>
+                <svg :class="{'rotate-180': open}" class="w-3 h-3 transition-transform" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                </svg>
+            </button>
+            <ul x-show="open" class="py-2 space-y-2" id="dropdown-reports">
+                <li>
+                    <a href="{{ route('reports.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Kelahiran & Kematian</a>
+                </li>
+                <li>
+                    <a href="{{ route('reports.sales') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Penjualan</a>
+                </li>
+                <li>
+                    <a href="{{ route('reports.stock') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Stok & Populasi</a>
+                </li>
+                <li>
+                    <a href="{{ route('reports.partners') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Laporan Mitra</a>
+                </li>
+                <li>
+                    <a href="{{ route('reports.operational') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Laporan Operasional</a>
+                </li>
+                <li>
+                    <a href="{{ route('reports.performance') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Performa (ADG)</a>
+                </li>
+                <li>
+                    <a href="{{ route('reports.reproduction') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Reproduksi</a>
+                </li>
+                <li>
+                    <a href="{{ route('reports.audit') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Audit (Mortalitas)</a>
+                </li>
+            </ul>
+        </li>
+        @endif
+
+        <!-- Finance & Inventory Group (Dropdown) -->
+        @if(in_array(Auth::user()->role, ['OWNER', 'BREEDER']))
+        <li x-data="{ open: {{ (request()->routeIs('inventory.*') || request()->routeIs('invoices.*')) ? 'true' : 'false' }} }">
+             <button @click="open = !open" type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+                   <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.166 16.003V16a1 1 0 0 0 .935.997h15.798a1 1 0 0 0 .935-.997V16l-.834-10.077ZM7 4a2 2 0 1 1 4 0v1H7V4Z"/>
+                </svg>
+                <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Gudang & Keuangan</span>
+                <svg :class="{'rotate-180': open}" class="w-3 h-3 transition-transform" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                </svg>
+             </button>
+             <ul x-show="open" class="py-2 space-y-2">
+                 <li>
+                     <a href="{{ route('inventory.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Gudang & Pakan</a>
+                 </li>
+                 <li>
+                     <a href="{{ route('invoices.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Invoices</a>
+                 </li>
+             </ul>
          </li>
          @endif
 
-         <!-- Managerial Routes (OWNER & BREEDER) - Inventory & Invoices -->
-         @if(in_array(Auth::user()->role, ['OWNER', 'BREEDER']))
-         <li>
-            <a href="{{ route('inventory.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
-                  <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.166 16.003V16a1 1 0 0 0 .935.997h15.798a1 1 0 0 0 .935-.997V16l-.834-10.077ZM7 4a2 2 0 1 1 4 0v1H7V4Z"/>
-               </svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Gudang & Pakan</span>
-            </a>
-         </li>
-         <li>
-            <a href="{{ route('invoices.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v4M5 7h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Zm4 14v-4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4" />
-               </svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Keuangan (Invoices)</span>
-            </a>
-         </li>
-         @endif
-
-         <!-- Owner Only: Users & Masters (Partners, Settings) -->
+         <!-- Admin Group (Dropdown - Owner Only) -->
          @if(Auth::user()->role == 'OWNER')
-         <li>
-            <a href="{{ route('masters.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12.25V1m0 11.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M4 19v-2.25m6-13.5V1m0 2.25a2.25 2.25 0 0 0 0 4.5m0-4.5a2.25 2.25 0 0 1 0 4.5M10 19V7.75m6 4.5V1m0 11.25a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM16 19v-2"/>
-               </svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Pengaturan Farm</span>
-            </a>
-         </li>
-         <li>
-            <a href="{{ route('partners.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13.333 12.667a2.667 2.667 0 1 0 0-5.333 2.667 2.667 0 0 0 0 5.333ZM13.333 14c-2.4 0-4.667 1.2-4.667 3.6V18h9.334v-.4c0-2.4-2.267-3.6-4.667-3.6ZM6.667 12.667a2.667 2.667 0 1 0 0-5.333 2.667 2.667 0 0 0 0 5.333ZM6.667 14c-2.4 0-4.667 1.2-4.667 3.6V18h4.667v-.4c0-2.4-2.267-3.6-4.667-3.6Z"/>
-               </svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Mitra (Partners)</span>
-            </a>
-         </li>
-         <li>
-            <a href="{{ route('users.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1-3 3 3 3 0 0 1 3-3Zm0 13a7 7 0 0 1-5-6.623c.277-.37.587-.714.923-1.018a7.032 7.032 0 0 1 8.154 0c.336.304.646.648.923 1.018A7 7 0 0 1 10 18Z"/>
-               </svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Manajemen User</span>
-            </a>
+         <li x-data="{ open: {{ (request()->routeIs('users.*') || request()->routeIs('partners.*') || request()->routeIs('masters.*')) ? 'true' : 'false' }} }">
+             <button @click="open = !open" type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                   <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1-3 3 3 3 0 0 1 3-3Zm0 13a7 7 0 0 1-5-6.623c.277-.37.587-.714.923-1.018a7.032 7.032 0 0 1 8.154 0c.336.304.646.648.923 1.018A7 7 0 0 1 10 18Z"/>
+                </svg>
+                <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Admin Area</span>
+                <svg :class="{'rotate-180': open}" class="w-3 h-3 transition-transform" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                </svg>
+             </button>
+             <ul x-show="open" class="py-2 space-y-2">
+                 <li>
+                     <a href="{{ route('masters.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Pengaturan Farm</a>
+                 </li>
+                 <li>
+                     <a href="{{ route('partners.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Mitra (Partners)</a>
+                 </li>
+                 <li>
+                     <a href="{{ route('users.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Manajemen User</a>
+                 </li>
+             </ul>
          </li>
          @endif
 
-         <!-- Operator Routes (STAFF & BREEDER option) -->
+         <!-- Operator Routes -->
          @if(Auth::user()->role == 'STAFF' || Auth::user()->role == 'BREEDER' || Auth::user()->role == 'OWNER')
          <li>
             <a href="{{ route('scan.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
