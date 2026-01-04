@@ -17,11 +17,26 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
+use App\Exports\AnimalsExport;
+use App\Imports\AnimalsImport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class AnimalController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $query = Animal::with(['category', 'breed', 'location', 'physStatus', 'photos']);
+
+        // Search Scope
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('tag_id', 'like', "%{$search}%")
+                  ->orWhereHas('breed', function($bq) use ($search) {
+                      $bq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
 
         if (auth()->user()->role === 'PARTNER') {
             $query->where('partner_id', auth()->user()->partner_id);
@@ -29,6 +44,42 @@ class AnimalController extends Controller
 
         $animals = $query->paginate(10);
         return view('animals.index', compact('animals'));
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new AnimalsExport, 'template_ternak_sfi.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240', // 10MB Max
+        ]);
+
+        try {
+            $import = new AnimalsImport;
+            Excel::import($import, $request->file('file'));
+            
+            $msg = "Import Berhasil! {$import->importedCount} data masuk. {$import->skippedCount} data duplikat dilewati.";
+            
+            return redirect()->route('animals.index')->with('success', $msg);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+            
+            foreach ($failures as $failure) {
+                $row = $failure->row();
+                $attrib = $failure->attribute();
+                foreach ($failure->errors() as $error) {
+                    $errorMessages[] = "Baris {$row} ({$attrib}): {$error}";
+                }
+            }
+            
+            return redirect()->route('animals.index')->with('error', $errorMessages);
+        } catch (\Exception $e) {
+            return redirect()->route('animals.index')->with('error', 'Gagal Import: ' . $e->getMessage());
+        }
     }
 
     public function create(): View

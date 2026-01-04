@@ -68,6 +68,11 @@ class Animal extends Model
         return $this->hasMany(WeightLog::class);
     }
 
+    public function latestWeightLog()
+    {
+        return $this->hasOne(WeightLog::class)->latestOfMany('weigh_date');
+    }
+
     public function treatmentLogs(): HasMany
     {
         return $this->hasMany(TreatmentLog::class);

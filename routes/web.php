@@ -68,6 +68,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Animal Management (Write Access)
+        Route::get('animals/template', [AnimalController::class, 'downloadTemplate'])->name('animals.template');
+        Route::post('animals/import', [AnimalController::class, 'import'])->name('animals.import');
         Route::resource('animals', AnimalController::class)->except(['index', 'show']);
         Route::get('animals/{animal}/print', [AnimalPrintController::class, 'show'])->name('animals.print');
 

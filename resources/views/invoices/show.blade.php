@@ -1,6 +1,6 @@
 <x-app-layout>
-    <div class="max-w-4xl mx-auto">
-        <div class="mb-4 flex items-center justify-between">
+    <div class="max-w-5xl mx-auto">
+        <div class="mb-4 flex items-center justify-between no-print">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
                 Detail Invoice: {{ $invoice->invoice_number }}
             </h2>
@@ -37,16 +37,16 @@
             </div>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-8 print-container">
+        <div class="bg-white border text-black border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-8 print-container">
             <!-- Logo for Print/View -->
             <div class="mb-8 text-center hidden print:block">
                 <img src="{{ asset('img/logo.png') }}" class="h-24 mx-auto mb-2" alt="Sahabat Farm Logo">
-                <h1 class="text-2xl font-bold uppercase text-gray-900">Sahabat Farm Indonesia</h1>
-                <p class="text-sm text-gray-600">Jalan Raya Peternakan No. 1, Bogor, Jawa Barat</p>
-                <p class="text-sm text-gray-600">Email: contact@sahabatfarm.id | HP: 0812-3456-7890</p>
+                <h1 class="text-2xl font-bold uppercase">Sahabat Farm Indonesia</h1>
+                <p class="text-sm">Jalan Raya Peternakan No. 1, Bogor, Jawa Barat</p>
+                <p class="text-sm">Email: contact@sahabatfarm.id | HP: 0812-3456-7890</p>
             </div>
 
-            <!-- Header Status -->
+            <!-- Header Status - RESTORED ORIGINAL STYLE -->
             <div class="flex justify-between border-b pb-4 mb-4">
                 <div>
                      @if($invoice->type == 'PROFORMA')
@@ -69,12 +69,15 @@
                 </div>
             </div>
 
-            <!-- Addresses -->
+            <!-- Addresses - RESTORED ORIGINAL STYLE + NEW ADDRESS FIELD -->
             <div class="grid grid-cols-2 gap-8 mb-8">
                 <div>
                     <h3 class="text-gray-500 dark:text-gray-400 text-sm uppercase">Kepada:</h3>
                     <p class="font-bold text-lg dark:text-white">{{ $invoice->customer_name }}</p>
                     <p class="text-gray-600 dark:text-gray-300">{{ $invoice->customer_contact ?? '-' }}</p>
+                    @if($invoice->customer_address)
+                        <p class="text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-line">{{ $invoice->customer_address }}</p>
+                    @endif
                 </div>
                 <div class="text-right">
                     <div class="mb-2">
@@ -94,109 +97,186 @@
                 </div>
             </div>
 
-            <!-- Items Table -->
+            <!-- Items Table - NEW DATA COLUMNS (Eartag, Weight, etc) with ORIGINAL STYLING -->
             <div class="relative overflow-x-auto mb-8">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Deskripsi</th>
-                            <th scope="col" class="px-6 py-3 text-center">Qty</th>
-                            <th scope="col" class="px-6 py-3 text-right">Harga Satuan</th>
-                            <th scope="col" class="px-6 py-3 text-right">Subtotal</th>
+                            <th scope="col" class="px-6 py-3">No</th>
+                            <th scope="col" class="px-6 py-3">Tag/Item</th>
+                            <th scope="col" class="px-6 py-3 text-center">Berat (Kg)</th>
+                            <th scope="col" class="px-6 py-3">Jenis/Deskripsi</th>
+                            <th scope="col" class="px-6 py-3 text-right">Harga/Kg</th>
+                            <th scope="col" class="px-6 py-3 text-right">Harga/Ekor</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($invoice->items as $item)
+                        @foreach($invoice->items as $index => $item)
+                        @php
+                            $animal = $item->relatedAnimal;
+                            $weight = $animal?->latestWeightLog?->weight_kg ?? 0;
+                            $pricePerKg = ($weight > 0 && $item->unit_price > 0) ? ($item->unit_price / $weight) : 0;
+                        @endphp
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <td class="px-6 py-4">{{ $index + 1 }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                {{ $animal ? $animal->tag_id : '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                {{ $weight > 0 ? number_format($weight, 2, ',', '.') : '-' }}
+                            </td>
                             <td class="px-6 py-4">
-                                {{ $item->description }}
-                                @if($item->related_animal_id)
-                                    <br><span class="text-xs text-gray-400">Tag: {{ $item->relatedAnimal->tag_id }}</span>
+                                @if($animal)
+                                    {{ $animal->breed?->name ?? 'Unknown' }} - {{ $animal->gender }}
+                                @else
+                                    {{ $item->description }}
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-center">{{ $item->quantity }}</td>
-                            <td class="px-6 py-4 text-right">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                            <td class="px-6 py-4 text-right font-medium">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-right">
+                                {{ $pricePerKg > 0 ? 'Rp ' . number_format($pricePerKg, 0, ',', '.') : '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">
+                                Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
-                        <tr class="font-bold text-gray-900 dark:text-white">
-                            <td colspan="3" class="px-6 py-4 text-right">Total</td>
-                            <td class="px-6 py-4 text-right text-lg">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
+                        <!-- Total Weight -->
+                        @php
+                            $totalWeight = $invoice->items->sum(fn($item) => $item->relatedAnimal?->latestWeightLog?->weight_kg ?? 0);
+                        @endphp
+                        @if($totalWeight > 0)
+                        <tr class="font-bold text-gray-900 dark:text-white border-b border-gray-200">
+                            <td colspan="2" class="px-6 py-2 text-right">Total Berat</td>
+                            <td class="px-2 py-2 text-center">{{ number_format($totalWeight, 2, ',', '.') }} kg</td>
+                            <td colspan="4"></td>
                         </tr>
+                        @endif
+
+                        <!-- Subtotal -->
+                        <tr class="font-bold text-gray-900 dark:text-white">
+                            <td colspan="5" class="px-6 py-4 text-right">Subtotal</td>
+                            <td class="px-6 py-4 text-right">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
+                        </tr>
+                        <!-- Tax -->
+                        @if($invoice->tax_rate > 0)
+                        <tr class="text-sm text-gray-600 dark:text-gray-300">
+                            <td colspan="5" class="px-6 py-1 text-right">PPN ({{ $invoice->tax_rate }}%)</td>
+                            <td class="px-6 py-1 text-right">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</td>
+                        </tr>
+                        @endif
+                         @if($invoice->additional_tax_rate > 0)
+                        <tr class="text-sm text-gray-600 dark:text-gray-300">
+                            <td colspan="5" class="px-6 py-1 text-right">Pajak Lain ({{ $invoice->additional_tax_rate }}%)</td>
+                            <td class="px-6 py-1 text-right">Rp {{ number_format($invoice->total_amount - $invoice->subtotal - $invoice->tax_amount, 0, ',', '.') }}</td>
+                        </tr>
+                        @endif
+                        <!-- Grand Total -->
+                        <!-- Grand Total -->
+                        <tr class="font-bold text-lg text-gray-900 dark:text-white border-t border-gray-300 dark:border-gray-600">
+                            <td colspan="5" class="px-6 py-4 text-right">Total</td>
+                            <td class="px-6 py-4 text-right">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
+                        </tr>
+                        @if($invoice->down_payment > 0)
+                        <tr class="text-gray-900 dark:text-white">
+                            <td colspan="5" class="px-6 py-2 text-right">Uang Muka (DP)</td>
+                            <td class="px-6 py-2 text-right">- Rp {{ number_format($invoice->down_payment, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr class="font-bold text-lg text-gray-900 dark:text-white border-t border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                            <td colspan="5" class="px-6 py-4 text-right">Sisa Tagihan</td>
+                            <td class="px-6 py-4 text-right">Rp {{ number_format($invoice->total_amount - $invoice->down_payment, 0, ',', '.') }}</td>
+                        </tr>
+                        @endif
                     </tfoot>
                 </table>
             </div>
 
             <!-- Footer Notes & Signature -->
-            <div class="flex justify-between items-end mt-12 mb-4 break-inside-avoid">
-                 <div class="text-sm text-gray-500 max-w-md">
-                    <p class="font-bold mb-1">Catatan :</p>
-                    <p>Pembayaran dapat ditransfer ke:</p>
-                    <p>BCA 1234567890 a.n Sahabat Farm</p>
-                    <p class="mt-2 text-xs">Terima kasih atas bisnis Anda.</p>
+            <div class="mt-12 break-inside-avoid">
+                <div class="flex justify-between items-start mb-12">
+                     <div class="text-sm text-gray-500 max-w-md">
+                        <p class="font-bold mb-1">Catatan :</p>
+                        <p>Pembayaran dapat ditransfer ke:</p>
+                        <p class="font-bold">BCA : 515-015-7171 a.n Sahabat Farm</p>
+                        <p class="mt-2 text-xs">Terima kasih atas kepercayaan Anda.</p>
+                    </div>
                 </div>
-                 <div class="text-center">
-                    <p class="text-sm mb-16">Hormat Kami,</p>
-                    <p class="font-bold underline">Rizki Dwianda</p>
-                    <p class="text-xs text-gray-500">Owner, Sahabat Farm</p>
+
+                <!-- Signatures -->
+                <div class="flex justify-between items-end px-8 mb-4">
+                    <div class="text-center">
+                        <p class="mb-16 font-medium text-sm">Penerima</p>
+                        <p class="font-bold border-b border-gray-400 pb-1 min-w-[150px]">{{ $invoice->customer_name ?? '......................' }}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="mb-16 font-medium text-sm">Hormat Kami,</p>
+                        <p class="font-bold border-b border-gray-400 pb-1 min-w-[150px]">Rizki Dwianda</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Print Styles -->
     <style>
         @media print {
             @page {
                 size: A4;
-                margin: 0; /* Remove default browser margins if desired, or keep small */
-            }
-            body {
-                margin: 0; /* Let print container handle padding */
-                background-color: white !important;
-                color: black !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                font-family: 'Times New Roman', Times, serif; /* Optional: More formal for print, or keep sans */
-            }
-
-            /* HIDE EVERYTHING ELSE */
-            body * {
-                visibility: hidden;
+                margin: 1cm; /* Set reasonable margins at page level */
             }
             
-            /* RESET MAIN CONTAINER */
-            /* We specifically target the print container and its children to be visible */
+            /* Hide everything by default */
+            body {
+                visibility: hidden;
+                overflow: hidden;
+                background: white;
+            }
+
+            /* Unhide the print container */
             .print-container, .print-container * {
                 visibility: visible;
             }
 
-            /* POSITION THE PRINT CONTAINER */
+            /* Position and Sizing */
             .print-container {
                 position: absolute;
-                left: 0;
                 top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 2.5cm; /* Standard professional margin */
+                left: 0;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 border: none !important;
                 box-shadow: none !important;
-                background-color: white !important;
-                font-size: 12pt; /* Standard readable size */
-                line-height: 1.5;
+                background: white !important;
             }
 
-            /* Ensure text colors are black */
-            .text-gray-500, .text-gray-600, .text-gray-700, .text-gray-900, .dark\:text-white {
-                color: black !important;
+            /* Prevent Table Overflow */
+            .overflow-x-auto {
+                overflow: visible !important;
             }
             
-            /* Logo Sizing in Print */
-            .print\:block img {
-                height: 80px !important; 
-                width: auto !important;
+            /* Compact Columns */
+            table {
+                width: 100% !important;
+                table-layout: fixed; /* Inspect this if columns get too squished */
+            }
+            th, td {
+                padding: 4px 2px !important; /* Reduce padding */
+                font-size: 11px !important;  /* Reduce font size */
+                word-wrap: break-word;
+            }
+            th.w-10 { width: 5% !important; }
+            th.w-16 { width: 10% !important; }
+            th.w-32 { width: 15% !important; }
+
+            /* Ensure text contrast */
+            .text-gray-500, .text-gray-600 { color: #374151 !important; }
+            .text-gray-900, .dark\:text-white { color: #000 !important; }
+            
+            /* Hide UI elements */
+            nav, header, footer, .no-print {
+                display: none !important;
             }
         }
     </style>

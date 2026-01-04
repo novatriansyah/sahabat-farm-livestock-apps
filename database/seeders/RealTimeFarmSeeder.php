@@ -84,6 +84,10 @@ class RealTimeFarmSeeder extends Seeder
 
     protected function createPartners()
     {
+        // Internal Partner (SFI)
+        $this->partners['SFI'] = MasterPartner::create(['name' => 'Sahabat Farm Indonesia (Internal)', 'contact_info' => 'Admin SFI']);
+        
+        // External Investors
         $this->partners['A'] = MasterPartner::create(['name' => 'Investor Alpha (Breeding)', 'contact_info' => '08111111']);
         $this->partners['B'] = MasterPartner::create(['name' => 'Investor Beta (Fattening)', 'contact_info' => '08222222']);
     }
@@ -149,13 +153,18 @@ class RealTimeFarmSeeder extends Seeder
         foreach ($animals as $animal) {
             // 1. Growth (Weight Log)
             // Sires grow slow, Dams fluctuate, Cempe grows fast
-            $growth = 0;
-            if ($animal->physStatus->name == 'Cempe Lahir') $growth = rand(300, 500) / 30; // 300-500g/day
-            elseif ($animal->physStatus->name == 'Penggemukan - Siap Jual') $growth = rand(150, 300) / 30;
-            else $growth = rand(-50, 50) / 30; // Adults stable
+            $adgGrams = 0; // Daily gain in grams
+            if ($animal->physStatus->name == 'Cempe Lahir') $adgGrams = rand(150, 300); // 150-300g/day
+            elseif ($animal->physStatus->name == 'Penggemukan - Siap Jual') $adgGrams = rand(200, 400); // 200-400g/day
+            else $adgGrams = rand(-50, 50); // Adults stable/fluctuate
 
             $lastWeight = $animal->weightLogs()->latest('weigh_date')->first()->weight_kg ?? 30;
-            $newWeight = $lastWeight + ($growth * 30);
+            
+            $growthKgMonth = ($adgGrams / 1000) * 30;
+            $newWeight = $lastWeight + $growthKgMonth;
+
+            // Cap max weight to realistic 120kg
+            if ($newWeight > 120) $newWeight = 120 + (rand(-10, 10) / 10); // Hover around max
 
             WeightLog::create([
                 'animal_id' => $animal->id,
@@ -164,7 +173,7 @@ class RealTimeFarmSeeder extends Seeder
             ]);
 
             // Update ADG
-            $animal->update(['daily_adg' => $growth]);
+            $animal->update(['daily_adg' => $adgGrams]);
 
             // 2. Lifecycle Checks
             $ageMonths = $animal->birth_date->diffInMonths($this->currentDate);

@@ -31,6 +31,7 @@ class InvoiceController extends Controller
         // Optionally filter out those already sold.
         $animals = Animal::where('is_active', true)
             ->where('health_status', '!=', 'DECEASED')
+            ->with(['breed', 'latestWeightLog'])
             ->get();
 
         return view('invoices.create', compact('animals'));
@@ -44,9 +45,13 @@ class InvoiceController extends Controller
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_contact' => 'nullable|string|max:255',
+            'customer_address' => 'nullable|string',
             'issued_date' => 'required|date',
             'due_date' => 'nullable|after_or_equal:issued_date',
             'type' => 'required|in:PROFORMA,COMMERCIAL',
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
+            'additional_tax_rate' => 'nullable|numeric|min:0|max:100',
+            'down_payment' => 'nullable|numeric|min:0',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string',
             'items.*.quantity' => 'required|integer|min:1',
@@ -70,28 +75,45 @@ class InvoiceController extends Controller
             // Calculate Totals
             $subtotal = 0;
             foreach ($validated['items'] as $itemData) {
-                $subtotal += $itemData['quantity'] * $itemData['unit_price'];
+                $qty = isset($itemData['related_animal_id']) && $itemData['related_animal_id'] ? 1 : $itemData['quantity'];
+                $subtotal += $qty * $itemData['unit_price'];
             }
-            $total = $subtotal; // Add Tax/Discount logic here if needed
+
+            $taxRate = $validated['tax_rate'] ?? 0;
+            $addTaxRate = $validated['additional_tax_rate'] ?? 0;
+            
+            $taxAmount = $subtotal * ($taxRate / 100);
+            $addTaxAmount = $subtotal * ($addTaxRate / 100);
+            $totalTax = $taxAmount + $addTaxAmount;
+            
+            $total = $subtotal + $totalTax;
 
             $invoice = Invoice::create([
                 'invoice_number' => $number,
                 'customer_name' => $validated['customer_name'],
                 'customer_contact' => $validated['customer_contact'],
+                'customer_address' => $validated['customer_address'],
                 'status' => $validated['type'] === 'PROFORMA' ? 'DRAFT' : 'ISSUED',
                 'type' => $validated['type'],
                 'issued_date' => $validated['issued_date'],
                 'due_date' => $validated['due_date'] ?? null,
                 'subtotal' => $subtotal,
+                'tax_rate' => $taxRate,
+                'additional_tax_rate' => $addTaxRate,
+                'tax_amount' => $totalTax,
                 'total_amount' => $total,
+                'down_payment' => $validated['down_payment'] ?? 0,
             ]);
 
             foreach ($validated['items'] as $itemData) {
-                $itemSubtotal = $itemData['quantity'] * $itemData['unit_price'];
+                // Enforce Quantity 1 for Animals
+                $qty = isset($itemData['related_animal_id']) && $itemData['related_animal_id'] ? 1 : $itemData['quantity'];
+                
+                $itemSubtotal = $qty * $itemData['unit_price'];
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
                     'description' => $itemData['description'],
-                    'quantity' => $itemData['quantity'],
+                    'quantity' => $qty,
                     'unit_price' => $itemData['unit_price'],
                     'subtotal' => $itemSubtotal,
                     'related_animal_id' => $itemData['related_animal_id'] ?? null,
@@ -113,7 +135,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice): View
     {
-        $invoice->load('items.relatedAnimal');
+        $invoice->load(['items.relatedAnimal.breed', 'items.relatedAnimal.latestWeightLog']);
         return view('invoices.show', compact('invoice'));
     }
 

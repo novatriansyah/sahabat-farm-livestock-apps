@@ -115,8 +115,8 @@ class SimulationSeeder extends Seeder
                     $statusId = $idSiapJual; // Fattening
                 }
 
-                Animal::create([
-                    'tag_id' => 'TAG-' . strtoupper($faker->bothify('??####')),
+                $animal = Animal::create([
+                    'tag_id' => 'TAG-' . strtoupper($faker->unique()->bothify('??#####')), // Added # for more entropy
                     // 'name' => removed, column likely doesn't exist
                     'gender' => $gender,
                     'birth_date' => $birthDate,
@@ -130,7 +130,85 @@ class SimulationSeeder extends Seeder
                     'purchase_price' => rand(1000000, 3000000),
                     'partner_id' => $partner->id,
                     'daily_adg' => $faker->randomFloat(3, 0.1, 0.4),
-                    // 'initial_weight' => removed
+                ]);
+
+                // Create Initial Weight Log
+                \App\Models\WeightLog::create([
+                    'animal_id' => $animal->id,
+                    'weigh_date' => $birthDate, // Set to birth/entry date
+                    'weight_kg' => $weight,
+                ]);
+            }
+        } // Close Partner Loop
+
+        // 6. Generate Historical Data (Sales, Deaths, Expenses) for Dashboard Charts (Last 6 Months)
+        $this->command->info('Seeding Historical Data (6 Months)...');
+        $months = 6;
+        $items = \App\Models\InventoryItem::all();
+        // Fallback feed if empty
+        $feedItem = $items->where('category', 'FEED')->first() ?? \App\Models\InventoryItem::create(['name' => 'Konsentrat Simulation', 'category' => 'FEED', 'stock' => 1000]);
+
+        for ($i = $months; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i)->startOfMonth();
+            
+            // A. Expenses (Purchases)
+            for ($p = 0; $p < rand(3, 5); $p++) {
+                \App\Models\InventoryPurchase::create([
+                    'item_id' => $feedItem->id,
+                    'date' => $date->copy()->addDays(rand(1, 28)),
+                    'qty' => rand(10, 50),
+                    'price_total' => rand(10, 50) * 350000,
+                ]);
+            }
+
+            // B. Sales (Exits)
+            for ($s = 0; $s < rand(2, 10); $s++) {
+                $soldAnimal = Animal::create([
+                    'tag_id' => 'SOLD-' . $faker->unique()->bothify('??####'),
+                    'gender' => 'MALE',
+                    'birth_date' => $date->copy()->subMonths(12),
+                    'is_active' => false,
+                    'health_status' => 'SOLD',
+                    'partner_id' => MasterPartner::inRandomOrder()->first()->id ?? 1,
+                    'acquisition_type' => 'BRED',
+                    'breed_id' => $breeds[array_rand($breeds)] ?? 1,
+                    'category_id' => $sheepCatId,
+                    'current_location_id' => $locationIds[array_rand($locationIds)],
+                    'current_phys_status_id' => $idSiapJual,
+                ]);
+                
+                \App\Models\ExitLog::create([
+                    'animal_id' => $soldAnimal->id,
+                    'exit_date' => $date->copy()->addDays(rand(1, 28)),
+                    'exit_type' => 'SALE',
+                    'price' => rand(1500000, 3000000),
+                    'price' => rand(1500000, 3000000),
+                    'final_hpp' => 1000000,
+                ]);
+            }
+
+            // C. Deaths (Exits)
+            for ($d = 0; $d < rand(0, 3); $d++) {
+                $deadAnimal = Animal::create([
+                    'tag_id' => 'DIED-' . $faker->unique()->bothify('??####'),
+                    'gender' => rand(0,1) ? 'MALE' : 'FEMALE',
+                    'birth_date' => $date->copy()->subMonths(rand(1,6)),
+                    'is_active' => false,
+                    'health_status' => 'DECEASED',
+                    'partner_id' => MasterPartner::inRandomOrder()->first()->id ?? 1,
+                    'acquisition_type' => 'BRED',
+                    'breed_id' => $breeds[array_rand($breeds)] ?? 1,
+                    'category_id' => $sheepCatId,
+                    'current_location_id' => $locationIds[array_rand($locationIds)],
+                    'current_phys_status_id' => $idCempe,
+                ]);
+
+                \App\Models\ExitLog::create([
+                    'animal_id' => $deadAnimal->id,
+                    'exit_date' => $date->copy()->addDays(rand(1, 28)),
+                    'exit_type' => 'DEATH',
+                    'price' => 0,
+                    'final_hpp' => 500000,
                 ]);
             }
         }

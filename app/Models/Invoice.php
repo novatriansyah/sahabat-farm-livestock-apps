@@ -15,14 +15,18 @@ class Invoice extends Model
         'invoice_number',
         'customer_name',
         'customer_contact',
+        'customer_address',
         'status', // DRAFT, ISSUED, PAID, CANCELLED
         'type',   // PROFORMA, COMMERCIAL
         'issued_date',
         'due_date',
         'subtotal',
+        'tax_rate',
+        'additional_tax_rate',
         'tax_amount',
         'discount_amount',
         'total_amount',
+        'down_payment',
         'notes',
     ];
 
