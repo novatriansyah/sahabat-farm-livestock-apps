@@ -62,7 +62,7 @@ class PartnerController extends Controller
     {
         // Check if partner has animals
         if ($partner->animals()->exists()) {
-            return back()->withErrors(['msg' => 'Tidak dapat menghapus Mitra yang memiliki hewan ternak.']);
+            return back()->with('error', 'Tidak dapat menghapus Mitra yang memiliki hewan ternak. Harap pindahkan atau jual ternak terlebih dahulu.');
         }
 
         $partner->delete();
