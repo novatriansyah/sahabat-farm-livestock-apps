@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Animal;
 use App\Models\MasterBreed;
 use App\Models\BreedingEvent;
+use Illuminate\Support\Facades\Cache;
 
 class AnimalObserver
 {
@@ -15,6 +16,19 @@ class AnimalObserver
         if ($animal->isDirty('current_location_id')) {
             $this->checkBreedingSeparation($animal);
         }
+
+        // Cache Invalidation
+        $this->clearDashboardCache($animal);
+    }
+    
+    public function created(Animal $animal): void
+    {
+        $this->clearDashboardCache($animal);
+    }
+
+    public function deleted(Animal $animal): void
+    {
+        $this->clearDashboardCache($animal);
     }
 
     public function saving(Animal $animal): void
@@ -86,5 +100,16 @@ class AnimalObserver
 
         // Other breeds
         return 'Hijau';
+    }
+
+    private function clearDashboardCache(Animal $animal): void
+    {
+        // Clear Global Cache
+        Cache::forget('dashboard_stats_global');
+
+        // Clear Partner Cache if exists
+        if ($animal->partner_id) {
+            Cache::forget('dashboard_stats_' . $animal->partner_id);
+        }
     }
 }

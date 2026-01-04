@@ -2,8 +2,18 @@
    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
       <ul class="space-y-2 font-medium">
 
-         <!-- Managerial Routes (OWNER & BREEDER) -->
-         @if(Auth::user()->role == 'OWNER' || Auth::user()->role == 'BREEDER')
+         <!-- Dashboard Logic -->
+         @if(Auth::user()->role == 'PARTNER')
+         <li>
+            <a href="{{ route('partner.dashboard') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                  <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
+                  <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
+               </svg>
+               <span class="ms-3">Beranda (Partner)</span>
+            </a>
+         </li>
+         @elseif(Auth::user()->role == 'OWNER' || Auth::user()->role == 'BREEDER')
          <li>
             <a href="{{ route('dashboard') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
@@ -13,6 +23,10 @@
                <span class="ms-3">Beranda (Dashboard)</span>
             </a>
          </li>
+         @endif
+
+         <!-- Shared Routes (OWNER, BREEDER, PARTNER) -->
+         @if(in_array(Auth::user()->role, ['OWNER', 'BREEDER', 'PARTNER']))
          <li>
             <a href="{{ route('animals.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
@@ -22,6 +36,18 @@
             </a>
          </li>
          <li>
+            <a href="{{ route('reports.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5 2a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2Z"/>
+               </svg>
+               <span class="flex-1 ms-3 whitespace-nowrap">Laporan (Reports)</span>
+            </a>
+         </li>
+         @endif
+
+         <!-- Managerial Routes (OWNER & BREEDER) - Inventory & Invoices -->
+         @if(in_array(Auth::user()->role, ['OWNER', 'BREEDER']))
+         <li>
             <a href="{{ route('inventory.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                   <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.166 16.003V16a1 1 0 0 0 .935.997h15.798a1 1 0 0 0 .935-.997V16l-.834-10.077ZM7 4a2 2 0 1 1 4 0v1H7V4Z"/>
@@ -29,9 +55,17 @@
                <span class="flex-1 ms-3 whitespace-nowrap">Gudang & Pakan</span>
             </a>
          </li>
+         <li>
+            <a href="{{ route('invoices.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v4M5 7h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Zm4 14v-4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4" />
+               </svg>
+               <span class="flex-1 ms-3 whitespace-nowrap">Keuangan (Invoices)</span>
+            </a>
+         </li>
          @endif
 
-         <!-- Admin Routes (OWNER ONLY) -->
+         <!-- Owner Only: Users & Masters (Partners, Settings) -->
          @if(Auth::user()->role == 'OWNER')
          <li>
             <a href="{{ route('masters.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
@@ -47,14 +81,6 @@
                   <path d="M13.333 12.667a2.667 2.667 0 1 0 0-5.333 2.667 2.667 0 0 0 0 5.333ZM13.333 14c-2.4 0-4.667 1.2-4.667 3.6V18h9.334v-.4c0-2.4-2.267-3.6-4.667-3.6ZM6.667 12.667a2.667 2.667 0 1 0 0-5.333 2.667 2.667 0 0 0 0 5.333ZM6.667 14c-2.4 0-4.667 1.2-4.667 3.6V18h4.667v-.4c0-2.4-2.267-3.6-4.667-3.6Z"/>
                </svg>
                <span class="flex-1 ms-3 whitespace-nowrap">Mitra (Partners)</span>
-            </a>
-         </li>
-         <li>
-            <a href="{{ route('reports.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5 2a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2Z"/>
-               </svg>
-               <span class="flex-1 ms-3 whitespace-nowrap">Laporan (Reports)</span>
             </a>
          </li>
          <li>

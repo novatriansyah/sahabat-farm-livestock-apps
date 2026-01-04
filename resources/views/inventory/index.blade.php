@@ -79,11 +79,11 @@
                         </div>
                         <div>
                             <label for="qty_used" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jumlah Dipakai</label>
-                            <input type="number" name="qty_used" id="qty_used" step="0.1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                            <input type="number" name="qty_used" id="qty_used" step="0.1" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
                         </div>
                         <div>
                             <label for="qty_wasted" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jumlah Terbuang/Rusak</label>
-                            <input type="number" name="qty_wasted" id="qty_wasted" step="0.1" value="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                            <input type="number" name="qty_wasted" id="qty_wasted" step="0.1" min="0" value="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
                         </div>
                         <div>
                              <label for="usage_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal</label>
@@ -122,11 +122,11 @@
                         </div>
                         <div>
                             <label for="qty" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jumlah Beli</label>
-                            <input type="number" name="qty" id="qty" step="0.1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                            <input type="number" name="qty" id="qty" step="0.1" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
                         </div>
                         <div>
                             <label for="price_total" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Total Harga (Rp)</label>
-                            <input type="number" name="price_total" id="price_total" step="1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                            <input type="number" name="price_total" id="price_total" step="1" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
                         </div>
                         <div>
                              <label for="purchase_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal</label>

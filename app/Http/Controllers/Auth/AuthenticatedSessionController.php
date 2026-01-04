@@ -38,6 +38,10 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('scan.index');
             }
 
+            if ($role === 'PARTNER') {
+                return redirect()->route('partner.dashboard');
+            }
+
             // OWNER and BREEDER go to Dashboard
             return redirect()->intended('dashboard');
         }

@@ -11,6 +11,7 @@ class TreatmentLog extends Model
 
     protected $casts = [
         'treatment_date' => 'date',
+        'next_due_date' => 'date',
     ];
 
     public function animal(): BelongsTo

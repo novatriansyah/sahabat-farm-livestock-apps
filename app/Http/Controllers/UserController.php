@@ -18,9 +18,19 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('users.create');
+        // Only show partners who don't have a user account yet
+        // OR allow the pre-selected one (even if strict check says otherwise, logically it shouldn't have one if link is shown)
+        
+        $partners = \App\Models\MasterPartner::doesntHave('user')->get();
+        // If we have a preselected partner that DOESNT appear in the list (rare race condition or list logic), 
+        // strictly speaking we might want to fetch it to append it, but doesn'tHave('user') matches the button logic.
+        
+        $preselectedRole = $request->query('role', '');
+        $preselectedPartnerId = $request->query('partner_id', '');
+        
+        return view('users.create', compact('partners', 'preselectedRole', 'preselectedPartnerId'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -29,7 +39,8 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:OWNER,STAFF,BREEDER'],
+            'role' => ['required', 'in:OWNER,STAFF,BREEDER,PARTNER'],
+            'partner_id' => ['nullable', 'exists:master_partners,id'],
         ]);
 
         $user = User::create([
@@ -37,6 +48,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'partner_id' => $request->role === 'PARTNER' ? $request->partner_id : null,
         ]);
 
         event(new Registered($user));
@@ -46,7 +58,8 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        return view('users.edit', compact('user'));
+        $partners = \App\Models\MasterPartner::all();
+        return view('users.edit', compact('user', 'partners'));
     }
 
     public function update(Request $request, User $user): RedirectResponse
@@ -54,7 +67,8 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'role' => ['required', 'in:OWNER,STAFF,BREEDER'],
+            'role' => ['required', 'in:OWNER,STAFF,BREEDER,PARTNER'],
+            'partner_id' => ['nullable', 'exists:master_partners,id'],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -62,6 +76,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
+            'partner_id' => $validated['role'] === 'PARTNER' ? $validated['partner_id'] : null,
         ]);
 
         if ($request->filled('password')) {

@@ -15,239 +15,90 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index(): View
+    public function index(Request $request, \App\Services\DashboardService $dashboardService)
     {
-        // 1. Live Population (Total & By Cage)
-        $activeAnimals = Animal::where('is_active', true)->count();
-        $populationByCage = MasterLocation::withCount(['animals' => function ($query) {
-            $query->where('is_active', true);
-        }])->get();
+        $filterPartnerId = $request->input('partner_id');
+        $partners = \App\Models\MasterPartner::all();
 
-        // 2. Growth Performance (Avg ADG)
-        $avgAdg = Animal::where('is_active', true)->avg('daily_adg');
+        // Delegate logic to Service
+        $data = $dashboardService->getDashboardData($filterPartnerId);
+        
+        // Extract for easier usage in AJAX block below
+        extract($data);
 
-        // 3. Financials
-        // Total Estimated Asset Value
-        $totalStockValue = InventoryItem::sum(DB::raw('current_stock * (SELECT AVG(price_total/qty) FROM inventory_purchases WHERE item_id = inventory_items.id)'));
-        if (!$totalStockValue) $totalStockValue = 0;
+        if ($request->ajax()) {
+            // Return ONLY what the JS needs to avoid circular reference issues with Eloquent Models
+            // OPTIMIZED JSON PAYLOAD (Type Casting)
+            $ajaxData = [
+                'activeAnimals' => (int) $activeAnimals,
+                'avgAdg' => round((float) $avgAdg, 3),
+                'salesThisMonth' => (float) $salesThisMonth,
+                'netProfit' => (float) $netProfit,
+                'feedUsage' => round((float) $feedUsage, 1),
+                'medicineCost' => (float) $medicineCost,
+                'deathCount' => (int) $deathCount,
+                'deathValue' => (float) $deathValue,
+                'liveMale' => (int) $liveMale,
+                'liveFemale' => (int) $liveFemale,
+                'deadMale' => (int) $deadMale,
+                'deadFemale' => (int) $deadFemale,
+                
+                // Chart Data (Ensure numeric arrays)
+                'demographicsLabels' => $demographicsLabels,
+                'demographicsData' => array_map('intval', $demographicsData),
+                'financialLabels' => $financialLabels,
+                'financialRevenue' => array_map('floatval', $financialRevenue),
+                'financialLoss' => array_map('floatval', $financialLoss),
+                'mortalityTrendLabels' => $mortalityTrendLabels,
+                'mortalityTrendData' => array_map('intval', $mortalityTrendData),
+                'expenseLabels' => $expenseLabels,
+                'expenseData' => array_map('floatval', $expenseData),
+                'biomassLabels' => $biomassLabels,
+                'biomassDataMale' => array_map('floatval', $biomassDataMale),
+                'biomassDataFemale' => array_map('floatval', $biomassDataFemale),
+                'biomassDataKids' => array_map('floatval', $biomassDataKids),
 
-        // Sales This Month
-        $salesThisMonth = ExitLog::where('exit_type', 'SALE')
-            ->whereMonth('exit_date', Carbon::now()->month)
-            ->whereYear('exit_date', Carbon::now()->year)
-            ->sum('price');
+                // Dynamic Alerts (formatted for JS)
+                'vaccineAlerts' => $vaccineAlerts->map(function($log) {
+                    return [
+                        'tag_id' => $log->animal->tag_id,
+                        'notes' => $log->notes,
+                        'date' => $log->next_due_date->format('d M')
+                    ];
+                }),
+                'weaningAlerts' => $weaningAlerts->map(function($animal) {
+                    return [
+                        'tag_id' => $animal->tag_id,
+                        'age_days' => number_format($animal->birth_date->diffInDays(now()), 0),
+                        'location' => $animal->location->name ?? '-'
+                    ];
+                }),
+                'separationCandidates' => $separationCandidates->map(function($animal) {
+                    return [
+                        'tag_id' => $animal->tag_id,
+                        'age_months' => number_format($animal->birth_date->floatDiffInMonths(now()), 1)
+                    ];
+                }),
+                'matingSeparationCandidates' => $matingSeparationCandidates->map(function($event) {
+                    return [
+                        'dam_tag' => $event->dam->tag_id,
+                        'sire_tag' => $event->sire->tag_id,
+                        'date' => $event->mating_date->format('d M Y')
+                    ];
+                }),
+                'lowStockItems' => collect($lowStockItems)->map(function($item) {
+                     return [
+                        'name' => $item->name,
+                        'stock' => $item->current_stock,
+                        'unit' => $item->unit
+                     ];
+                }),
+            ];
 
-        // Net Profit This Month
-        $exits = ExitLog::where('exit_type', 'SALE')
-            ->whereMonth('exit_date', Carbon::now()->month)
-            ->whereYear('exit_date', Carbon::now()->year)
-            ->with('animal')
-            ->get();
-
-        $netProfit = 0;
-        foreach ($exits as $exit) {
-            $purchasePrice = $exit->animal->purchase_price ?? 0;
-            // final_hpp in ExitLog is snapshot of current_hpp (Feed+Meds)
-            $cost = $purchasePrice + $exit->final_hpp;
-            $netProfit += ($exit->price - $cost);
+            return response()->json($ajaxData);
         }
 
-        // 4. Low Stock Alerts
-        $lowStockItems = InventoryItem::where('current_stock', '<', 10)->get();
-
-        // 5. Conception Rate (Updated Formula)
-        // (Successful Pregnancies / (Total Completed Breedings - Pending)) * 100
-        // Denominator should explicitly be SUCCESS + FAILED.
-        // We do NOT count PENDING or COMPLETED (waiting for check) in the stats yet.
-        $successfulBreeding = BreedingEvent::where('status', 'SUCCESS')->count();
-        $failedBreeding = BreedingEvent::where('status', 'FAILED')->count();
-
-        $totalCompleted = $successfulBreeding + $failedBreeding;
-        $conceptionRate = $totalCompleted > 0 ? ($successfulBreeding / $totalCompleted) * 100 : 0;
-
-        // 6. Full Performance Stats
-        // Feed Usage This Month (kg)
-        $feedUsage = InventoryUsageLog::whereHas('item', function($q) {
-                $q->where('category', 'FEED');
-            })
-            ->whereMonth('usage_date', Carbon::now()->month)
-            ->sum('qty_used');
-
-        // Medicine Usage Cost This Month (Est)
-        $medicineLogs = InventoryUsageLog::whereHas('item', function($q) {
-                $q->whereIn('category', ['MEDICINE', 'VITAMIN', 'VACCINE']);
-            })
-            ->whereMonth('usage_date', Carbon::now()->month)
-            ->with('item')
-            ->get();
-
-        $medicineCost = 0;
-        foreach ($medicineLogs as $log) {
-            $avgPrice = DB::table('inventory_purchases')
-                ->where('item_id', $log->item_id)
-                ->selectRaw('SUM(price_total) / SUM(qty) as avg_price')
-                ->value('avg_price') ?? 0;
-
-            $medicineCost += ($log->qty_used + $log->qty_wasted) * $avgPrice;
-        }
-
-        // Mortality Stats This Month
-        $deathCount = ExitLog::where('exit_type', 'DEATH')
-            ->whereMonth('exit_date', Carbon::now()->month)
-            ->count();
-
-        // Lost Asset Value (Purchase Price + Accumulated Costs)
-        $deathValue = 0;
-        $deadAnimals = ExitLog::where('exit_type', 'DEATH')
-            ->whereMonth('exit_date', Carbon::now()->month)
-            ->with('animal')
-            ->get();
-
-        foreach ($deadAnimals as $log) {
-            $deathValue += ($log->animal->purchase_price ?? 0) + $log->final_hpp;
-        }
-
-        // 7. Breakdown by Sex (Live)
-        $liveMale = Animal::where('is_active', true)->where('gender', 'MALE')->count();
-        $liveFemale = Animal::where('is_active', true)->where('gender', 'FEMALE')->count();
-
-        // 8. Breakdown by Sex (Dead - This Month)
-        $deadMale = ExitLog::where('exit_type', 'DEATH')
-            ->whereMonth('exit_date', Carbon::now()->month)
-            ->whereHas('animal', function($q) { $q->where('gender', 'MALE'); })
-            ->count();
-        $deadFemale = ExitLog::where('exit_type', 'DEATH')
-            ->whereMonth('exit_date', Carbon::now()->month)
-            ->whereHas('animal', function($q) { $q->where('gender', 'FEMALE'); })
-            ->count();
-
-        // 9. Separation Alerts (Pisah Koloni)
-        // Update check for 'Cempe Lahir' instead of 'Cempe' due to translation update
-        $separationCandidates = Animal::where('is_active', true)
-            ->whereDate('birth_date', '<=', Carbon::now()->subDays(60))
-            ->whereHas('physStatus', function($q) {
-                // We use LIKE or multiple checks to be safe, but exact name 'Cempe Lahir' is target.
-                $q->where('name', 'Cempe Lahir');
-            })
-            ->get();
-
-        // 10. Mating Separation Alerts (Pisah Pejantan)
-        $matingSeparationCandidates = BreedingEvent::where('status', 'PENDING')
-             ->whereDate('mating_date', '<=', Carbon::now()->subDays(60))
-             ->with(['dam', 'sire'])
-             ->get();
-
-        // --- NEW CHARTS DATA ---
-
-        // A. Mortality Trend (Last 6 Months)
-        $mortalityTrendLabels = [];
-        $mortalityTrendData = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $monthName = $date->format('M Y');
-            $count = ExitLog::where('exit_type', 'DEATH')
-                ->whereMonth('exit_date', $date->month)
-                ->whereYear('exit_date', $date->year)
-                ->count();
-            $mortalityTrendLabels[] = $monthName;
-            $mortalityTrendData[] = $count;
-        }
-
-        // B. Financial Summary (Last 6 Months: Sales Revenue vs Death Loss)
-        $financialLabels = [];
-        $financialRevenue = [];
-        $financialLoss = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $financialLabels[] = $date->format('M Y');
-
-            // Revenue
-            $rev = ExitLog::where('exit_type', 'SALE')
-                ->whereMonth('exit_date', $date->month)
-                ->whereYear('exit_date', $date->year)
-                ->sum('price');
-            $financialRevenue[] = $rev;
-
-            // Loss
-            $loss = 0;
-            $deaths = ExitLog::where('exit_type', 'DEATH')
-                ->whereMonth('exit_date', $date->month)
-                ->whereYear('exit_date', $date->year)
-                ->with('animal')
-                ->get();
-            foreach ($deaths as $d) {
-                $loss += ($d->animal->purchase_price ?? 0) + $d->final_hpp;
-            }
-            $financialLoss[] = $loss;
-        }
-
-        // C. Population Demographics (Pie Chart)
-        $demographics = Animal::where('is_active', true)
-            ->join('master_phys_statuses', 'animals.current_phys_status_id', '=', 'master_phys_statuses.id')
-            ->select('master_phys_statuses.name', DB::raw('count(*) as total'))
-            ->groupBy('master_phys_statuses.name')
-            ->pluck('total', 'name')
-            ->toArray();
-        $demographicsLabels = array_keys($demographics);
-        $demographicsData = array_values($demographics);
-
-        // D. Expense Breakdown (This Month: Feed vs Medicine vs Others)
-        // Feed Cost this month
-        // We can estimate from usage logs logic
-        // Feed:
-        $feedLogs = InventoryUsageLog::whereHas('item', function($q) {
-            $q->where('category', 'FEED');
-        })->whereMonth('usage_date', Carbon::now()->month)->get();
-
-        $totalFeedCost = 0;
-        // Simple cache for prices to avoid N+1 inside loop (basic optimization)
-        $priceCache = [];
-        foreach ($feedLogs as $log) {
-            if (!isset($priceCache[$log->item_id])) {
-                $priceCache[$log->item_id] = DB::table('inventory_purchases')
-                    ->where('item_id', $log->item_id)
-                    ->selectRaw('SUM(price_total) / SUM(qty) as avg_price')
-                    ->value('avg_price') ?? 0;
-            }
-            $totalFeedCost += ($log->qty_used + $log->qty_wasted) * $priceCache[$log->item_id];
-        }
-
-        // Medicine Cost (Already calculated as $medicineCost)
-        $totalMedicineCost = $medicineCost;
-
-        // Operational/Other? We don't have operational cost module yet. Just Feed vs Meds.
-        $expenseLabels = ['Pakan (Feed)', 'Obat & Vitamin'];
-        $expenseData = [$totalFeedCost, $totalMedicineCost];
-
-        return view('dashboard', [
-            'activeAnimals' => $activeAnimals,
-            'populationByCage' => $populationByCage,
-            'avgAdg' => $avgAdg,
-            'totalStockValue' => $totalStockValue,
-            'salesThisMonth' => $salesThisMonth,
-            'netProfit' => $netProfit,
-            'lowStockItems' => $lowStockItems,
-            'conceptionRate' => $conceptionRate,
-            'feedUsage' => $feedUsage,
-            'medicineCost' => $medicineCost,
-            'deathCount' => $deathCount,
-            'deathValue' => $deathValue,
-            'liveMale' => $liveMale,
-            'liveFemale' => $liveFemale,
-            'deadMale' => $deadMale,
-            'deadFemale' => $deadFemale,
-            'separationCandidates' => $separationCandidates,
-            'matingSeparationCandidates' => $matingSeparationCandidates,
-            // Chart Data
-            'mortalityTrendLabels' => $mortalityTrendLabels,
-            'mortalityTrendData' => $mortalityTrendData,
-            'financialLabels' => $financialLabels,
-            'financialRevenue' => $financialRevenue,
-            'financialLoss' => $financialLoss,
-            'demographicsLabels' => $demographicsLabels,
-            'demographicsData' => $demographicsData,
-            'expenseLabels' => $expenseLabels,
-            'expenseData' => $expenseData,
-        ]);
+        return view('dashboard', array_merge($data, ['partners' => $partners]));
     }
+
 }

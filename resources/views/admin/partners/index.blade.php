@@ -21,6 +21,12 @@
                     <td class="px-6 py-4">{{ $partner->contact_info ?? '-' }}</td>
                     <td class="px-6 py-4">{{ $partner->animals_count ?? $partner->animals()->count() }}</td>
                     <td class="px-6 py-4 flex space-x-2">
+                        @if(!$partner->user)
+                            <a href="{{ route('users.create', ['role' => 'PARTNER', 'partner_id' => $partner->id]) }}" class="font-medium text-green-600 dark:text-green-500 hover:underline">Buat User</a>
+                        @else
+                            <span class="text-xs font-semibold px-2 py-1 rounded bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300">User Active</span>
+                        @endif
+
                         <a href="{{ route('partners.show', $partner) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detail</a>
                         <a href="{{ route('partners.edit', $partner) }}" class="font-medium text-yellow-600 dark:text-yellow-500 hover:underline">Edit</a>
                         <form action="{{ route('partners.destroy', $partner) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus mitra ini?');">

@@ -69,6 +69,11 @@
                 </div>
                 <div id="myTabContent">
                     <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="weight" role="tabpanel" aria-labelledby="weight-tab">
+                        <!-- Chart Container -->
+                        <div class="mb-6 bg-white p-4 rounded-lg shadow-sm dark:bg-gray-700">
+                            <canvas id="individualWeightChart" height="100"></canvas>
+                        </div>
+                        
                         <div class="relative overflow-x-auto">
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
@@ -116,4 +121,43 @@
             </div>
         </div>
     </div>
+
+    <!-- Chart JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('individualWeightChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: @json($weightLabels),
+                        datasets: [{
+                            label: 'Bobot (kg)',
+                            data: @json($weightData),
+                            borderColor: '#1A56DB', // Blue 600
+                            backgroundColor: 'rgba(26, 86, 219, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#1A56DB',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: false, // Weight usually doesn't drop to 0
+                                title: { display: true, text: 'Kg' }
+                            },
+                             x: {
+                                title: { display: true, text: 'Tanggal Timbang' }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </x-app-layout>

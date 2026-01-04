@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <label for="initial_weight" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Berat Lahir (kg)</label>
-                    <input type="number" id="initial_weight" name="initial_weight" step="0.01" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                    <input type="number" id="initial_weight" name="initial_weight" step="0.01" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
                  <div>
                     <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ras (Breed)</label>

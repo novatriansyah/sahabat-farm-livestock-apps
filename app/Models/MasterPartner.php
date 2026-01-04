@@ -15,4 +15,9 @@ class MasterPartner extends Model
     {
         return $this->hasMany(Animal::class, 'partner_id');
     }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'partner_id');
+    }
 }
