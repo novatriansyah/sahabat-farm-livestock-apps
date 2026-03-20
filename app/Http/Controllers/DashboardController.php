@@ -32,6 +32,7 @@ class DashboardController extends Controller
             $ajaxData = [
                 'activeAnimals' => (int) $activeAnimals,
                 'avgAdg' => round((float) $avgAdg, 3),
+                'avgHpp' => round((float) $avgHpp, 2),
                 'salesThisMonth' => (float) $salesThisMonth,
                 'netProfit' => (float) $netProfit,
                 'feedUsage' => round((float) $feedUsage, 1),

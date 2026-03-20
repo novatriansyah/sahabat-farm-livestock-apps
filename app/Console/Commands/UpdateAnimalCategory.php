@@ -58,7 +58,7 @@ class UpdateAnimalCategory extends Command
             // Note: SICK, QUARANTINE, ISOLATION might be in health_status Enum or PhysStatus.
             // PhysStatus 'Karantina' exists.
             $currentStatusName = $animal->physStatus->name ?? '';
-            if (in_array($currentStatusName, ['SICK', 'Karantina', 'ISOLATION'])) {
+            if (in_array($currentStatusName, ['SAKIT', 'Karantina', 'KARANTINA'])) {
                 continue;
             }
 

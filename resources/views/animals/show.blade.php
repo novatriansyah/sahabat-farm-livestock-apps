@@ -3,10 +3,10 @@
         <div class="mb-4 flex items-center justify-between">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Detail Ternak</h2>
             <div class="flex gap-2">
-                <a href="{{ route('animals.edit', $animal->id) }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Edit</a>
+                <a href="{{ route('animals.edit', $animal->id) }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Ubah</a>
                 <a href="{{ route('animals.print', $animal->id) }}" target="_blank" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Cetak QR</a>
                 @if($animal->is_active)
-                    <a href="{{ route('animals.exit.create', $animal->id) }}" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">Exit (Jual/Mati)</a>
+                    <a href="{{ route('animals.exit.create', $animal->id) }}" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800">Keluar (Jual/Mati)</a>
                 @endif
             </div>
         </div>
@@ -16,17 +16,21 @@
             <div class="md:col-span-1 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-6">
                 <div class="flex flex-col items-center pb-10">
                     @if($animal->photos->count() > 0)
-                        <img class="w-24 h-24 mb-3 rounded-full shadow-lg object-cover" src="{{ Storage::url($animal->photos->last()->photo_url) }}" alt="Animal Photo"/>
+                        <div class="flex overflow-x-auto space-x-2 pb-2 mb-3 w-full snap-x">
+                            @foreach($animal->photos as $photo)
+                                <img class="w-24 h-24 rounded-full shadow-lg object-cover flex-shrink-0 snap-center" src="{{ Storage::url($photo->photo_url) }}" alt="Animal Photo"/>
+                            @endforeach
+                        </div>
                     @else
                         <div class="w-24 h-24 mb-3 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
                             <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                         </div>
                     @endif
                     <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{ $animal->tag_id }}</h5>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $animal->breed->name }} ({{ $animal->gender == 'MALE' ? 'Jantan' : 'Betina' }})</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $animal->breed->name }} ({{ $animal->gender == 'JANTAN' ? 'Jantan' : 'Betina' }})</span>
 
                     <div class="mt-4 flex space-x-3 md:mt-6">
-                        @if($animal->health_status == 'HEALTHY')
+                        @if($animal->health_status == 'SEHAT')
                             <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Sehat</span>
                         @else
                             <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">{{ $animal->health_status }}</span>
@@ -64,6 +68,15 @@
                         </li>
                         <li class="mr-2" role="presentation">
                             <button class="inline-block p-4 border-b-2 rounded-t-lg" id="health-tab" data-tabs-target="#health" type="button" role="tab" aria-controls="health" aria-selected="false">Riwayat Kesehatan</button>
+                        </li>
+                        <li class="mr-2" role="presentation">
+                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="tag-tab" data-tabs-target="#tag" type="button" role="tab" aria-controls="tag" aria-selected="false">Riwayat Tag</button>
+                        </li>
+                        <li class="mr-2" role="presentation">
+                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="ownership-tab" data-tabs-target="#ownership" type="button" role="tab" aria-controls="ownership" aria-selected="false">Kepemilikan</button>
+                        </li>
+                        <li role="presentation">
+                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="offspring-tab" data-tabs-target="#offspring" type="button" role="tab" aria-controls="offspring" aria-selected="false">Keturunan</button>
                         </li>
                     </ul>
                 </div>
@@ -113,6 +126,92 @@
                                         <td class="px-6 py-4">{{ $log->notes }}</td>
                                     </tr>
                                     @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="tag" role="tabpanel" aria-labelledby="tag-tab">
+                        <div class="relative overflow-x-auto">
+                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Tanggal Ganti</th>
+                                        <th scope="col" class="px-6 py-3">Tag Lama</th>
+                                        <th scope="col" class="px-6 py-3">Tag Baru</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($animal->earTagLogs()->orderByDesc('changed_at')->get() as $log)
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td class="px-6 py-4">{{ $log->changed_at->format('d M Y') }}</td>
+                                        <td class="px-6 py-4 text-red-500">{{ $log->old_tag_id }}</td>
+                                        <td class="px-6 py-4 text-green-500 font-bold">{{ $log->new_tag_id }}</td>
+                                    </tr>
+                                    @endforeach
+                                    @if($animal->earTagLogs->isEmpty())
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td colspan="3" class="px-6 py-4 text-center">Belum ada riwayat pergantian tag</td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="ownership" role="tabpanel" aria-labelledby="ownership-tab">
+                        <div class="relative overflow-x-auto">
+                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Tanggal Ganti</th>
+                                        <th scope="col" class="px-6 py-3">Pemilik Lama</th>
+                                        <th scope="col" class="px-6 py-3">Pemilik Baru</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($animal->ownershipLogs()->orderByDesc('changed_at')->get() as $log)
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td class="px-6 py-4">{{ $log->changed_at->format('d M Y') }}</td>
+                                        <td class="px-6 py-4">{{ $log->oldPartner->name ?? 'Internal SFI' }}</td>
+                                        <td class="px-6 py-4 font-bold">{{ $log->newPartner->name ?? 'Internal SFI' }}</td>
+                                    </tr>
+                                    @endforeach
+                                    @if($animal->ownershipLogs->isEmpty())
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td colspan="3" class="px-6 py-4 text-center">Belum ada riwayat pergantian kepemilikan</td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="offspring" role="tabpanel" aria-labelledby="offspring-tab">
+                        <div class="relative overflow-x-auto">
+                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Tag Keturunan</th>
+                                        <th scope="col" class="px-6 py-3">Tanggal Lahir</th>
+                                        <th scope="col" class="px-6 py-3">Jenis Kelamin</th>
+                                        <th scope="col" class="px-6 py-3">Status Saat Ini</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($animal->offspring()->orderByDesc('birth_date')->get() as $child)
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td class="px-6 py-4 font-bold"><a href="{{ route('animals.show', $child->id) }}" class="text-blue-600 hover:underline">{{ $child->tag_id }}</a></td>
+                                        <td class="px-6 py-4">{{ $child->birth_date->format('d M Y') }}</td>
+                                        <td class="px-6 py-4">{{ $child->gender == 'JANTAN' ? 'Jantan' : 'Betina' }}</td>
+                                        <td class="px-6 py-4">{{ $child->physStatus->name ?? '-' }}</td>
+                                    </tr>
+                                    @endforeach
+                                    @if($animal->offspring->isEmpty())
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td colspan="4" class="px-6 py-4 text-center">Belum ada catatan keturunan</td>
+                                    </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>

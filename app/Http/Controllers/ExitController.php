@@ -19,17 +19,17 @@ class ExitController extends Controller
     public function store(Request $request, Animal $animal): RedirectResponse
     {
         if (!$animal->is_active) {
-            return redirect()->route('animals.index')->with('error', 'Animal is already exited.');
+            return redirect()->route('animals.index')->with('error', 'Ternak sudah keluar.');
         }
 
         $validated = $request->validate([
-            'exit_type' => 'required|in:SALE,DEATH',
+            'exit_type' => 'required|in:JUAL,MATI',
             'exit_date' => 'required|date',
             'price' => 'nullable|numeric|min:0', // Required if SALE
             'notes' => 'nullable|string',
         ]);
 
-        if ($validated['exit_type'] === 'SALE' && empty($validated['price'])) {
+        if ($validated['exit_type'] === 'JUAL' && empty($validated['price'])) {
             return back()->withErrors(['price' => 'Price is required for sales.']);
         }
 
@@ -45,7 +45,7 @@ class ExitController extends Controller
             ExitLog::create([
                 'animal_id' => $animal->id,
                 'exit_date' => $validated['exit_date'],
-                'exit_type' => $validated['exit_type'] === 'SALE' ? 'SALE' : 'DEATH',
+                'exit_type' => $validated['exit_type'] === 'JUAL' ? 'JUAL' : 'MATI',
                 'price' => $validated['price'] ?? 0,
                 'final_hpp' => $finalHpp,
             ]);
@@ -53,10 +53,10 @@ class ExitController extends Controller
             // Update Animal Status
             $animal->update([
                 'is_active' => false,
-                'health_status' => $validated['exit_type'] === 'SALE' ? 'SOLD' : 'DECEASED',
+                'health_status' => $validated['exit_type'] === 'JUAL' ? 'TERJUAL' : 'MATI',
             ]);
         });
 
-        return redirect()->route('animals.index')->with('success', 'Animal exit registered successfully.');
+        return redirect()->route('animals.index')->with('success', 'Kematian/Penjualan ternak berhasil dicatat.');
     }
 }

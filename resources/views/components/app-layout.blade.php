@@ -36,7 +36,7 @@
 
     @include('layouts.sidebar')
 
-    <div class="p-4 sm:ml-64">
+    <div class="sm:ml-64">
         <div class="p-4 mt-14">
             @if(session('success'))
                 <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
@@ -59,8 +59,9 @@
                 </div>
             @endif
             
-            <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-            {{ $slot }}
+            <div class="mt-2">
+                {{ $slot }}
+            </div>
         </div>
     </div>
 

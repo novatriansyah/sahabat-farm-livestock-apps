@@ -1,12 +1,12 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800">
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Edit User: {{ $user->name }}</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Ubah User: {{ $user->name }}</h2>
         <form action="{{ route('users.update', $user->id) }}" method="POST">
             @csrf
             @method('PUT')
             <div class="grid gap-6 mb-6 md:grid-cols-1">
                 <div>
-                    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama</label>
                     <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                     @error('name')
                         <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
@@ -22,15 +22,15 @@
                 <div>
                     <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role</label>
                     <select id="role" name="role" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        <option value="STAFF" {{ $user->role == 'STAFF' ? 'selected' : '' }}>Staff (Operator)</option>
-                        <option value="BREEDER" {{ $user->role == 'BREEDER' ? 'selected' : '' }}>Breeder</option>
-                        <option value="OWNER" {{ $user->role == 'OWNER' ? 'selected' : '' }}>Owner (Manager)</option>
-                        <option value="PARTNER" {{ $user->role == 'PARTNER' ? 'selected' : '' }}>Partner (Investor)</option>
+                        <option value="STAF" {{ $user->role == 'STAF' ? 'selected' : '' }}>Staff (Operator)</option>
+                        <option value="PETERNAK" {{ $user->role == 'PETERNAK' ? 'selected' : '' }}>Breeder</option>
+                        <option value="PEMILIK" {{ $user->role == 'PEMILIK' ? 'selected' : '' }}>Owner (Manager)</option>
+                        <option value="MITRA" {{ $user->role == 'MITRA' ? 'selected' : '' }}>Partner (Investor)</option>
                     </select>
                 </div>
 
                 <!-- Partner Select (Hidden by Default) -->
-                <div id="partner-select-wrapper" style="display: {{ $user->role === 'PARTNER' ? 'block' : 'none' }};">
+                <div id="partner-select-wrapper" style="display: {{ $user->role === 'MITRA' ? 'block' : 'none' }};">
                     <label for="partner_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Assign Partner Profile</label>
                     <select id="partner_id" name="partner_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         <option value="">Select Partner entity...</option>
@@ -43,7 +43,7 @@
                 <script>
                     document.getElementById('role').addEventListener('change', function() {
                         const wrapper = document.getElementById('partner-select-wrapper');
-                        wrapper.style.display = (this.value === 'PARTNER') ? 'block' : 'none';
+                        wrapper.style.display = (this.value === 'MITRA') ? 'block' : 'none';
                     });
                 </script>
                 <div class="border-t pt-4 mt-4">

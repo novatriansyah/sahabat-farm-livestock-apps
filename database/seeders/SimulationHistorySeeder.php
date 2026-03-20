@@ -79,7 +79,7 @@ class SimulationHistorySeeder extends Seeder
                 // Create a "Ghost" Animal
                 $animal = Animal::create([
                     'tag_id' => 'HIST-' . strtoupper($faker->bothify('??####')),
-                    'gender' => rand(0, 1) ? 'MALE' : 'FEMALE',
+                    'gender' => rand(0, 1) ? 'JANTAN' : 'BETINA',
                     'birth_date' => $exitDate->copy()->subMonths(rand(6, 24)),
                     'entry_date' => $exitDate->copy()->subMonths(rand(3, 12)),
                     'breed_id' => 1, // Default
@@ -87,21 +87,21 @@ class SimulationHistorySeeder extends Seeder
                     'current_location_id' => 1,
                     'current_phys_status_id' => 6, // Sold/Dead
                     'is_active' => false, // Inactive
-                    'acquisition_type' => 'BOUGHT',
+                    'acquisition_type' => 'BELI',
                     'purchase_price' => rand(1500000, 2500000),
                     'partner_id' => $partner->id,
                     'daily_adg' => 0.2
                 ]);
 
                 // Determine Exit Type
-                $type = (rand(1, 10) > 2) ? 'SALE' : 'DEATH'; // 80% Sale, 20% Death
+                $type = (rand(1, 10) > 2) ? 'JUAL' : 'MATI'; // 80% Sale, 20% Death
 
-                if ($type === 'SALE') {
+                if ($type === 'JUAL') {
                     $price = rand(3000000, 5000000);
                     ExitLog::create([
                         'animal_id' => $animal->id,
                         'exit_date' => $exitDate,
-                        'exit_type' => 'SALE',
+                        'exit_type' => 'JUAL',
                         'price' => $price,
                         'final_hpp' => rand(2000000, 2800000), // Cost
                         'created_at' => $exitDate,
@@ -111,7 +111,7 @@ class SimulationHistorySeeder extends Seeder
                     ExitLog::create([
                         'animal_id' => $animal->id,
                         'exit_date' => $exitDate,
-                        'exit_type' => 'DEATH',
+                        'exit_type' => 'MATI',
                         'price' => 0,
                         'final_hpp' => rand(1500000, 2500000), // Loss
                         'created_at' => $exitDate,

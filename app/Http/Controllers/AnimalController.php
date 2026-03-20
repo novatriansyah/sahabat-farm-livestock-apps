@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\WeightLog;
 use App\Services\TaskService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +29,12 @@ class AnimalController extends Controller
     {
         $query = Animal::with(['category', 'breed', 'location', 'physStatus', 'photos']);
 
-        // Search Scope
+        // 1. Role Scoping
+        if (auth()->user()->role === 'MITRA') {
+            $query->where('partner_id', auth()->user()->partner_id);
+        }
+
+        // 2. Search Scope
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -39,12 +45,36 @@ class AnimalController extends Controller
             });
         }
 
-        if (auth()->user()->role === 'PARTNER') {
-            $query->where('partner_id', auth()->user()->partner_id);
+        // 3. Expanded Filters
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+        if ($request->filled('breed_id')) {
+            $query->where('breed_id', $request->breed_id);
+        }
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+        if ($request->filled('phys_status_id')) {
+            $query->where('current_phys_status_id', $request->phys_status_id);
+        }
+        if ($request->filled('location_id')) {
+            $query->where('current_location_id', $request->location_id);
+        }
+        if ($request->filled('partner_id') && auth()->user()->role === 'PEMILIK') {
+            $query->where('partner_id', $request->partner_id);
         }
 
-        $animals = $query->paginate(10);
-        return view('animals.index', compact('animals'));
+        $animals = $query->latest()->paginate(20);
+
+        // Fetch filter options
+        $breeds = MasterBreed::all();
+        $categories = MasterCategory::all();
+        $locations = MasterLocation::all();
+        $statuses = MasterPhysStatus::all();
+        $partners = MasterPartner::all();
+
+        return view('animals.index', compact('animals', 'breeds', 'categories', 'locations', 'statuses', 'partners'));
     }
 
     public function downloadTemplate()
@@ -97,16 +127,25 @@ class AnimalController extends Controller
     public function store(Request $request, TaskService $taskService): RedirectResponse
     {
         $validated = $request->validate([
-            'tag_id' => 'required|unique:animals',
+            'tag_id' => [
+                'required',
+                Rule::unique('animals')->where(function ($query) use ($request) {
+                    if ($request->generation) {
+                        return $query->where('generation', $request->generation);
+                    } else {
+                        return $query->whereNull('generation');
+                    }
+                })
+            ],
             'partner_id' => 'nullable|exists:master_partners,id',
-            'category_id' => 'required|exists:master_categories,id',
             'breed_id' => 'required|exists:master_breeds,id',
             'current_location_id' => 'required|exists:master_locations,id',
             'current_phys_status_id' => 'required|exists:master_phys_statuses,id',
-            'gender' => 'required|in:MALE,FEMALE',
+            'gender' => 'required|in:JANTAN,BETINA',
             'birth_date' => 'required|date',
-            'acquisition_type' => 'required|in:BRED,BOUGHT',
-            'purchase_price' => 'nullable|required_if:acquisition_type,BOUGHT|numeric|min:0',
+            'entry_date' => 'nullable|date',
+            'acquisition_type' => 'required|in:HASIL_TERNAK,BELI',
+            'purchase_price' => 'nullable|required_if:acquisition_type,BELI|numeric|min:0',
             'initial_weight' => 'required|numeric|min:0.1',
             'necklace_color' => 'nullable|string',
             'generation' => 'nullable|string',
@@ -116,7 +155,11 @@ class AnimalController extends Controller
         // Auto-assign owner_id to current user (System User)
         $validated['owner_id'] = auth()->id();
 
-        if (isset($validated['purchase_price']) && $validated['acquisition_type'] !== 'BOUGHT') {
+        // Auto-assign category from breed
+        $breed = MasterBreed::find($validated['breed_id']);
+        $validated['category_id'] = $breed ? $breed->category_id : null;
+
+        if (isset($validated['purchase_price']) && $validated['acquisition_type'] !== 'BELI') {
             $validated['purchase_price'] = 0;
         }
 
@@ -133,13 +176,16 @@ class AnimalController extends Controller
             $validated['current_location_id'] = 3;    // Kandang Cempe
         }
 
-        $validated['entry_date'] = ($validated['acquisition_type'] === 'BRED')
-            ? $validated['birth_date']
-            : Carbon::now();
+        if ($validated['acquisition_type'] === 'HASIL_TERNAK') {
+            $validated['entry_date'] = $validated['birth_date'];
+        } else {
+            $validated['entry_date'] = $validated['entry_date'] ?? Carbon::now();
+        }
 
-        // Extract initial_weight before creating Animal (as it's not in animals table)
+        // Extract initial_weight and photo before creating Animal (as they are not in animals table)
         $initialWeight = $validated['initial_weight'];
         unset($validated['initial_weight']);
+        unset($validated['photo']);
 
         $animal = Animal::create($validated);
 
@@ -151,7 +197,7 @@ class AnimalController extends Controller
         ]);
 
         // Generate Tasks if Bought (SOP Kedatangan)
-        if ($validated['acquisition_type'] === 'BOUGHT') {
+        if ($validated['acquisition_type'] === 'BELI') {
             $taskService->generateArrivalTasks($animal);
         }
 
@@ -172,12 +218,17 @@ class AnimalController extends Controller
             ]);
         }
 
-        return redirect()->route('animals.index')->with('success', 'Animal created successfully.');
+        return redirect()->route('animals.index')->with('success', 'Ternak berhasil ditambahkan.');
     }
 
     public function show(Animal $animal): View
     {
-        $animal->load(['category', 'breed', 'location', 'physStatus', 'photos', 'weightLogs', 'treatmentLogs', 'owner']);
+        // MITRA Security: Can only view their own animals
+        if (auth()->user()->role === 'MITRA' && $animal->partner_id !== auth()->user()->partner_id) {
+            abort(403, 'Unauthorized access to this animal data.');
+        }
+
+        $animal->load(['category', 'breed', 'location', 'physStatus', 'photos', 'weightLogs', 'treatmentLogs', 'owner', 'ownershipLogs.oldPartner', 'ownershipLogs.newPartner', 'earTagLogs', 'offspring']);
 
         // Prepare Chart Data
         $weightLogs = $animal->weightLogs()->orderBy('weigh_date', 'asc')->get();
@@ -201,20 +252,56 @@ class AnimalController extends Controller
     public function update(Request $request, Animal $animal): RedirectResponse
     {
         $validated = $request->validate([
-            'tag_id' => 'required|unique:animals,tag_id,' . $animal->id,
+            'tag_id' => [
+                'required',
+                Rule::unique('animals')->where(function ($query) use ($request) {
+                    if ($request->generation) {
+                        return $query->where('generation', $request->generation);
+                    } else {
+                        return $query->whereNull('generation');
+                    }
+                })->ignore($animal->id)
+            ],
             'partner_id' => 'nullable|exists:master_partners,id',
-            'category_id' => 'required|exists:master_categories,id',
             'breed_id' => 'required|exists:master_breeds,id',
             'current_location_id' => 'required|exists:master_locations,id',
             'current_phys_status_id' => 'required|exists:master_phys_statuses,id',
-            'gender' => 'required|in:MALE,FEMALE',
+            'gender' => 'required|in:JANTAN,BETINA',
             'birth_date' => 'required|date',
+            'entry_date' => 'nullable|date',
             'necklace_color' => 'nullable|string',
             'generation' => 'nullable|string',
             'photo' => 'nullable|image|max:20480',
         ]);
 
+        // Auto-assign category from breed
+        $breed = MasterBreed::find($validated['breed_id']);
+        $validated['category_id'] = $breed ? $breed->category_id : null;
+
+        $oldTagId = $animal->tag_id;
+        $oldPartnerId = $animal->partner_id;
+        unset($validated['photo']);
         $animal->update($validated);
+
+        if ($oldTagId !== $animal->tag_id) {
+            \App\Models\AnimalEarTagLog::create([
+                'animal_id' => $animal->id,
+                'old_tag_id' => $oldTagId,
+                'new_tag_id' => $animal->tag_id,
+                'changed_at' => Carbon::now(),
+                'recorded_by' => auth()->id(),
+            ]);
+        }
+
+        if ($oldPartnerId != $animal->partner_id) {
+            \App\Models\AnimalOwnershipLog::create([
+                'animal_id' => $animal->id,
+                'old_partner_id' => $oldPartnerId,
+                'new_partner_id' => $animal->partner_id,
+                'changed_at' => Carbon::now(),
+                'recorded_by' => auth()->id(),
+            ]);
+        }
 
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
@@ -233,6 +320,6 @@ class AnimalController extends Controller
             ]);
         }
 
-        return redirect()->route('animals.show', $animal->id)->with('success', 'Animal updated successfully.');
+        return redirect()->route('animals.show', $animal->id)->with('success', 'Ternak berhasil diperbarui.');
     }
 }

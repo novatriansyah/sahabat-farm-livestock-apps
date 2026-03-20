@@ -81,7 +81,7 @@
                     <p class="text-sm text-blue-600 dark:text-blue-200">Total Omset (Revenue)</p>
                     <p class="text-2xl font-bold text-blue-800 dark:text-blue-100">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
                 </div>
-                @if(Auth::user()->role === 'OWNER')
+                @if(Auth::user()->role === 'PEMILIK')
                 <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg">
                     <p class="text-sm text-green-600 dark:text-green-200">Estimasi Profit (Margin)</p>
                     <p class="text-2xl font-bold text-green-800 dark:text-green-100">Rp {{ number_format($totalProfit, 0, ',', '.') }}</p>
@@ -98,10 +98,10 @@
                             <tr>
                                 <th class="px-6 py-3">Tgl Jual</th>
                                 <th class="px-6 py-3">Tag ID</th>
-                                <th class="px-6 py-3">Breed</th>
+                                <th class="px-6 py-3">Ras</th>
                                 <th class="px-6 py-3">Mitra</th>
                                 <th class="px-6 py-3 whitespace-nowrap text-right">Harga Jual</th>
-                                @if(Auth::user()->role === 'OWNER')
+                                @if(Auth::user()->role === 'PEMILIK')
                                 <th class="px-6 py-3 whitespace-nowrap text-right">HPP Final</th>
                                 <th class="px-6 py-3 whitespace-nowrap text-right">Margin</th>
                                 @endif
@@ -115,7 +115,7 @@
                                 <td class="px-6 py-4">{{ $sale->animal->breed->name }}</td>
                                 <td class="px-6 py-4">{{ $sale->animal->partner->name ?? '-' }}</td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">Rp {{ number_format($sale->price, 0, ',', '.') }}</td>
-                                @if(Auth::user()->role === 'OWNER')
+                                @if(Auth::user()->role === 'PEMILIK')
                                 <td class="px-6 py-4 text-right whitespace-nowrap">Rp {{ number_format($sale->final_hpp, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4 text-right font-bold whitespace-nowrap {{ ($sale->price - $sale->final_hpp) >= 0 ? 'text-green-600' : 'text-red-600' }}">
                                     Rp {{ number_format($sale->price - $sale->final_hpp, 0, ',', '.') }}

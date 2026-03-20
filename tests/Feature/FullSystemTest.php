@@ -30,7 +30,7 @@ class FullSystemTest extends TestCase
         parent::setUp();
 
         // Setup common data
-        $this->user = User::factory()->create(['role' => 'OWNER']);
+        $this->user = User::factory()->create(['role' => 'PEMILIK']);
         $this->category = MasterCategory::create(['name' => 'Sheep']);
         $this->breed = MasterBreed::create([
             'name' => 'Dorper',
@@ -39,7 +39,7 @@ class FullSystemTest extends TestCase
             'min_age_mate_months' => 8
         ]);
         $this->location = MasterLocation::create(['name' => 'Cage A', 'type' => 'Colony']);
-        $this->status = MasterPhysStatus::create(['name' => 'Healthy']);
+        $this->status = MasterPhysStatus::create(['name' => 'Sehat']);
         MasterPhysStatus::create(['name' => 'Cempe']);
         MasterPhysStatus::create(['name' => 'Lactating']);
 
@@ -56,10 +56,9 @@ class FullSystemTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'FEMALE',
+            'gender' => 'BETINA',
             'birth_date' => Carbon::now()->subYears(2),
-            'acquisition_type' => 'BRED',
-            'initial_weight' => 40,
+            'acquisition_type' => 'HASIL_TERNAK',
             'is_active' => true,
         ]);
 
@@ -77,10 +76,9 @@ class FullSystemTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => Carbon::now()->subYears(2),
-            'acquisition_type' => 'BRED',
-            'initial_weight' => 60,
+            'acquisition_type' => 'HASIL_TERNAK',
             'is_active' => true,
         ]);
 

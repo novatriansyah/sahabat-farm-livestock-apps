@@ -112,7 +112,7 @@
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td class="px-6 py-4">{{ $birth->birth_date->format('d/m/Y') }}</td>
                                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $birth->tag_id }}</td>
-                                        <td class="px-6 py-4">{{ $birth->gender == 'MALE' ? 'Jantan' : 'Betina' }}</td>
+                                        <td class="px-6 py-4">{{ $birth->gender == 'JANTAN' ? 'Jantan' : 'Betina' }}</td>
                                         <td class="px-6 py-4">{{ $birth->breed->name }} ({{ $birth->generation ?? '-' }})</td>
                                         <td class="px-6 py-4">{{ $birth->weightLogs->first()->weight_kg ?? '-' }} kg</td>
                                         <td class="px-6 py-4">
@@ -152,7 +152,7 @@
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td class="px-6 py-4">{{ $death->exit_date->format('d/m/Y') }}</td>
                                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $death->animal->tag_id }}</td>
-                                        <td class="px-6 py-4">{{ $death->animal->gender == 'MALE' ? 'Jantan' : 'Betina' }}</td>
+                                        <td class="px-6 py-4">{{ $death->animal->gender == 'JANTAN' ? 'Jantan' : 'Betina' }}</td>
                                         <td class="px-6 py-4">{{ $death->animal->breed->name }}</td>
                                         <td class="px-6 py-4">{{ $death->animal->birth_date->diffInMonths($death->exit_date) }} bulan</td>
                                         <td class="px-6 py-4">Rp {{ number_format(($death->animal->purchase_price ?? 0) + $death->final_hpp, 0, ',', '.') }}</td>

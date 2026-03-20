@@ -22,13 +22,16 @@ use App\Http\Controllers\PartnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return view('welcome');
 });
 
 Route::middleware(['auth'])->group(function () {
 
+    // --- NOTIFICATIONS ---
+    Route::get('notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'read'])->name('notifications.read');
     // --- GROUP 1: OWNER ONLY (Admin & Settings) ---
-    Route::middleware(['role:OWNER'])->group(function () {
+    Route::middleware(['role:PEMILIK'])->group(function () {
         // Deployment Utilities
         Route::get('deploy/storage-link', [DeploymentController::class, 'linkStorage']);
 
@@ -64,7 +67,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // --- GROUP 2: MANAGERIAL (Owner & Breeder) ---
-    Route::middleware(['role:OWNER,BREEDER'])->group(function () {
+    Route::middleware(['role:PEMILIK,PETERNAK'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Animal Management (Write Access)
@@ -76,6 +79,9 @@ Route::middleware(['auth'])->group(function () {
         // Breeding Flow
         Route::get('animals/{animal}/breeding/create', [BreedingController::class, 'create'])->name('breeding.create');
         Route::post('animals/{animal}/breeding', [BreedingController::class, 'store'])->name('breeding.store');
+        
+        // Mating Colonies
+        Route::resource('mating-colonies', \App\Http\Controllers\MatingColonyController::class);
 
         // Birth Registry
         Route::get('birth/create', [BirthController::class, 'create'])->name('birth.create');
@@ -93,10 +99,13 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('invoices', InvoiceController::class);
         Route::post('invoices/{invoice}/convert', [InvoiceController::class, 'convert'])->name('invoices.convert');
         Route::post('invoices/{invoice}/paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.paid');
+
+        // Manual HPP Inputs
+        Route::resource('hpp-manual-costs', \App\Http\Controllers\HppManualCostController::class)->only(['index', 'store', 'destroy']);
     });
 
     // --- SHARED READ-ONLY (Owner, Breeder, Partner) ---
-    Route::middleware(['role:OWNER,BREEDER,PARTNER'])->group(function () {
+    Route::middleware(['role:PEMILIK,PETERNAK,MITRA'])->group(function () {
         Route::get('animals', [AnimalController::class, 'index'])->name('animals.index');
         Route::get('animals/{animal}', [AnimalController::class, 'show'])->where('animal', '[0-9a-fA-F\-]+')->name('animals.show');
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index'); // Birth & Death
@@ -107,10 +116,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reports/performance', [ReportController::class, 'performance'])->name('reports.performance');
         Route::get('reports/reproduction', [ReportController::class, 'reproduction'])->name('reports.reproduction');
         Route::get('reports/audit', [ReportController::class, 'audit'])->name('reports.audit');
+        Route::get('reports/mating', [ReportController::class, 'mating'])->name('reports.mating');
+        Route::get('reports/nursing', [ReportController::class, 'nursing'])->name('reports.nursing');
     });
 
     // --- GROUP 3: OPERATIONAL (Staff & Owner & Breeder) ---
-    Route::middleware(['role:STAFF,BREEDER'])->group(function () {
+    Route::middleware(['role:STAF,PETERNAK'])->group(function () {
         Route::get('scan', [ScanController::class, 'index'])->name('scan.index');
 
         // Operator Workflow
@@ -124,7 +135,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // --- GROUP 4: PARTNER DASHBOARD ---
-    Route::middleware(['role:PARTNER'])->group(function () {
+    Route::middleware(['role:MITRA'])->group(function () {
         Route::get('/partner/dashboard', [PartnerDashboardController::class, 'index'])->name('partner.dashboard');
     });
 });

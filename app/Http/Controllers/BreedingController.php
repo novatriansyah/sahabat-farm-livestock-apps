@@ -23,7 +23,7 @@ class BreedingController extends Controller
     public function create(Animal $animal): View|RedirectResponse
     {
         // 1. Basic Checks
-        if ($animal->gender !== 'FEMALE') {
+        if ($animal->gender !== 'BETINA') {
             return back()->withErrors(['msg' => 'Only female animals can be bred.']);
         }
 
@@ -32,7 +32,7 @@ class BreedingController extends Controller
 
         // 3. Fetch Sires (Active Males of same breed/category)
         // Ideally same breed, but cross-breeding is allowed. Same Category (Sheep vs Goat) is strict.
-        $sires = Animal::where('gender', 'MALE')
+        $sires = Animal::where('gender', 'JANTAN')
             ->where('is_active', true)
             ->where('category_id', $animal->category_id)
             ->get();
@@ -63,7 +63,7 @@ class BreedingController extends Controller
             'sire_id' => $validated['sire_id'],
             'mating_date' => $validated['mating_date'],
             'est_birth_date' => $estBirthDate,
-            'status' => 'PENDING',
+            'status' => 'MENUNGGU',
         ]);
 
         // Update Animal Status to PREGNANT?
@@ -73,6 +73,6 @@ class BreedingController extends Controller
         // Let's leave status as is for now, or maybe move to 'PREGNANT' if the user is confident.
         // For now, just logging the event is key for the Conception Rate.
 
-        return redirect()->route('animals.index')->with('success', 'Mating recorded successfully.');
+        return redirect()->route('animals.index')->with('success', 'Perkawinan berhasil dicatat.');
     }
 }

@@ -22,12 +22,12 @@ class ReportController extends Controller
             ->with(['dam', 'sire', 'breed', 'weightLogs']);
         
         // 2. Deaths (Exit Logs type DEATH)
-        $deathsQuery = ExitLog::where('exit_type', 'DEATH')
+        $deathsQuery = ExitLog::where('exit_type', 'MATI')
             ->whereMonth('exit_date', $month)
             ->whereYear('exit_date', $year)
             ->with(['animal.breed', 'animal.partner']);
 
-        if ($request->user()->role === 'PARTNER') {
+        if ($request->user()->role === 'MITRA') {
             $partnerId = $request->user()->partner_id;
             $birthsQuery->where('partner_id', $partnerId);
             $deathsQuery->whereHas('animal', function($q) use ($partnerId) {
@@ -47,12 +47,12 @@ class ReportController extends Controller
         $year = $request->input('year', Carbon::now()->year);
 
         // Sales (Exit Logs type SALE)
-        $salesQuery = ExitLog::where('exit_type', 'SALE')
+        $salesQuery = ExitLog::where('exit_type', 'JUAL')
             ->whereMonth('exit_date', $month)
             ->whereYear('exit_date', $year)
             ->with(['animal.breed', 'animal.partner']);
 
-        if ($request->user()->role === 'PARTNER') {
+        if ($request->user()->role === 'MITRA') {
             $partnerId = $request->user()->partner_id;
             $salesQuery->whereHas('animal', function($q) use ($partnerId) {
                 $q->where('partner_id', $partnerId);
@@ -74,16 +74,37 @@ class ReportController extends Controller
     {
         $baseQuery = Animal::where('is_active', true);
         
-        // Partner Scoping
-        if ($request->user()->role === 'PARTNER') {
+        // Filter by Internal vs Mitra
+        if ($request->filled('ownership')) {
+            if ($request->input('ownership') === 'INTERNAL') {
+                $baseQuery->whereHas('partner', function($q) {
+                    $q->where('name', 'like', '%Internal%');
+                });
+            } elseif ($request->input('ownership') === 'MITRA') {
+                $baseQuery->whereHas('partner', function($q) {
+                    $q->where('name', 'not like', '%Internal%');
+                });
+            }
+        }
+
+        // Partner Scoping (for limited roles)
+        if ($request->user()->role === 'MITRA') {
             $baseQuery->where('partner_id', $request->user()->partner_id);
         }
 
         // Calculate Summaries
         $byGender = [
-            'MALE' => (clone $baseQuery)->where('gender', 'MALE')->count(),
-            'FEMALE' => (clone $baseQuery)->where('gender', 'FEMALE')->count(),
+            'JANTAN' => (clone $baseQuery)->where('gender', 'JANTAN')->count(),
+            'BETINA' => (clone $baseQuery)->where('gender', 'BETINA')->count(),
             'TOTAL' => (clone $baseQuery)->count(),
+        ];
+
+        // Age Group Breakdown
+        $animalsForAge = (clone $baseQuery)->get();
+        $byAgeGroup = [
+            'Cempe (< 4 Bln)' => $animalsForAge->filter(fn($a) => $a->birth_date->diffInMonths(now()) < 4)->count(),
+            'Dara (4-12 Bln)' => $animalsForAge->filter(fn($a) => $a->birth_date->diffInMonths(now()) >= 4 && $a->birth_date->diffInMonths(now()) < 12)->count(),
+            'Dewasa (> 12 Bln)' => $animalsForAge->filter(fn($a) => $a->birth_date->diffInMonths(now()) >= 12)->count(),
         ];
 
         $byBreed = (clone $baseQuery)->with('breed')->get()->groupBy(function($item) {
@@ -94,15 +115,15 @@ class ReportController extends Controller
             return $item->location->name ?? 'No Location';
         })->map(function($group) {
             return [
-                'male' => $group->where('gender', 'MALE')->count(),
-                'female' => $group->where('gender', 'FEMALE')->count(),
+                'male' => $group->where('gender', 'JANTAN')->count(),
+                'female' => $group->where('gender', 'BETINA')->count(),
                 'total' => $group->count()
             ];
         })->sortByDesc('total');
 
         // Main List
         $query = clone $baseQuery;
-        $query->with(['breed', 'location', 'partner']);
+        $query->with(['breed', 'location', 'partner', 'physStatus']);
 
         if ($request->input('mode') === 'print') {
             $animals = $query->get();
@@ -110,7 +131,7 @@ class ReportController extends Controller
             $animals = $query->paginate(50);
         }
 
-        return view('admin.reports.stock', compact('animals', 'byGender', 'byBreed', 'byLocation'));
+        return view('admin.reports.stock', compact('animals', 'byGender', 'byBreed', 'byLocation', 'byAgeGroup'));
     }
 
     public function partners(Request $request): View
@@ -119,7 +140,7 @@ class ReportController extends Controller
         $partners = \App\Models\MasterPartner::all();
         $targetPartnerId = null;
 
-        if ($request->user()->role === 'PARTNER') {
+        if ($request->user()->role === 'MITRA') {
             $targetPartnerId = $request->user()->partner_id;
         } elseif ($request->has('partner_id')) {
             $targetPartnerId = $request->input('partner_id');
@@ -141,7 +162,7 @@ class ReportController extends Controller
             $salesHistory = ExitLog::whereHas('animal', function($q) use ($targetPartnerId) {
                     $q->where('partner_id', $targetPartnerId);
                 })
-                ->where('exit_type', 'SALE')
+                ->where('exit_type', 'JUAL')
                 ->with(['animal.breed'])
                 ->orderBy('exit_date', 'desc')
                 ->get();
@@ -281,7 +302,7 @@ class ReportController extends Controller
     public function reproduction(Request $request): View
     {
         // 1. Fetch Productive Females (Dams)
-        $dams = \App\Models\Animal::where('gender', 'FEMALE')
+        $dams = \App\Models\Animal::where('gender', 'BETINA')
             ->whereHas('offspring') // Only those who have given birth
             ->with(['offspring' => function($q) {
                 $q->orderBy('birth_date', 'asc');
@@ -338,7 +359,7 @@ class ReportController extends Controller
         $year = $request->input('year', Carbon::now()->year);
 
         // 1. Deaths by Location
-        $deaths = ExitLog::where('exit_type', 'DEATH')
+        $deaths = ExitLog::where('exit_type', 'MATI')
             ->whereMonth('exit_date', $month)
             ->whereYear('exit_date', $year)
             ->with(['animal.location'])
@@ -395,5 +416,31 @@ class ReportController extends Controller
         });
 
         return view('admin.reports.audit', compact('month', 'year', 'auditData'));
+    }
+
+    public function mating(): View
+    {
+        $colonies = \App\Models\MatingColony::with(['location', 'sire', 'members.animal.breed', 'members.animal.physStatus'])->get();
+        
+        $activeEvents = \App\Models\BreedingEvent::where('status', 'MENUNGGU')
+            ->with(['dam.breed', 'sire.breed', 'dam.physStatus'])
+            ->orderBy('mating_date', 'desc')
+            ->get();
+
+        return view('admin.reports.mating', compact('colonies', 'activeEvents'));
+    }
+
+    public function nursing(): View
+    {
+        $nursingAnimals = Animal::whereHas('physStatus', function($q) {
+                $q->where('name', 'Menyusui');
+            })
+            ->where('is_active', true)
+            ->with(['location', 'breed', 'physStatus', 'offspring' => function($q) {
+                $q->where('is_active', true)->with('physStatus')->orderBy('birth_date', 'desc');
+            }])
+            ->get();
+
+        return view('admin.reports.nursing', compact('nursingAnimals'));
     }
 }

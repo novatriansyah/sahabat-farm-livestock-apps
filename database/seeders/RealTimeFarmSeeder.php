@@ -95,7 +95,7 @@ class RealTimeFarmSeeder extends Seeder
     protected function purchaseInitialStock()
     {
         // Fetch System Owner (First User)
-        $owner = User::where('role', 'OWNER')->first() ?? User::first();
+        $owner = User::where('role', 'PEMILIK')->first() ?? User::first();
         $ownerId = $owner ? $owner->id : null;
 
         // 1 Sire (Dorper Pure)
@@ -107,9 +107,9 @@ class RealTimeFarmSeeder extends Seeder
             'breed_id' => $this->breeds['Dorper']->id,
             'current_location_id' => $this->locations['Cage A']->id,
             'current_phys_status_id' => $this->statuses['Ready']->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => $this->currentDate->copy()->subYears(2),
-            'acquisition_type' => 'BOUGHT',
+            'acquisition_type' => 'BELI',
             'purchase_price' => 15000000,
             'is_active' => true,
             'generation' => 'PURE',
@@ -126,9 +126,9 @@ class RealTimeFarmSeeder extends Seeder
                 'breed_id' => $this->breeds['Garut']->id,
                 'current_location_id' => $this->locations['Cage A']->id,
                 'current_phys_status_id' => $this->statuses['Ready']->id,
-                'gender' => 'FEMALE',
+                'gender' => 'BETINA',
                 'birth_date' => $this->currentDate->copy()->subMonths(18),
-                'acquisition_type' => 'BOUGHT',
+                'acquisition_type' => 'BELI',
                 'purchase_price' => 2500000,
                 'is_active' => true,
                 'generation' => 'PURE',
@@ -187,17 +187,17 @@ class RealTimeFarmSeeder extends Seeder
             }
 
             // Breeding Logic (Dams)
-            if ($animal->gender == 'FEMALE' && $animal->current_phys_status_id == $this->statuses['Ready']->id) {
+            if ($animal->gender == 'BETINA' && $animal->current_phys_status_id == $this->statuses['Ready']->id) {
                 // 30% chance to mate this month
                 if (rand(1, 100) <= 30) {
-                    $sire = Animal::where('gender', 'MALE')->where('is_active', true)->first();
+                    $sire = Animal::where('gender', 'JANTAN')->where('is_active', true)->first();
                     if ($sire) {
                         BreedingEvent::create([
                             'dam_id' => $animal->id,
                             'sire_id' => $sire->id,
                             'mating_date' => $this->currentDate,
                             'est_birth_date' => $this->currentDate->copy()->addDays(150),
-                            'status' => 'PENDING' // Pregnancy confirmed
+                            'status' => 'MENUNGGU' // Pregnancy confirmed
                         ]);
                         $animal->update(['current_phys_status_id' => $this->statuses['Pregnant']->id]);
                     }
@@ -207,12 +207,12 @@ class RealTimeFarmSeeder extends Seeder
             // Birthing Logic (Pregnant Dams)
             if ($animal->current_phys_status_id == $this->statuses['Pregnant']->id) {
                 $mating = BreedingEvent::where('dam_id', $animal->id)
-                    ->where('status', 'PENDING')
+                    ->where('status', 'MENUNGGU')
                     ->first();
 
                 if ($mating && $mating->est_birth_date->isSameMonth($this->currentDate)) {
                     // GIVE BIRTH
-                    $mating->update(['status' => 'SUCCESS']);
+                    $mating->update(['status' => 'BERHASIL']);
                     $animal->update(['current_phys_status_id' => $this->statuses['Lactating']->id]);
 
                     // Generate 1-2 offspring
@@ -231,9 +231,9 @@ class RealTimeFarmSeeder extends Seeder
                             'breed_id' => $animal->breed_id, // Simplified inheritance
                             'current_location_id' => $this->locations['Nursery']->id,
                             'current_phys_status_id' => $this->statuses['Cempe']->id,
-                            'gender' => rand(0, 1) ? 'MALE' : 'FEMALE',
+                            'gender' => rand(0, 1) ? 'JANTAN' : 'BETINA',
                             'birth_date' => $this->currentDate,
-                            'acquisition_type' => 'BRED',
+                            'acquisition_type' => 'HASIL_TERNAK',
                             'is_active' => true,
                             'generation' => 'F1',
                             'necklace_color' => 'Yellow'
@@ -299,11 +299,11 @@ class RealTimeFarmSeeder extends Seeder
                 ExitLog::create([
                     'animal_id' => $sell->id,
                     'exit_date' => $this->currentDate,
-                    'exit_type' => 'SALE',
+                    'exit_type' => 'JUAL',
                     'price' => $price,
                     'final_hpp' => $sell->current_hpp
                 ]);
-                $sell->update(['is_active' => false, 'health_status' => 'SOLD']);
+                $sell->update(['is_active' => false, 'health_status' => 'TERJUAL']);
             }
         }
     }

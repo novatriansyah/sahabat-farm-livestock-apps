@@ -23,16 +23,15 @@ class AnimalsExport implements WithHeadings, WithTitle, WithStyles, WithEvents
             'tag_id',           // A
             'gender',           // B
             'breed_name',       // C
-            'category_name',    // D
-            'birth_date',       // E
-            'initial_weight_kg',// F
-            'physical_status',  // G
-            'acquisition_type', // H
-            'purchase_price',   // I
-            'location_name',    // J
-            'partner_name',     // K
-            'generation',       // L
-            'necklace_color',   // M
+            'birth_date',       // D
+            'initial_weight_kg',// E
+            'physical_status',  // F
+            'acquisition_type', // G
+            'purchase_price',   // H
+            'location_name',    // I
+            'partner_name',     // J
+            'generation',       // K
+            'necklace_color',   // L
         ];
     }
 
@@ -66,8 +65,8 @@ class AnimalsExport implements WithHeadings, WithTitle, WithStyles, WithEvents
                 // AG: Phys Status
 
                 // Static Lists
-                $genders = ['MALE', 'FEMALE'];
-                $acquisitions = ['BOUGHT', 'BRED'];
+                $genders = ['JANTAN', 'BETINA'];
+                $acquisitions = ['BELI', 'HASIL_TERNAK'];
                 $generations = ['F1', 'F2', 'F3', 'PURE', 'CROSS'];
                 
                 // Dynamic DB Lists
@@ -95,27 +94,23 @@ class AnimalsExport implements WithHeadings, WithTitle, WithStyles, WithEvents
                 if (count($breeds) > 0)
                     $this->setDropdown($sheet, 'C2:C'.$rowCount, '$AC$1:$AC$' . count($breeds));
 
-                // Col D: Category (AD)
-                if (count($categories) > 0)
-                    $this->setDropdown($sheet, 'D2:D'.$rowCount, '$AD$1:$AD$' . count($categories));
-
-                // Col G: Phys Status (AG)
+                // Col F: Phys Status (AG)
                 if (count($statuses) > 0)
-                    $this->setDropdown($sheet, 'G2:G'.$rowCount, '$AG$1:$AG$' . count($statuses));
+                    $this->setDropdown($sheet, 'F2:F'.$rowCount, '$AG$1:$AG$' . count($statuses));
 
-                // Col H: Acquisition (AA)
-                $this->setDropdown($sheet, 'H2:H'.$rowCount, '$AA$1:$AA$' . count($acquisitions));
+                // Col G: Acquisition (AA)
+                $this->setDropdown($sheet, 'G2:G'.$rowCount, '$AA$1:$AA$' . count($acquisitions));
 
-                // Col J: Location (AE)
+                // Col I: Location (AE)
                 if (count($locations) > 0)
-                    $this->setDropdown($sheet, 'J2:J'.$rowCount, '$AE$1:$AE$' . count($locations));
+                    $this->setDropdown($sheet, 'I2:I'.$rowCount, '$AE$1:$AE$' . count($locations));
                 
-                // Col K: Partner (AF)
+                // Col J: Partner (AF)
                 if (count($partners) > 0)
-                    $this->setDropdown($sheet, 'K2:K'.$rowCount, '$AF$1:$AF$' . count($partners));
+                    $this->setDropdown($sheet, 'J2:J'.$rowCount, '$AF$1:$AF$' . count($partners));
 
-                // Col L: Generation (AB)
-                $this->setDropdown($sheet, 'L2:L'.$rowCount, '$AB$1:$AB$' . count($generations));
+                // Col K: Generation (AB)
+                $this->setDropdown($sheet, 'K2:K'.$rowCount, '$AB$1:$AB$' . count($generations));
 
                  // --- 3. HIDE REFERENCE COLUMNS (Triple Check) ---
                  $hiddenCols = ['Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG'];

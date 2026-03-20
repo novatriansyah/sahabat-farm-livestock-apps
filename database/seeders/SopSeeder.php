@@ -54,19 +54,19 @@ class SopSeeder extends Seeder
         // 3. Inventory Items (Medicines, Vitamins, Feed)
         $items = [
             // Medicines (0.1 ml / 1kg usually means 1ml/10kg)
-            ['name' => 'Ivermectin', 'unit' => 'ml', 'category' => 'MEDICINE', 'dosage_per_kg' => 0.1, 'current_stock' => 100],
-            ['name' => 'Penicillin', 'unit' => 'ml', 'category' => 'MEDICINE', 'dosage_per_kg' => 0.05, 'current_stock' => 100], // Example
-            ['name' => 'Oxytetracycline', 'unit' => 'ml', 'category' => 'MEDICINE', 'dosage_per_kg' => 0.1, 'current_stock' => 100],
-            ['name' => 'Albendazole', 'unit' => 'ml', 'category' => 'MEDICINE', 'dosage_per_kg' => 0.15, 'current_stock' => 200],
+            ['name' => 'Ivermectin', 'unit' => 'ml', 'category' => 'Obat-Obatan', 'dosage_per_kg' => 0.1, 'current_stock' => 100],
+            ['name' => 'Penicillin', 'unit' => 'ml', 'category' => 'Obat-Obatan', 'dosage_per_kg' => 0.05, 'current_stock' => 100], // Example
+            ['name' => 'Oxytetracycline', 'unit' => 'ml', 'category' => 'Obat-Obatan', 'dosage_per_kg' => 0.1, 'current_stock' => 100],
+            ['name' => 'Albendazole', 'unit' => 'ml', 'category' => 'Obat-Obatan', 'dosage_per_kg' => 0.15, 'current_stock' => 200],
             // Vitamins
-            ['name' => 'Vitamin E', 'unit' => 'ml', 'category' => 'VITAMIN', 'dosage_per_kg' => 0.05, 'current_stock' => 100],
-            ['name' => 'B-Complex', 'unit' => 'ml', 'category' => 'VITAMIN', 'dosage_per_kg' => 0.1, 'current_stock' => 100],
+            ['name' => 'Vitamin E', 'unit' => 'ml', 'category' => 'Obat-Obatan', 'dosage_per_kg' => 0.05, 'current_stock' => 100],
+            ['name' => 'B-Complex', 'unit' => 'ml', 'category' => 'Vitamin', 'dosage_per_kg' => 0.1, 'current_stock' => 100],
             // Vaccines
-            ['name' => 'Vaksin PMK', 'unit' => 'dose', 'category' => 'VACCINE', 'dosage_per_kg' => null, 'current_stock' => 50],
+            ['name' => 'Vaksin PMK', 'unit' => 'dose', 'category' => 'Vaksin', 'dosage_per_kg' => null, 'current_stock' => 50],
             // Feed
-            ['name' => 'Gula Merah', 'unit' => 'kg', 'category' => 'FEED', 'current_stock' => 10],
-            ['name' => 'Asam Jawa', 'unit' => 'kg', 'category' => 'FEED', 'current_stock' => 5],
-            ['name' => 'Konsentrat Sahabat Farm', 'unit' => 'sak', 'category' => 'FEED', 'current_stock' => 100],
+            ['name' => 'Gula Merah', 'unit' => 'kg', 'category' => 'Pakan', 'current_stock' => 10],
+            ['name' => 'Asam Jawa', 'unit' => 'kg', 'category' => 'Pakan', 'current_stock' => 5],
+            ['name' => 'Konsentrat Sahabat Farm', 'unit' => 'sak', 'category' => 'Pakan', 'current_stock' => 100],
         ];
 
         foreach ($items as $item) {

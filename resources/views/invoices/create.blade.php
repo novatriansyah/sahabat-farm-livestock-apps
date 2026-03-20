@@ -50,7 +50,7 @@
                         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipe Invoice</label>
                         <select name="type" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                             <option value="PROFORMA" {{ old('type') == 'PROFORMA' ? 'selected' : '' }}>Proforma (Penawaran)</option>
-                            <option value="COMMERCIAL" {{ old('type') == 'COMMERCIAL' ? 'selected' : '' }}>Commercial (Penjualan)</option>
+                            <option value="KOMERSIAL" {{ old('type') == 'KOMERSIAL' ? 'selected' : '' }}>Commercial (Penjualan)</option>
                         </select>
                     </div>
                     <div>
@@ -123,7 +123,7 @@
         <option value="" disabled selected>-- Pilih Hewan --</option>
         @foreach($animals as $animal)
         @php
-            $genderLabel = $animal->gender === 'MALE' ? 'Jantan' : 'Betina';
+            $genderLabel = $animal->gender === 'JANTAN' ? 'Jantan' : 'Betina';
             $description = $animal->breed->name . ' ' . $genderLabel;
         @endphp
         <!-- Store data attrs for auto-fill -->

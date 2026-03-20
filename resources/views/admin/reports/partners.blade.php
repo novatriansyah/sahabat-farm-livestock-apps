@@ -48,7 +48,7 @@
     </div>
 
     <!-- Partner Selection (Owner Only) -->
-    @if(Auth::user()->role === 'OWNER')
+    @if(Auth::user()->role === 'PEMILIK')
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 p-4 dark:bg-gray-800 no-print">
         <form method="GET" action="{{ route('reports.partners') }}" class="flex gap-4 items-end">
             <div class="w-full md:w-1/3">

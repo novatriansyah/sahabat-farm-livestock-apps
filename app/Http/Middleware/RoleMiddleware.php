@@ -21,22 +21,22 @@ class RoleMiddleware
             return redirect('login');
         }
 
-        $userRole = Auth::user()->role; // OWNER, STAFF, BREEDER
+        $userRole = Auth::user()->role; // PEMILIK, STAF, PETERNAK, MITRA
 
-        // OWNER has global access (Super Admin)
-        if ($userRole === 'OWNER') {
+        // PEMILIK has global access (Super Admin)
+        if ($userRole === 'PEMILIK') {
             return $next($request);
         }
 
         // Check if user's role is in the allowed list
         // $roles will be an array of strings passed from route definition
-        // e.g. role:OWNER,BREEDER -> $roles = ['OWNER', 'BREEDER']
+        // e.g. role:PEMILIK,PETERNAK -> $roles = ['PEMILIK', 'PETERNAK']
         // Note: Laravel middleware parameters are passed as variadic if separated by commas in 8.x+,
         // but traditionally handled as comma-separated string if simple.
         // Let's assume standard Laravel behaviour where multiple args come as variadic.
 
-        // If the route definition was role:OWNER,BREEDER
-        // Laravel passes handle($request, $next, 'OWNER', 'BREEDER')
+        // If the route definition was role:PEMILIK,PETERNAK
+        // Laravel passes handle($request, $next, 'PEMILIK', 'PETERNAK')
 
         if (in_array($userRole, $roles)) {
             return $next($request);

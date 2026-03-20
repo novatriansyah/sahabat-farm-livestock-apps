@@ -34,7 +34,7 @@ class SystemVerificationTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create(['role' => 'PEMILIK']);
         $this->actingAs($this->user);
 
         // Setup Master Data
@@ -55,9 +55,9 @@ class SystemVerificationTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => '2020-01-01',
-            'acquisition_type' => 'BOUGHT',
+            'acquisition_type' => 'BELI',
             'purchase_price' => 1000000,
             'initial_weight' => 30,
         ]);
@@ -72,9 +72,9 @@ class SystemVerificationTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'FEMALE',
+            'gender' => 'BETINA',
             'birth_date' => '2023-01-01',
-            'acquisition_type' => 'BRED',
+            'acquisition_type' => 'HASIL_TERNAK',
             'initial_weight' => 3,
         ]);
 
@@ -88,7 +88,7 @@ class SystemVerificationTest extends TestCase
     {
         // Create Feed Item
         $feed = InventoryItem::create(['name' => 'Feed A', 'category' => 'FEED', 'unit' => 'kg', 'current_stock' => 100]);
-        InventoryPurchase::create(['item_id' => $feed->id, 'qty' => 100, 'price_total' => 100000, 'purchase_date' => now()]); // price = 1000
+        InventoryPurchase::create(['item_id' => $feed->id, 'qty' => 100, 'price_total' => 100000, 'date' => now()]); // price = 1000
 
         // Create Animal Arrived Today
         $animalToday = Animal::create([
@@ -97,7 +97,7 @@ class SystemVerificationTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => '2020-01-01',
             'entry_date' => Carbon::today(),
             'is_active' => true,
@@ -111,7 +111,7 @@ class SystemVerificationTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => '2020-01-01',
             'entry_date' => Carbon::yesterday(),
             'is_active' => true,
@@ -124,7 +124,6 @@ class SystemVerificationTest extends TestCase
             'location_id' => $this->location->id,
             'qty_used' => 10, // Total cost = 10 * 1000 = 10,000
             'usage_date' => Carbon::yesterday(),
-            'user_id' => $this->user->id,
         ]);
 
         // Run Calculation for YESTERDAY
@@ -154,19 +153,19 @@ class SystemVerificationTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => '2020-01-01',
             'is_active' => false, // Already exited
             'owner_id' => $this->user->id,
         ]);
 
         $response = $this->post(route('animals.exit.store', $animal->id), [
-            'exit_type' => 'DEATH',
+            'exit_type' => 'MATI',
             'exit_date' => now(),
         ]);
 
         $response->assertRedirect();
-        $response->assertSessionHas('error', 'Animal is already exited.');
+        $response->assertSessionHas('error', 'Ternak sudah keluar.');
     }
 
     /** @test */
@@ -181,7 +180,7 @@ class SystemVerificationTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $locA->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => '2020-01-01',
             'owner_id' => $this->user->id,
         ]);
@@ -192,7 +191,7 @@ class SystemVerificationTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $locA->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'FEMALE',
+            'gender' => 'BETINA',
             'birth_date' => '2020-01-01',
             'owner_id' => $this->user->id,
         ]);
@@ -201,13 +200,13 @@ class SystemVerificationTest extends TestCase
             'sire_id' => $sire->id,
             'dam_id' => $dam->id,
             'mating_date' => now(),
-            'status' => 'PENDING'
+            'status' => 'MENUNGGU'
         ]);
 
         // Move Sire to Location B
         $sire->update(['current_location_id' => $locB->id]);
 
         $breeding->refresh();
-        $this->assertEquals('COMPLETED', $breeding->status);
+        $this->assertEquals('SELESAI', $breeding->status);
     }
 }

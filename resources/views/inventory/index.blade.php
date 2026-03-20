@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Gudang & Pakan (Inventory)</h2>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Gudang & Pakan</h2>
         <div class="flex gap-2">
             <button data-modal-target="usage-modal" data-modal-toggle="usage-modal" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">Catat Penggunaan</button>
             <button data-modal-target="purchase-modal" data-modal-toggle="purchase-modal" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Tambah Stok (Beli)</button>

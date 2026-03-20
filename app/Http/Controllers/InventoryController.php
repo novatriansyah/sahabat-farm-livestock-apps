@@ -38,6 +38,6 @@ class InventoryController extends Controller
 
         $inventory->update($validated);
 
-        return redirect()->route('inventory.index')->with('success', 'Item updated successfully.');
+        return redirect()->route('inventory.index')->with('success', 'Barang berhasil diperbarui.');
     }
 }

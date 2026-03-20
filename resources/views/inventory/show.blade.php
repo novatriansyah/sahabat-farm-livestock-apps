@@ -2,7 +2,7 @@
     <div class="max-w-4xl mx-auto">
         <div class="mb-4 flex items-center justify-between">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $item->name }}</h2>
-            <a href="{{ route('inventory.edit', $item->id) }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Edit Item</a>
+            <a href="{{ route('inventory.edit', $item->id) }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Ubah Item</a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -42,9 +42,9 @@
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3">Date</th>
+                                        <th scope="col" class="px-6 py-3">Tanggal</th>
                                         <th scope="col" class="px-6 py-3">Used</th>
-                                        <th scope="col" class="px-6 py-3">Location</th>
+                                        <th scope="col" class="px-6 py-3">Lokasi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -64,7 +64,7 @@
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3">Date</th>
+                                        <th scope="col" class="px-6 py-3">Tanggal</th>
                                         <th scope="col" class="px-6 py-3">Qty</th>
                                         <th scope="col" class="px-6 py-3">Total Price</th>
                                     </tr>

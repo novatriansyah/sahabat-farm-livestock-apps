@@ -15,6 +15,7 @@ class Animal extends Model
 
     protected $casts = [
         'birth_date' => 'date',
+        'entry_date' => 'date',
         'is_active' => 'boolean',
         'current_hpp' => 'decimal:2',
         'purchase_price' => 'decimal:2',
@@ -22,6 +23,19 @@ class Animal extends Model
         'accumulated_medicine_cost' => 'decimal:2',
         'daily_adg' => 'float',
     ];
+
+    public function getAgeStringAttribute()
+    {
+        if (!$this->birth_date) return '-';
+        $diff = \Carbon\Carbon::now()->diff($this->birth_date);
+        
+        $parts = [];
+        if ($diff->y > 0) $parts[] = $diff->y . ' thn';
+        if ($diff->m > 0) $parts[] = $diff->m . ' bln';
+        if ($diff->d > 0 && empty($parts)) $parts[] = $diff->d . ' hr';
+        
+        return implode(' ', $parts) ?: 'Baru Lahir';
+    }
 
     public function owner(): BelongsTo
     {
@@ -96,5 +110,15 @@ class Animal extends Model
     public function offspring(): HasMany
     {
         return $this->hasMany(Animal::class, 'dam_id');
+    }
+
+    public function ownershipLogs(): HasMany
+    {
+        return $this->hasMany(AnimalOwnershipLog::class);
+    }
+
+    public function earTagLogs(): HasMany
+    {
+        return $this->hasMany(AnimalEarTagLog::class);
     }
 }

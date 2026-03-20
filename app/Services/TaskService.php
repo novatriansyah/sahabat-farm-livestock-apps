@@ -14,9 +14,9 @@ class TaskService
     public function generateArrivalTasks(Animal $animal): void
     {
         $tasks = [
-            ['title' => 'Give forage only (no concentrate) for 24h', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
-            ['title' => 'Give Gula Merah + Asam Jawa drink', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
-            ['title' => 'Quarantine Entry Check', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
+            ['title' => 'Berikan hijauan saja (tanpa konsentrat) selama 24 jam', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
+            ['title' => 'Berikan minuman Gula Merah + Asam Jawa', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
+            ['title' => 'Pengecekan Masuk Karantina', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
         ];
 
         foreach ($tasks as $task) {
@@ -24,7 +24,7 @@ class TaskService
                 'animal_id' => $animal->id,
                 'title' => $task['title'],
                 'type' => $task['type'],
-                'status' => 'PENDING',
+                'status' => 'MENUNGGU',
                 'due_date' => $task['due_date'],
             ]);
         }
@@ -38,9 +38,9 @@ class TaskService
         // Monthly Check
         AnimalTask::create([
             'animal_id' => $animal->id,
-            'title' => 'Routine Health Check (Weight & Temp)',
+            'title' => 'Pemeriksaan Kesehatan Rutin (Berat & Suhu)',
             'type' => 'ROUTINE',
-            'status' => 'PENDING',
+            'status' => 'MENUNGGU',
             'due_date' => Carbon::now()->endOfMonth(),
         ]);
     }

@@ -29,11 +29,11 @@ class FullFeatureTest extends TestCase
         parent::setUp();
 
         // Setup common data
-        $this->user = User::factory()->create(['role' => 'OWNER']);
+        $this->user = User::factory()->create(['role' => 'PEMILIK']);
         $this->category = MasterCategory::create(['name' => 'Sheep']);
         $this->breed = MasterBreed::create(['name' => 'Dorper', 'category_id' => $this->category->id]);
         $this->location = MasterLocation::create(['name' => 'Cage A', 'type' => 'Colony']);
-        $this->status = MasterPhysStatus::create(['name' => 'Healthy']);
+        $this->status = MasterPhysStatus::create(['name' => 'Sehat']);
         MasterPhysStatus::create(['name' => 'Cempe']);
         MasterPhysStatus::create(['name' => 'Lactating']);
 
@@ -49,10 +49,9 @@ class FullFeatureTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'birth_date' => Carbon::now(),
-            'acquisition_type' => 'BRED',
-            'initial_weight' => 20,
+            'acquisition_type' => 'HASIL_TERNAK',
             'is_active' => true,
         ]);
 
@@ -61,7 +60,7 @@ class FullFeatureTest extends TestCase
             'partner_id' => $this->partner->id,
             'necklace_color' => 'Blue',
             'generation' => 'F2',
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'category_id' => $this->category->id,
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
