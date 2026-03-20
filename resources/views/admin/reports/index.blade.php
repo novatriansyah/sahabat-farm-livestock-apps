@@ -1,168 +1,134 @@
-<x-app-layout>
-    <x-slot name="styles">
-    <style>
-        @media print {
-            @page { size: A4; margin: 10mm; } /* Reduced margin for more space */
-            body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
-            
-            /* Hide UI Elements */
-            nav, header, aside, .no-print, form, button, #logo-sidebar { display: none !important; }
-            
-            /* Layout Adjustments - Force Full Width */
-            .min-h-screen { min-height: 0 !important; }
-            .bg-gray-100 { background-color: white !important; }
-            
-            /* Target the Main Content Wrapper */
-            .p-4.sm\:ml-64 { 
-                margin-left: 0 !important; 
-                padding: 0 !important; 
-                width: 100% !important; 
-                border: none !important;
-            }
-            .p-4.mt-14 { padding: 0 !important; margin-top: 0 !important; }
-            
-            .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; }
-            .rounded-lg, .rounded-md { border-radius: 0 !important; }
-            
-            /* Table Styling */
-            table { width: 100% !important; border-collapse: collapse !important; font-size: 10pt; }
-            th, td { border: 1px solid #000 !important; padding: 4px 8px !important; text-align: left; }
-            thead { display: table-header-group; }
-            tr { break-inside: avoid; }
-            
-            /* Print Header */
-            .print-header { 
-                display: flex !important; 
-                align-items: center; 
-                justify-content: center; 
-                gap: 15px;
-                margin-bottom: 20px; 
-                border-bottom: 2px solid #000; 
-                padding-bottom: 15px; 
-            }
-            .print-logo { height: 60px; width: auto; }
-            .print-text { text-align: left; }
-            .print-title { font-size: 18pt; font-weight: bold; line-height: 1.2; }
-            .print-subtitle { font-size: 12pt; color: #000; }
-        }
-        .print-header { display: none; }
-    </style>
-    </x-slot>
+@php
+    $monthName = date('F', mktime(0, 0, 0, $month, 10));
+    $periodString = "$monthName $year";
+@endphp
 
-    <!-- Print Header (Visible only in Print) -->
-    <div class="print-header">
-        <img src="{{ asset('img/logo.png') }}" class="print-logo" alt="Logo">
-        <div class="print-text">
-            <div class="print-title">SAHABAT FARM INDONESIA</div>
-            <div class="print-subtitle">Laporan Bulanan: {{ date('F', mktime(0, 0, 0, $month, 10)) }} {{ $year }}</div>
-        </div>
+<x-print-layout 
+    title="Laporan Kelahiran & Kematian" 
+    type="LAPORAN DATA KELAHIRAN & KEMATIAN" 
+    :period="$periodString"
+>
+    @if(request('mode') !== 'print')
+    <div class="flex justify-between items-center mb-6 no-print">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            Laporan Kelahiran & Kematian
+        </h2>
     </div>
 
-    <div class="flex justify-between items-center mb-4 no-print">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('Laporan Kelahiran & Kematian') }}</h2>
-    </div>
-
-    <!-- Filter -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 p-4 dark:bg-gray-800 no-print">
-                <form method="GET" action="{{ route('reports.index') }}" class="flex gap-4 items-end">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Bulan</label>
-                        <select name="month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            @for($m=1; $m<=12; $m++)
-                                <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $m, 10)) }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Tahun</label>
-                        <select name="year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            @for($y=2023; $y<=date('Y'); $y++)
-                                <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Filter</button>
-                    <button type="button" onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700">Cetak (Print)</button>
-                </form>
-            </div>
-
-
+    <!-- Filter (Visible only on Screen) -->
     
-    <!-- Births Table -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 dark:bg-gray-800">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-bold mb-4 text-green-600 dark:text-green-400">Laporan Kelahiran</h3>
-                    @if($births->isEmpty())
-                        <p class="text-gray-500 dark:text-gray-400">Tidak ada data kelahiran bulan ini.</p>
-                    @else
-                        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr>
-                                        <th class="px-6 py-3">Tgl Lahir</th>
-                                        <th class="px-6 py-3">Tag ID</th>
-                                        <th class="px-6 py-3">Gender</th>
-                                        <th class="px-6 py-3">Breed (Gen)</th>
-                                        <th class="px-6 py-3">Bobot Lahir</th>
-                                        <th class="px-6 py-3">Indukan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($births as $birth)
-                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td class="px-6 py-4">{{ $birth->birth_date->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $birth->tag_id }}</td>
-                                        <td class="px-6 py-4">{{ $birth->gender == 'JANTAN' ? 'Jantan' : 'Betina' }}</td>
-                                        <td class="px-6 py-4">{{ $birth->breed->name }} ({{ $birth->generation ?? '-' }})</td>
-                                        <td class="px-6 py-4">{{ $birth->weightLogs->first()->weight_kg ?? '-' }} kg</td>
-                                        <td class="px-6 py-4">
-                                            Dam: {{ $birth->dam->tag_id ?? '-' }} <br>
-                                            Sire: {{ $birth->sire->tag_id ?? '-' }}
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
+    <div class="bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8 p-8 no-print transition-all hover:shadow-md">
+        <form method="GET" action="{{ route('reports.index') }}" class="flex flex-wrap gap-6 items-end">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest">Bulan</label>
+                <select name="month" class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700 dark:text-slate-200">
+                    @for($m=1; $m<=12; $m++)
+                        <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $m, 10)) }}</option>
+                    @endfor
+                </select>
             </div>
-
-            <!-- Deaths Table -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-800">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-bold mb-4 text-red-600 dark:text-red-400">Laporan Kematian</h3>
-                    @if($deaths->isEmpty())
-                        <p class="text-gray-500 dark:text-gray-400">Tidak ada data kematian bulan ini.</p>
-                    @else
-                        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr>
-                                        <th class="px-6 py-3">Tgl Mati</th>
-                                        <th class="px-6 py-3">Tag ID</th>
-                                        <th class="px-6 py-3">Gender</th>
-                                        <th class="px-6 py-3">Breed</th>
-                                        <th class="px-6 py-3">Usia Saat Mati</th>
-                                        <th class="px-6 py-3">Nilai Kerugian (Est)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($deaths as $death)
-                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td class="px-6 py-4">{{ $death->exit_date->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $death->animal->tag_id }}</td>
-                                        <td class="px-6 py-4">{{ $death->animal->gender == 'JANTAN' ? 'Jantan' : 'Betina' }}</td>
-                                        <td class="px-6 py-4">{{ $death->animal->breed->name }}</td>
-                                        <td class="px-6 py-4">{{ $death->animal->birth_date->diffInMonths($death->exit_date) }} bulan</td>
-                                        <td class="px-6 py-4">Rp {{ number_format(($death->animal->purchase_price ?? 0) + $death->final_hpp, 0, ',', '.') }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest">Tahun</label>
+                <select name="year" class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700 dark:text-slate-200">
+                    @for($y=2023; $y<=date('Y'); $y++)
+                        <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
             </div>
+            <div class="flex gap-3">
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95">Filter</button>
+                <a href="{{ route('reports.index', array_merge(request()->all(), ['mode' => 'print'])) }}" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-slate-900/20 transition-all active:scale-95 flex items-center gap-2 no-print">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Pratinjau Cetak
+                </a>
+                
+            </div>
+        </form>
+    </div>
+    @endif
 
-</x-app-layout>
+    <!-- Layout on Print: Births and Deaths often on separate pages or sections -->
+    
+    <!-- Births Section -->
+    <div class="mb-12 no-break">
+        <h3 class="text-lg font-black mb-6 text-emerald-600 dark:text-emerald-400 border-l-4 border-emerald-500 pl-4 uppercase tracking-widest">
+            Data Kelahiran
+        </h3>
+        @if($births->isEmpty())
+            <div class="p-8 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 text-center text-slate-500">
+                Tidak ada data kelahiran pada periode ini.
+            </div>
+        @else
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 shadow-sm print:border-none">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="text-left">Tanggal</th>
+                            <th class="text-left">Tag ID</th>
+                            <th class="text-left">Gender</th>
+                            <th class="text-left">Ras / Breed</th>
+                            <th class="text-center">Gen</th>
+                            <th class="text-right">Bobot</th>
+                            <th class="text-left">Parental (Dam/Sire)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($births as $birth)
+                        <tr>
+                            <td class="whitespace-nowrap">{{ $birth->birth_date->format('d/m/Y') }}</td>
+                            <td class="font-bold text-slate-900 dark:text-white">{{ $birth->tag_id }}</td>
+                            <td>{{ $birth->gender == 'JANTAN' ? '♂ Jantan' : '♀ Betina' }}</td>
+                            <td>{{ $birth->breed->name }}</td>
+                            <td class="text-center">{{ $birth->generation ?? '-' }}</td>
+                            <td class="text-right">{{ $birth->weightLogs->first()->weight_kg ?? '-' }} kg</td>
+                            <td class="text-xs">
+                                <span class="block">D: {{ $birth->dam->tag_id ?? '-' }}</span>
+                                <span class="block text-slate-400">S: {{ $birth->sire->tag_id ?? '-' }}</span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    <!-- Deaths Section -->
+    <div class="mt-12 no-break">
+        <h3 class="text-lg font-black mb-6 text-rose-600 dark:text-rose-400 border-l-4 border-rose-500 pl-4 uppercase tracking-widest">
+            Data Kematian
+        </h3>
+        @if($deaths->isEmpty())
+            <div class="p-8 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 text-center text-slate-500">
+                Tidak ada data kematian pada periode ini.
+            </div>
+        @else
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 shadow-sm print:border-none">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="text-left">Tanggal</th>
+                            <th class="text-left">Tag ID</th>
+                            <th class="text-left">Gender</th>
+                            <th class="text-left">Ras / Breed</th>
+                            <th class="text-center">Usia (Bln)</th>
+                            <th class="text-right">Estimasi Kerugian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($deaths as $death)
+                        <tr>
+                            <td class="whitespace-nowrap">{{ $death->exit_date->format('d/m/Y') }}</td>
+                            <td class="font-bold text-slate-900 dark:text-white">{{ $death->animal->tag_id }}</td>
+                            <td>{{ $death->animal->gender == 'JANTAN' ? '♂ Jantan' : '♀ Betina' }}</td>
+                            <td>{{ $death->animal->breed->name }}</td>
+                            <td class="text-center">{{ $death->animal->birth_date->diffInMonths($death->exit_date) }}</td>
+                            <td class="text-right font-bold text-rose-600">Rp {{ number_format(($death->animal->purchase_price ?? 0) + $death->final_hpp, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+</x-print-layout>

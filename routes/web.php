@@ -25,6 +25,21 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// --- GUEST INFORMATIONAL PAGES ---
+Route::prefix('layanan')->name('pages.')->group(function () {
+    Route::view('digitalisasi-ternak', 'pages.digital-livestock')->name('digital-livestock');
+    Route::view('monitoring-kesehatan', 'pages.health-monitoring')->name('health-monitoring');
+    Route::view('manajemen-pakan', 'pages.feed-management')->name('feed-management');
+    Route::view('sales-tracking', 'pages.sales-tracking')->name('sales-tracking');
+});
+
+Route::name('pages.')->group(function () {
+    Route::view('tentang-kami', 'pages.about-us')->name('about-us');
+    Route::view('syarat-ketentuan', 'pages.terms')->name('terms');
+    Route::view('kebijakan-privasi', 'pages.privacy')->name('privacy');
+    Route::view('hubungi-kami', 'pages.contact')->name('contact');
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // --- NOTIFICATIONS ---

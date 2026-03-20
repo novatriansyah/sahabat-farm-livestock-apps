@@ -21,7 +21,7 @@
                 </p>
                 <div class="mt-1">
                      @if($animal->health_status == 'SEHAT')
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Healthy</span>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Sehat</span>
                     @else
                         <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">{{ $animal->health_status }}</span>
                     @endif
