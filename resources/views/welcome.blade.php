@@ -45,9 +45,11 @@
                                 <a href="{{ route('login') }}" class="text-sm font-bold text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-400 transition-colors px-2">
                                     Masuk
                                 </a>
-                                <a href="{{ route('register') }}" class="inline-flex items-center px-5 py-2.5 text-sm font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 rounded-xl shadow-md transition-all active:scale-95">
-                                    Mulai
-                                </a>
+                                @if (Route::has('register'))
+                                    <a href="{{ route('register') }}" class="inline-flex items-center px-5 py-2.5 text-sm font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 rounded-xl shadow-md transition-all active:scale-95">
+                                        Mulai
+                                    </a>
+                                @endif
                             @endauth
                         </div>
                     </div>
@@ -83,9 +85,11 @@
                             Buka Dasbor
                         </a>
                     @else
-                        <div class="grid grid-cols-1 gap-4">
+                        <div class="grid grid-cols-1 {{ Route::has('register') ? 'sm:grid-cols-2' : '' }} gap-3">
                             <a href="{{ route('login') }}" class="block px-4 py-4 text-center text-lg font-bold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-700/50 rounded-2xl">Masuk</a>
-                            <a href="{{ route('register') }}" class="block px-4 py-4 text-center text-lg font-extrabold text-white bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-500/30">Daftar Akun</a>
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}" class="block px-4 py-4 text-center text-lg font-extrabold text-white bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-500/30">Daftar Akun</a>
+                            @endif
                         </div>
                     @endauth
                 </div>
