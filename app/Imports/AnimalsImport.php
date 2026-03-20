@@ -62,9 +62,14 @@ class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
                 if ($partner) $partnerId = $partner->id;
             }
 
+            // Acquisition Type Logic
+            $acqType = 'BELI'; // Default
+            if (!empty($row['acquisition_type'])) {
+                $val = strtoupper($row['acquisition_type']);
                 if (in_array($val, ['BELI', 'HASIL_TERNAK', 'BOUGHT', 'BRED'])) {
                     $acqType = ($val === 'BRED' || $val === 'HASIL_TERNAK') ? 'HASIL_TERNAK' : 'BELI';
                 }
+            }
             
             $gender = 'BETINA'; // Default
             if (!empty($row['gender'])) {

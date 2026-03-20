@@ -121,7 +121,9 @@
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                         <td class="px-6 py-4">{{ $log->treatment_date->format('d M Y') }}</td>
                                         <td class="px-6 py-4">
-                                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ $log->type }}</span>
+                                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                {{ $log->type === 'MEDICATION' ? 'Pemberian Obat' : 'Pemeriksaan' }}
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4">{{ $log->notes }}</td>
                                     </tr>

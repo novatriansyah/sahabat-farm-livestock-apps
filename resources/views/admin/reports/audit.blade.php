@@ -1,124 +1,106 @@
-<x-app-layout>
-    <x-slot name="styles">
-    <style>
-        @media print {
-            @page { size: A4; margin: 10mm; }
-            body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
-            
-            nav, header, aside, .no-print, form, button, #logo-sidebar { display: none !important; }
-            .min-h-screen { min-height: 0 !important; }
-            .bg-gray-100 { background-color: white !important; }
-            .p-4.sm\:ml-64 { margin-left: 0 !important; padding: 0 !important; width: 100% !important; border: none !important; }
-            .p-4.mt-14 { padding: 0 !important; margin-top: 0 !important; }
-            
-            table { width: 100% !important; border-collapse: collapse !important; font-size: 10pt; }
-            th, td { border: 1px solid #000 !important; padding: 4px 8px !important; text-align: left; }
-            thead { display: table-header-group; }
-            tr { break-inside: avoid; }
-            
-            .print-header { 
-                display: flex !important; 
-                align-items: center; 
-                justify-content: center; 
-                gap: 15px;
-                margin-bottom: 20px; 
-                border-bottom: 2px solid #000; 
-                padding-bottom: 15px; 
-            }
-            .print-logo { height: 60px; width: auto; }
-            .print-text { text-align: left; }
-            .print-title { font-size: 18pt; font-weight: bold; line-height: 1.2; }
-            .print-subtitle { font-size: 12pt; color: #000; }
-        }
-        .print-header { display: none; }
-    </style>
-    </x-slot>
+@php
+    $monthName = date('F', mktime(0, 0, 0, $month, 10));
+    $periodString = "$monthName $year";
+@endphp
 
-    <!-- Print Header -->
-    <div class="print-header">
-        <img src="{{ asset('img/logo.png') }}" class="print-logo" alt="Logo">
-        <div class="print-text">
-            <div class="print-title">SAHABAT FARM INDONESIA</div>
-            <div class="print-subtitle">Audit Internal (Efisiensi Kandang): {{ date('F', mktime(0, 0, 0, $month, 10)) }} {{ $year }}</div>
-        </div>
+<x-print-layout 
+    title="Audit Efisiensi Kandang" 
+    type="LAPORAN AUDIT INTERNAL (EFISIENSI KANDANG)" 
+    :period="$periodString"
+>
+    @if(request('mode') !== 'print')
+    <div class="flex justify-between items-center mb-8 no-print">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            Audit Efisiensi Kandang
+        </h2>
     </div>
 
-    <div class="flex justify-between items-center mb-4 no-print">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('Audit Internal (Efisiensi Kandang)') }}</h2>
-        <button type="button" onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700">Cetak (Print)</button>
-    </div>
-
-    <!-- Filter -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 p-4 dark:bg-gray-800 no-print">
-        <form method="GET" action="{{ route('reports.audit') }}" class="flex gap-4 items-end">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Bulan</label>
-                <select name="month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+    <!-- Filter (No-Print) -->
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm mb-8 p-8 no-print">
+        <form method="GET" action="{{ route('reports.audit') }}" class="flex flex-wrap gap-6 items-end">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest">Bulan</label>
+                <select name="month" class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium">
                     @for($m=1; $m<=12; $m++)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $m, 10)) }}</option>
                     @endfor
                 </select>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Tahun</label>
-                <select name="year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest">Tahun</label>
+                <select name="year" class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium">
                     @for($y=2023; $y<=date('Y'); $y++)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
                 </select>
             </div>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Filter</button>
+            <div class="flex gap-3">
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95">Filter</button>
+                
+                <a href="{{ route('reports.audit', array_merge(request()->all(), ['mode' => 'print'])) }}" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-slate-900/20 transition-all active:scale-95 flex items-center gap-2 no-print">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Pratinjau Cetak
+                </a>
+                
+            </div>
         </form>
     </div>
+    @endif
 
     @if(empty($auditData))
-        <div class="p-4 bg-gray-50 text-gray-500 rounded-lg dark:bg-gray-900 dark:text-gray-400">
-            Tidak ada aktivitas (kelahiran/kematian) atau populasi pada periode ini.
+        <div class="p-12 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 text-center text-slate-500">
+            <p class="font-medium text-lg italic">Tidak ada aktivitas (kelahiran/kematian) atau populasi pada periode ini.</p>
         </div>
     @else
-        
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 dark:bg-gray-800">
-            <div class="p-6">
-                <h3 class="text-lg font-bold mb-4 text-red-600 dark:text-red-400">Analisa Mortalitas per Lokasi</h3>
-                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th class="px-6 py-3">Lokasi (Kandang)</th>
-                                <th class="px-6 py-3 text-center">Populasi Aktif</th>
-                                <th class="px-6 py-3 text-center">Kelahiran</th>
-                                <th class="px-6 py-3 text-center">Kematian</th>
-                                <th class="px-6 py-3 text-right">Tingkat Kematian (Mortality Rate)</th>
-                                <th class="px-6 py-3 text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($auditData as $row)
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <td class="px-6 py-4 font-medium">{{ $row['location'] }}</td>
-                                <td class="px-6 py-4 text-center">{{ $row['population'] }}</td>
-                                <td class="px-6 py-4 text-center text-green-600 font-bold">+{{ $row['births'] }}</td>
-                                <td class="px-6 py-4 text-center text-red-600 font-bold">{{ $row['deaths'] > 0 ? '-'.$row['deaths'] : '0' }}</td>
-                                <td class="px-6 py-4 text-right">
-                                    <span class="font-bold {{ $row['mortality_rate'] > 5 ? 'text-red-600' : ($row['mortality_rate'] > 2 ? 'text-orange-500' : 'text-green-600') }}">
-                                        {{ number_format($row['mortality_rate'], 2) }}%
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    @if($row['mortality_rate'] > 5)
-                                        <span class="px-2 py-1 rounded bg-red-100 text-red-800 text-xs font-bold">KRITIS</span>
-                                    @elseif($row['mortality_rate'] > 2)
-                                        <span class="px-2 py-1 rounded bg-yellow-100 text-yellow-800 text-xs font-bold">WASPADA</span>
-                                    @else
-                                        <span class="px-2 py-1 rounded bg-green-100 text-green-800 text-xs font-bold">AMAN</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+        <div class="no-break mb-10">
+            <h3 class="text-sm font-black mb-6 text-rose-600 dark:text-rose-400 border-l-4 border-rose-500 pl-4 uppercase tracking-[0.2em]">
+                Analisis Mortalitas Per Lokasi
+            </h3>
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 shadow-sm print:border-none">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="text-left">Lokasi (Kandang)</th>
+                            <th class="text-center whitespace-nowrap">Populasi Aktif</th>
+                            <th class="text-center whitespace-nowrap">Kelahiran</th>
+                            <th class="text-center whitespace-nowrap">Kematian</th>
+                            <th class="text-right whitespace-nowrap">Mortalitas (%)</th>
+                            <th class="text-center">Status Efisiensi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($auditData as $row)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <td class="font-bold text-slate-900 dark:text-white">{{ $row['location'] }}</td>
+                            <td class="text-center font-medium">{{ $row['population'] }} Ekor</td>
+                            <td class="text-center text-emerald-600 font-black">+{{ $row['births'] }}</td>
+                            <td class="text-center text-rose-600 font-black">{{ $row['deaths'] > 0 ? '-'.$row['deaths'] : '0' }}</td>
+                            <td class="text-right">
+                                <span class="font-black {{ $row['mortality_rate'] > 5 ? 'text-rose-600' : ($row['mortality_rate'] > 2 ? 'text-orange-500' : 'text-emerald-600') }}">
+                                    {{ number_format($row['mortality_rate'], 2) }}%
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                @if($row['mortality_rate'] > 5)
+                                    <span class="inline-flex px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[10px] font-black uppercase tracking-widest border border-rose-200">KRITIS</span>
+                                @elseif($row['mortality_rate'] > 2)
+                                    <span class="inline-flex px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 text-[10px] font-black uppercase tracking-widest border border-orange-200">WASPADA</span>
+                                @else
+                                    <span class="inline-flex px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-widest border border-emerald-200">AMAN</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
+
+        <!-- Footnote for Audit -->
+        <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl no-print dark:bg-slate-800 dark:border-slate-700">
+            <p class="text-xs text-slate-500 leading-relaxed font-medium capitalize">
+                <span class="font-bold text-slate-700 dark:text-slate-300">Catatan Audit:</span> Mortality rate dihitung berdasarkan persentase kematian terhadap total populasi. Ambang batas kritis ditetapkan pada > 5% per bulan untuk mitigasi risiko dini.
+            </p>
+        </div>
     @endif
-</x-app-layout>
+</x-print-layout>

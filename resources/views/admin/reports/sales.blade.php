@@ -1,132 +1,110 @@
-<x-app-layout>
-    <x-slot name="styles">
-    <style>
-        @media print {
-            @page { size: A4; margin: 10mm; }
-            body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white; }
-            
-            nav, header, aside, .no-print, form, button, #logo-sidebar { display: none !important; }
-            .min-h-screen { min-height: 0 !important; }
-            .bg-gray-100 { background-color: white !important; }
-            .p-4.sm\:ml-64 { margin-left: 0 !important; padding: 0 !important; width: 100% !important; border: none !important; }
-            .p-4.mt-14 { padding: 0 !important; margin-top: 0 !important; }
-            .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; }
-            .rounded-lg, .rounded-md { border-radius: 0 !important; }
-            table { width: 100% !important; border-collapse: collapse !important; font-size: 10pt; }
-            th, td { border: 1px solid #000 !important; padding: 4px 8px !important; text-align: left; }
-            thead { display: table-header-group; }
-            tr { break-inside: avoid; }
-            
-            .print-header { 
-                display: flex !important; 
-                align-items: center; 
-                justify-content: center; 
-                gap: 15px;
-                margin-bottom: 20px; 
-                border-bottom: 2px solid #000; 
-                padding-bottom: 15px; 
-            }
-            .print-logo { height: 60px; width: auto; }
-            .print-text { text-align: left; }
-            .print-title { font-size: 18pt; font-weight: bold; line-height: 1.2; }
-            .print-subtitle { font-size: 12pt; color: #000; }
-        }
-        .print-header { display: none; }
-    </style>
-    </x-slot>
+@php
+    $monthName = date('F', mktime(0, 0, 0, $month, 10));
+    $periodString = "$monthName $year";
+@endphp
 
-    <!-- Print Header -->
-    <div class="print-header">
-        <img src="{{ asset('img/logo.png') }}" class="print-logo" alt="Logo">
-        <div class="print-text">
-            <div class="print-title">SAHABAT FARM INDONESIA</div>
-            <div class="print-subtitle">Laporan Penjualan: {{ date('F', mktime(0, 0, 0, $month, 10)) }} {{ $year }}</div>
-        </div>
+<x-print-layout 
+    title="Laporan Penjualan" 
+    type="LAPORAN DATA PENJUALAN" 
+    :period="$periodString"
+>
+    @if(request('mode') !== 'print')
+    <div class="flex justify-between items-center mb-6 no-print">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            Laporan Penjualan
+        </h2>
     </div>
 
-    <div class="flex justify-between items-center mb-4 no-print">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('Laporan Penjualan') }}</h2>
-    </div>
-
-    <!-- Filter -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 p-4 dark:bg-gray-800 no-print">
-        <form method="GET" action="{{ route('reports.sales') }}" class="flex gap-4 items-end">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Bulan</label>
-                <select name="month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+    <!-- Filter (Visible only on Screen) -->
+    <div class="bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm mb-8 p-8 no-print transition-all hover:shadow-md">
+        <form method="GET" action="{{ route('reports.sales') }}" class="flex flex-wrap gap-6 items-end">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest">Bulan</label>
+                <select name="month" class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700 dark:text-slate-200">
                     @for($m=1; $m<=12; $m++)
                         <option value="{{ $m }}" {{ $month == $m ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $m, 10)) }}</option>
                     @endfor
                 </select>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Tahun</label>
-                <select name="year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-widest">Tahun</label>
+                <select name="year" class="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700 dark:text-slate-200">
                     @for($y=2023; $y<=date('Y'); $y++)
                         <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
                 </select>
             </div>
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Filter</button>
-            <button type="button" onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700">Cetak (Print)</button>
+            <div class="flex gap-3">
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95">Filter</button>
+                
+                <a href="{{ route('reports.sales', array_merge(request()->all(), ['mode' => 'print'])) }}" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-slate-900/20 transition-all active:scale-95 flex items-center gap-2 no-print">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Pratinjau Cetak
+                </a>
+            </div>
         </form>
     </div>
+    @endif
 
-    <!-- Sales Report -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 dark:bg-gray-800">
-        <div class="p-6 text-gray-900 dark:text-gray-100">
-            <!-- Financial Summary -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div class="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
-                    <p class="text-sm text-blue-600 dark:text-blue-200">Total Omset (Revenue)</p>
-                    <p class="text-2xl font-bold text-blue-800 dark:text-blue-100">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
-                </div>
-                @if(Auth::user()->role === 'PEMILIK')
-                <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg">
-                    <p class="text-sm text-green-600 dark:text-green-200">Estimasi Profit (Margin)</p>
-                    <p class="text-2xl font-bold text-green-800 dark:text-green-100">Rp {{ number_format($totalProfit, 0, ',', '.') }}</p>
-                </div>
-                @endif
-            </div>
-
-            @if($sales->isEmpty())
-                <p class="text-gray-500 dark:text-gray-400">Tidak ada penjualan bulan ini.</p>
-            @else
-                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th class="px-6 py-3">Tgl Jual</th>
-                                <th class="px-6 py-3">Tag ID</th>
-                                <th class="px-6 py-3">Ras</th>
-                                <th class="px-6 py-3">Mitra</th>
-                                <th class="px-6 py-3 whitespace-nowrap text-right">Harga Jual</th>
-                                @if(Auth::user()->role === 'PEMILIK')
-                                <th class="px-6 py-3 whitespace-nowrap text-right">HPP Final</th>
-                                <th class="px-6 py-3 whitespace-nowrap text-right">Margin</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($sales as $sale)
-                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <td class="px-6 py-4">{{ $sale->exit_date->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $sale->animal->tag_id }}</td>
-                                <td class="px-6 py-4">{{ $sale->animal->breed->name }}</td>
-                                <td class="px-6 py-4">{{ $sale->animal->partner->name ?? '-' }}</td>
-                                <td class="px-6 py-4 text-right whitespace-nowrap">Rp {{ number_format($sale->price, 0, ',', '.') }}</td>
-                                @if(Auth::user()->role === 'PEMILIK')
-                                <td class="px-6 py-4 text-right whitespace-nowrap">Rp {{ number_format($sale->final_hpp, 0, ',', '.') }}</td>
-                                <td class="px-6 py-4 text-right font-bold whitespace-nowrap {{ ($sale->price - $sale->final_hpp) >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                    Rp {{ number_format($sale->price - $sale->final_hpp, 0, ',', '.') }}
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+    <!-- Financial Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 no-break">
+        <div class="p-8 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800/50 print:border-slate-200">
+            <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] mb-2">Total Omset (Revenue)</p>
+            <p class="text-3xl font-black text-blue-900 dark:text-blue-100 italic">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
         </div>
+        @if(Auth::user()->role === 'PEMILIK')
+        <div class="p-8 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800/50 print:border-slate-200">
+            <p class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-2">Estimasi Profit (Margin)</p>
+            <p class="text-3xl font-black text-emerald-900 dark:text-emerald-100 italic">Rp {{ number_format($totalProfit, 0, ',', '.') }}</p>
+        </div>
+        @endif
     </div>
-</x-app-layout>
+
+    <!-- Sales Table -->
+    <div class="no-break">
+        <h3 class="text-lg font-black mb-6 text-slate-800 dark:text-slate-200 border-l-4 border-slate-800 pl-4 uppercase tracking-widest print:border-slate-900">
+            Daftar Transaksi Penjualan
+        </h3>
+        
+        @if($sales->isEmpty())
+            <div class="p-8 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 text-center text-slate-500">
+                Tidak ada riwayat penjualan pada periode ini.
+            </div>
+        @else
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 shadow-sm print:border-none">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="text-left">Tgl Jual</th>
+                            <th class="text-left">Tag ID</th>
+                            <th class="text-left">Ras / Breed</th>
+                            <th class="text-left">Mitra / Investor</th>
+                            <th class="text-right">Harga Jual</th>
+                            @if(Auth::user()->role === 'PEMILIK')
+                            <th class="text-right">HPP Final</th>
+                            <th class="text-right">Margin</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($sales as $sale)
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <td class="whitespace-nowrap">{{ $sale->exit_date->format('d/m/Y') }}</td>
+                            <td class="font-bold text-slate-900 dark:text-white">{{ $sale->animal->tag_id }}</td>
+                            <td>{{ $sale->animal->breed->name }}</td>
+                            <td>{{ $sale->animal->partner->name ?? '-' }}</td>
+                            <td class="text-right font-bold">Rp {{ number_format($sale->price, 0, ',', '.') }}</td>
+                            @if(Auth::user()->role === 'PEMILIK')
+                            <td class="text-right text-slate-500">Rp {{ number_format($sale->final_hpp, 0, ',', '.') }}</td>
+                            <td class="text-right font-black {{ ($sale->price - $sale->final_hpp) >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                                Rp {{ number_format($sale->price - $sale->final_hpp, 0, ',', '.') }}
+                            </td>
+                            @endif
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+</x-print-layout>

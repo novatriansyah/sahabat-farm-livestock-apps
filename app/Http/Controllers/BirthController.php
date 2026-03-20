@@ -89,12 +89,13 @@ class BirthController extends Controller
         $categoryId = $breed ? $breed->category_id : null;
 
         // 1. Check "Nifas" (Recovery)
-        $lactating = MasterPhysStatus::where('name', 'Lactating')->orWhere('name', 'Menyusui')->first();
+        $lactating = MasterPhysStatus::where('name', 'like', 'Menyusui')->orWhere('name', 'like', 'Lactating')->first();
         if ($lactating) {
             $dam->update(['current_phys_status_id' => $lactating->id]);
         }
 
         // 2. Create Offspring
+        $cempeStatus = MasterPhysStatus::where('name', 'like', 'Cempe')->first();
         $offspring = Animal::create([
             'tag_id' => $validated['tag_id'],
             'owner_id' => auth()->id(), // System User
@@ -104,7 +105,7 @@ class BirthController extends Controller
             'category_id' => $categoryId,
             'breed_id' => $breedId,
             'current_location_id' => $validated['current_location_id'],
-            'current_phys_status_id' => MasterPhysStatus::where('name', 'Cempe')->first()->id ?? 1,
+            'current_phys_status_id' => $cempeStatus->id ?? 1,
             'gender' => $validated['gender'],
             'birth_date' => $validated['birth_date'],
             'acquisition_type' => 'HASIL_TERNAK',

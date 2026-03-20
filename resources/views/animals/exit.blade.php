@@ -13,9 +13,8 @@
                 <div>
                     <label for="exit_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Exit Type</label>
                     <select id="exit_type" name="exit_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" onchange="togglePriceField(this.value)">
-                        <option value="SALE">Sale</option>
-                        <option value="SLAUGHTER">Potong (Slaughter)</option>
-                        <option value="DEATH">Death</option>
+                        <option value="JUAL">Penjualan (Sale)</option>
+                        <option value="MATI">Kematian (Death)</option>
                     </select>
                 </div>
                 <div>
@@ -38,7 +37,7 @@
     <script>
         function togglePriceField(type) {
             const field = document.getElementById('price-field');
-            if (type === 'DEATH') {
+            if (type === 'MATI') {
                 field.style.display = 'none';
                 document.getElementById('price').value = 0;
             } else {
