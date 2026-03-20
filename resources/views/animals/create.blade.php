@@ -17,19 +17,11 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
-                    <label for="category_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori</label>
-                    <select id="category_id" name="category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ras (Breed)</label>
+                <div class="md:col-span-2">
+                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori & Ras</label>
                     <select id="breed_id" name="breed_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         @foreach($breeds as $breed)
-                            <option value="{{ $breed->id }}">{{ $breed->name }}</option>
+                            <option value="{{ $breed->id }}">[{{ $breed->category->name ?? 'Tanpa Kategori' }}] {{ $breed->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -50,13 +42,17 @@
                 <div>
                     <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis Kelamin</label>
                     <select id="gender" name="gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        <option value="MALE">Jantan</option>
-                        <option value="FEMALE">Betina</option>
+                        <option value="JANTAN">Jantan</option>
+                        <option value="BETINA">Betina</option>
                     </select>
                 </div>
                 <div>
                     <label for="birth_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Lahir</label>
                     <input type="date" id="birth_date" name="birth_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                </div>
+                <div>
+                    <label for="entry_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Masuk (Khusus Ternak Beli)</label>
+                    <input type="date" id="entry_date" name="entry_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 </div>
                  <div>
                     <label for="current_location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lokasi Kandang</label>
@@ -76,12 +72,31 @@
                 </div>
                  <div>
                     <label for="necklace_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Kalung</label>
-                    <input type="text" id="necklace_color" name="necklace_color" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                    <select id="necklace_color" name="necklace_color" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Tanpa Kalung --</option>
+                        <option value="Merah">Merah</option>
+                        <option value="Biru">Biru</option>
+                        <option value="Hijau">Hijau</option>
+                        <option value="Kuning">Kuning</option>
+                        <option value="Hitam">Hitam</option>
+                        <option value="Putih">Putih</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="ear_tag_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Ear Tag</label>
+                    <select id="ear_tag_color" name="ear_tag_color" onchange="updateTagColor()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Standar --</option>
+                        <option value="Merah">Merah</option>
+                        <option value="Biru">Biru</option>
+                        <option value="Hijau">Hijau</option>
+                        <option value="Kuning">Kuning</option>
+                        <option value="Hitam">Hitam</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipe Perolehan</label>
-                    <input type="text" value="Beli (Purchase)" class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-white" disabled readonly>
-                    <input type="hidden" name="acquisition_type" value="BOUGHT">
+                    <input type="text" value="Beli" class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-white" disabled readonly>
+                    <input type="hidden" name="acquisition_type" value="BELI">
                 </div>
                 <div>
                     <label for="initial_weight" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Berat Awal (kg)</label>
@@ -97,9 +112,27 @@
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 20MB).</p>
                 </div>
             </div>
-            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Simpan</button>
         </form>
     </div>
 
-
+    <script>
+        function updateTagColor() {
+            const tagInput = document.getElementById('tag_id');
+            const color = document.getElementById('ear_tag_color').value;
+            const colorMap = {
+                'Merah': '#fee2e2',
+                'Biru': '#dbeafe',
+                'Hijau': '#dcfce7',
+                'Kuning': '#fef9c3',
+                'Hitam': '#e5e7eb',
+            };
+            if(color && colorMap[color]) {
+                tagInput.style.backgroundColor = colorMap[color];
+            } else {
+                tagInput.style.backgroundColor = '';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', updateTagColor);
+    </script>
 </x-app-layout>

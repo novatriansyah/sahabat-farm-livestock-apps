@@ -30,7 +30,7 @@ class InvoiceController extends Controller
         // Fetch active animals that are available for sale (Healthy, Active)
         // Optionally filter out those already sold.
         $animals = Animal::where('is_active', true)
-            ->where('health_status', '!=', 'DECEASED')
+            ->where('health_status', '!=', 'MATI')
             ->with(['breed', 'latestWeightLog'])
             ->get();
 
@@ -48,7 +48,7 @@ class InvoiceController extends Controller
             'customer_address' => 'nullable|string',
             'issued_date' => 'required|date',
             'due_date' => 'nullable|after_or_equal:issued_date',
-            'type' => 'required|in:PROFORMA,COMMERCIAL',
+            'type' => 'required|in:PROFORMA,KOMERSIAL',
             'tax_rate' => 'nullable|numeric|min:0|max:100',
             'additional_tax_rate' => 'nullable|numeric|min:0|max:100',
             'down_payment' => 'nullable|numeric|min:0',
@@ -93,7 +93,7 @@ class InvoiceController extends Controller
                 'customer_name' => $validated['customer_name'],
                 'customer_contact' => $validated['customer_contact'],
                 'customer_address' => $validated['customer_address'],
-                'status' => $validated['type'] === 'PROFORMA' ? 'DRAFT' : 'ISSUED',
+                'status' => $validated['type'] === 'PROFORMA' ? 'DRAFT' : 'DITERBITKAN',
                 'type' => $validated['type'],
                 'issued_date' => $validated['issued_date'],
                 'due_date' => $validated['due_date'] ?? null,
@@ -164,8 +164,8 @@ class InvoiceController extends Controller
             $newNumber = str_replace('PRF', 'INV', $invoice->invoice_number);
             
             $invoice->update([
-                'type' => 'COMMERCIAL',
-                'status' => 'ISSUED', // Ready for payment
+                'type' => 'KOMERSIAL',
+                'status' => 'DITERBITKAN', // Ready for payment
                 'invoice_number' => $newNumber,
             ]);
 
@@ -185,7 +185,7 @@ class InvoiceController extends Controller
     {
         DB::beginTransaction();
         try {
-            $invoice->update(['status' => 'PAID']);
+            $invoice->update(['status' => 'LUNAS']);
 
             // Automate "Mark as Sold" for linked animals
             foreach ($invoice->items as $item) {
@@ -195,7 +195,7 @@ class InvoiceController extends Controller
                         // Create Exit Log
                         \App\Models\ExitLog::create([
                             'animal_id' => $animal->id,
-                            'exit_type' => 'SALE',
+                            'exit_type' => 'JUAL',
                             'exit_date' => $invoice->issued_date, // or now() ? Using Invoice Date for consistency
                             'price' => $item->subtotal,
                             'final_hpp' => $animal->current_hpp ?? 0,
@@ -203,7 +203,7 @@ class InvoiceController extends Controller
                         ]);
 
                         // Update Animal Status
-                        // Assuming 'SOLD' status exists in MasterPhysStatus or similar logic. 
+                        // Assuming 'TERJUAL' status exists in MasterPhysStatus or similar logic. 
                         // If strict FK, we need ID. But often 'phys_status' is nullable or handled by scope.
                         // Let's just set is_active = false for now to "Exit" it from inventory.
                         
@@ -211,7 +211,7 @@ class InvoiceController extends Controller
                         // For MVP, just is_active = false is sufficient to hide from "Active" lists.
                         $animal->update([
                             'is_active' => false,
-                            'health_status' => 'SOLD', // Semantic update if column allows string enum/check
+                            'health_status' => 'TERJUAL', // Semantic update if column allows string enum/check
                         ]);
                     }
                 }

@@ -17,14 +17,14 @@ class DatabaseSeeder extends Seeder
             'name' => 'Pak Budi',
             'email' => 'owner@sahabat-farm.com',
             'password' => bcrypt('password'),
-            'role' => 'OWNER',
+            'role' => 'PEMILIK',
         ]);
 
         User::create([
             'name' => 'Mas Joko',
             'email' => 'staff@sahabat-farm.com',
             'password' => bcrypt('password'),
-            'role' => 'STAFF',
+            'role' => 'STAF',
         ]);
 
         // 2. Call SOP Seeder for Master Data (Breeds, Categories, Diseases, Inventory)

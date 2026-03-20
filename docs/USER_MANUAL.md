@@ -1,117 +1,117 @@
-# Sahabat Farm Indonesia - User Manual
+# Sahabat Farm Indonesia - Panduan Pengguna (User Manual)
 
-## 1. Role Overview
-The system is divided into 4 specific roles, each with different access levels:
+## 1. Ikhtisar Peran (Role Overview)
+Sistem ini dibagi menjadi 4 peran khusus, masing-masing dengan tingkat akses yang berbeda:
 
-| Role | Access Level | Primary Features |
+| Peran (Role) | Tingkat Akses | Fitur Utama |
 | :--- | :--- | :--- |
-| **OWNER** | **Full Admin** | Financials, Admin, Reports, Breeding, Stock, Partner Management. |
-| **BREEDER** | **High Level** | Breeding, Health, Stock, Inventory, Invoices, Reports. |
-| **PARTNER** | **Investor (View Only)** | Dashboard (ROI), My Animals, Reports. |
-| **STAFF** | **Operator** | Feeding Logs, Daily Care, QR Scanning. |
+| **OWNER** | **Admin Penuh** | Keuangan, Admin, Laporan, Breeding, Stok, Manajemen Mitra. |
+| **BREEDER** | **Tingkat Tinggi** | Breeding, Kesehatan, Stok, Gudang, Invoice, Laporan. |
+| **PARTNER** | **Investor (Lihat Saja)** | Dashboard (ROI), Ternak Saya, Laporan. |
+| **STAFF** | **Operator** | Log Pakan, Perawatan Harian, Scan QR. |
 
 ---
 
-## 2. OWNER & BREEDER Guide
-*(Managers & Decision Makers)*
+## 2. Panduan OWNER & BREEDER
+*(Manajer & Pembuat Keputusan)*
 
-### A. Dashboard & Monitoring
-1.  **Login**: Access the system via `/login`.
+### A. Dashboard & Pemantauan
+1.  **Login**: Masuk ke sistem melalui `/login`.
 2.  **Dashboard**:
-    *   **Quick Stats**: Total Population, Sick Animals, Sales this Month.
-    *   **Alerts**: Check the "Notifications" or "Pending Tasks" sections for:
-        *   **Vaccine Due**: Animals needing vaccination today/tomorrow.
-        *   **Weaning Ready**: Lambs >40 days old ready for separation.
-    *   **Financials**: Real-time sales and profit charts (Owner only).
+    *   **Statistik Cepat**: Total Populasi, Ternak Sakit, Penjualan Bulan Ini.
+    *   **Notifikasi (Alerts)**: Periksa bagian "Notifications" atau "Pending Tasks" untuk:
+        *   **Vaksin Jatuh Tempo**: Ternak yang perlu vaksin hari ini/besok.
+        *   **Siap Sapih (Weaning)**: Cempe usia >40 hari yang siap dipisahkan.
+    *   **Keuangan**: Grafik penjualan dan keuntungan real-time (Khusus Owner).
 
-### B. Livestock Management (Data Ternak)
-*   **Add New Animal**:
-    1.  Go to **Data Ternak** > **+ Tambah Baru**.
-    2.  Select **Source**: "Lahir di Farm" (Born here) or "Beli" (Purchased).
-    3.  **Important**: Auto-status is applied for newborns (<40 days = Nursing).
+### B. Manajemen Ternak (Data Ternak)
+*   **Tambah Ternak Baru**:
+    1.  Buka **Data Ternak** > **+ Tambah Baru**.
+    2.  Pilih **Sumber**: "Lahir di Farm" atau "Beli".
+    3.  **Penting**: Status otomatis diterapkan untuk ternak baru lahir (<40 hari = Menyusui).
 *   **Update Status**:
-    *   **Weaning**: The system automates weaning status at 40 days, but you can manually update location.
-    *   **Edit**: Use the Edit button to change details.
-    *   **Slaughter/Death**: Use the "Exit" (Keluar) button to record deaths or slaughter.
-*   **Breeding**:
-    1.  Go to **Breeding** tab on an animal's profile.
-    2.  Record Mating (Kawin). The system auto-calculates the Est. Birth Date (+150 days).
+    *   **Sapih**: Sistem otomatis mengubah status saat usia 40 hari, tapi lokasi kandang perlu dipindah manual.
+    *   **Edit**: Gunakan tombol Edit untuk mengubah detail data.
+    *   **Keluar (Mati/Jual/Potong)**: Gunakan tombol "Exit" (Keluar) untuk mencatat kematian atau pemotongan.
+*   **Breeding (Perkawinan)**:
+    1.  Buka tab **Breeding** pada profil ternak.
+    2.  Catat Data Kawin. Sistem otomatis menghitung Estimasi Lahir (+150 hari).
 
-### C. Finance & Inventory (Gudang & Keuangan)
+### C. Gudang & Keuangan
 *   **Inventory (Pakan & Obat)**:
-    *   **Stock In**: Add new sacks of feed or medicine bottles via **Gudang & Pakan**.
-    *   **Usage**: Usually recorded by STAFF, but you can manually record usage here.
+    *   **Stok Masuk**: Tambahkan karung pakan atau obat baru via menu **Gudang & Pakan**.
+    *   **Pemakaian**: Biasanya dicatat oleh STAFF, tapi Anda bisa mengoreksi stok di sini.
 *   **Invoices (Penjualan)**:
-    1.  Go to **Invoices** > **Create New**.
-    2.  **Select Customer**: Or create a new one (Address & Tax info enabled).
-    3.  **Add Items**: Select specific animals (by Tag ID) to sell. Price is auto-filled (but editable).
-    4.  **Down Payment (DP)**: Enter DP amount if applicable.
-    5.  **Status**: Mark as **PAID** to automatically move animals to "SOLD" status and remove them from active stock.
+    1.  Buka **Invoices** > **Create New**.
+    2.  **Pilih Pelanggan**: Atau buat baru (Alamat & Pajak sudah aktif).
+    3.  **Tambah Item**: Pilih ternak spesifik (berdasarkan Tag ID) yang akan dijual. Harga otomatis terisi (bisa diedit).
+    4.  **Uang Muka (DP)**: Masukkan jumlah DP jika ada.
+    5.  **Status**: Tandai sebagai **PAID** (Lunas) untuk otomatis memindahkan status ternak menjadi "SOLD" (Terjual) dan menghapusnya dari stok aktif.
 
-### D. Reports (Laporan)
-*   **Stok & Populasi**: Current herd count by Pen and Gender. Use "Print All" for A4 hardcopy.
-*   **Performa (ADG)**: Weight gain analysis. Check "Top 10" to identify best genetics.
-*   **Penjualan**: Monthly revenue and profit/margin (Owner only).
-*   **Reproduksi**: Track dam productivity (Litter size, intervals).
-*   **Laporan Mitra**: Investor specific reports (Owner/Admin only).
-
----
-
-## 3. PARTNER Guide
-*(Investors / Mitra)*
-
-### A. Accessing Your Data
-1.  **Login**: Use the credentials provided by SFI Admin.
-2.  **Partner Dashboard**: This is your specialized home page.
-    *   **Asset Value**: Current total estimation of your livestock value.
-    *   **Population**: Number of animals you own.
-    *   **Growth**: Weight gain trends of your specific cattle.
-
-### B. My Animals
-*   Go to **Data Ternak**. You will ONLY see animals belonging to you.
-*   **Search**: Enter Tag ID to find a specific animal.
-*   **Details**: Click on an animal to see its weight history, photos, and health logs.
+### D. Laporan (Reports)
+*   **Stok & Populasi**: Jumlah ternak saat ini per Kandang dan Gender. Gunakan "Cetak (Print All)" untuk cetak A4.
+*   **Performa (ADG)**: Analisis pertumbuhan bobot. Cek "Top 10" untuk melihat genetik terbaik.
+*   **Penjualan**: Omset bulanan dan profit/margin (Khusus Owner).
+*   **Reproduksi**: Melacak produktivitas induk (Jumlah anak, interval kelahiran).
+*   **Laporan Mitra**: Laporan khusus untuk Investor (ROI & Nilai Aset).
 
 ---
 
-## 4. STAFF Guide
-*(Field Operators / Anak Kandang)*
+## 3. Panduan PARTNER
+*(Investor / Mitra)*
 
-### A. Daily Routine
-1.  **Scan QR**: Use the **Scan QR** menu to quickly identify an animal in the pen (requires camera permission).
-    *   This opens the animal's profile immediately.
-2.  **Feeding (Pakan)**:
-    *   Go to **Feeding / Usage** (if authorized).
-    *   Record amount of feed (sacks/kg) taken from warehouse to the barn.
-3.  **Health Check**:
-    *   Report sick animals to the Breeder/Manager immediately.
+### A. Mengakses Data Anda
+1.  **Login**: Gunakan kredensial yang diberikan oleh Admin SFI.
+2.  **Dashboard Partner**: Halaman utama khusus Anda.
+    *   **Nilai Aset**: Estimasi total nilai ternak Anda saat ini.
+    *   **Populasi**: Jumlah ternak yang Anda miliki.
+    *   **Pertumbuhan**: Tren kenaikan bobot ternak spesifik Anda.
 
----
-
-## 5. Administration & Master Data (Admin Only)
-
-### A. User Management
-*   **Create Users**: Go to **Admin Area** > **Manajemen User**.
-*   **Assign Roles**: Be careful when assigning OWNER or BREEDER roles.
-*   **Link Partner**: For Investors, select Role "PARTNER" and choose their Partner Name from the dropdown.
-
-### B. Master Data (Farm Settings)
-*   **Access**: Go to **Admin Area** > **Pengaturan Farm**.
-*   **Features**:
-    *   **Breeds**: Add/Edit animal breeds (e.g., Dorper, Merino).
-    *   **Locations**: Manage pens/cages (Kandang) names.
-    *   **Diseases**: Register common diseases for health logging.
-    *   **Items**: Register feed types and medicines (e.g., Konsentrat A, Vitamin B).
-    *   **Categories**: Manage animal and inventory categories.
+### B. Ternak Saya
+*   Buka menu **Data Ternak**. Anda HANYA akan melihat ternak milik Anda.
+*   **Cari**: Masukkan Tag ID untuk mencari ternak tertentu.
+*   **Detail**: Klik pada ternak untuk melihat riwayat bobot, foto, dan catatan kesehatan.
 
 ---
 
-## 6. Deployment & System Maintenance
+## 4. Panduan STAFF
+*(Operator Lapangan / Anak Kandang)*
 
-### A. Backup & Updates
-*   **Database Backup**: Export SQL from phpMyAdmin weekly.
-*   **System Update**:
-    *   Upload files.
-    *   Run `php artisan migrate --force` for database changes.
+### A. Rutinitas Harian
+1.  **Scan QR**: Gunakan menu **Scan QR** untuk identifikasi cepat ternak di kandang (perlu izin kamera).
+    *   Profil ternak akan langsung terbuka.
+2.  **Pakan (Feeding)**:
+    *   Buka menu **Feeding / Usage** (jika diberi akses).
+    *   Catat jumlah pakan (karung/kg) yang diambil dari gudang ke kandang.
+3.  **Cek Kesehatan**:
+    *   Segera laporkan ternak yang terlihat sakit atau lesu kepada Breeder/Manajer.
+
+---
+
+## 5. Administrasi & Master Data (Khusus Admin)
+
+### A. Manajemen User
+*   **Buat User**: Buka **Admin Area** > **Manajemen User**.
+*   **Atur Role**: Hati-hati saat memberikan role OWNER atau BREEDER.
+*   **Link Partner**: Untuk Investor, pilih Role "PARTNER" lalu pilih Nama Mitra mereka dari dropdown.
+
+### B. Master Data (Pengaturan Farm)
+*   **Akses**: Buka **Admin Area** > **Pengaturan Farm**.
+*   **Fitur**:
+    *   **Breeds (Ras)**: Tambah/Edit ras hewan (contoh: Dorper, Merino).
+    *   **Locations (Lokasi)**: Kelola nama kandang/pen.
+    *   **Diseases (Penyakit)**: Daftar penyakit umum untuk pencatatan kesehatan.
+    *   **Items (Barang)**: Daftarkan jenis pakan dan obat (contoh: Konsentrat A, Vitamin B).
+    *   **Categories (Kategori)**: Kelola kategori hewan dan inventaris.
+
+---
+
+## 6. Deployment & Perawatan Sistem (Teknis)
+
+### A. Backup & Update
+*   **Backup Database**: Export file SQL dari phpMyAdmin setiap minggu.
+*   **Update Sistem**:
+    *   Upload file baru.
+    *   Jalankan `php artisan migrate --force` jika ada perubahan database.
 
 

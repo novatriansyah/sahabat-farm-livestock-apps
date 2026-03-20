@@ -15,7 +15,7 @@ class DeploymentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create(['role' => 'OWNER']);
+        $this->user = User::factory()->create(['role' => 'PEMILIK']);
     }
 
     public function test_deployment_link_route()

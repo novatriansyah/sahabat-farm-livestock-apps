@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800">
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Edit Disease: {{ $disease->name }}</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Ubah Disease: {{ $disease->name }}</h2>
         <form action="{{ route('masters.disease.update', $disease->id) }}" method="POST">
             @csrf
             @method('PUT')

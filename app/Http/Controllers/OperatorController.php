@@ -42,13 +42,13 @@ class OperatorController extends Controller
             'weight_kg' => $validated['weight_kg'],
         ]);
 
-        return redirect()->route('operator.show', $animal->id)->with('success', 'Weight recorded.');
+        return redirect()->route('operator.show', $animal->id)->with('success', 'Berat tercatat.');
     }
 
     public function storeHealth(Request $request, Animal $animal): RedirectResponse
     {
         $validated = $request->validate([
-            'health_status' => 'required|in:HEALTHY,SICK,QUARANTINE',
+            'health_status' => 'required|in:SEHAT,SAKIT,KARANTINA',
             'disease_id' => 'nullable|exists:master_diseases,id',
             'symptoms' => 'nullable|string',
             'medicine_id' => 'nullable|exists:inventory_items,id',
@@ -63,7 +63,7 @@ class OperatorController extends Controller
             $diagnosis = MasterDisease::find($validated['disease_id'])->name;
         }
 
-        if ($validated['health_status'] !== 'HEALTHY' || $request->filled('medicine_id')) {
+        if ($validated['health_status'] !== 'SEHAT' || $request->filled('medicine_id')) {
             TreatmentLog::create([
                 'animal_id' => $animal->id,
                 'treatment_date' => Carbon::now(),
@@ -98,7 +98,7 @@ class OperatorController extends Controller
             }
         }
 
-        return redirect()->route('operator.show', $animal->id)->with('success', 'Health status updated.');
+        return redirect()->route('operator.show', $animal->id)->with('success', 'Status kesehatan diperbarui.');
     }
 
     public function moveCage(Request $request, Animal $animal): RedirectResponse
@@ -109,7 +109,7 @@ class OperatorController extends Controller
 
         $animal->update(['current_location_id' => $validated['location_id']]);
 
-        return redirect()->route('operator.show', $animal->id)->with('success', 'Cage moved successfully.');
+        return redirect()->route('operator.show', $animal->id)->with('success', 'Kandang berhasil dipindahkan.');
     }
 
     private function getItemPrice($itemId): float

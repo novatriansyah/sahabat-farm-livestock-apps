@@ -43,7 +43,7 @@ class AnimalObserver
     private function checkBreedingSeparation(Animal $animal): void
     {
         // Find active breeding events where this animal is Sire OR Dam
-        $breedingEvents = BreedingEvent::where('status', 'PENDING')
+        $breedingEvents = BreedingEvent::where('status', 'MENUNGGU')
             ->where(function ($q) use ($animal) {
                 $q->where('sire_id', $animal->id)
                   ->orWhere('dam_id', $animal->id);
@@ -57,7 +57,7 @@ class AnimalObserver
             if ($event->sire && $event->dam) {
                 if ($event->sire->current_location_id !== $event->dam->current_location_id) {
                     // They are separated. Mark event as COMPLETED (Mating Done).
-                    $event->update(['status' => 'COMPLETED']); // Or 'SEPARATED' if that status exists
+                    $event->update(['status' => 'SELESAI']); // Or 'SEPARATED' if that status exists
                 }
             }
         }

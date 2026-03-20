@@ -42,9 +42,9 @@
                 </div>
                 <div>
                     <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis Kelamin</label>
-                    <select id="gender" name="gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        <option value="MALE">Jantan</option>
-                        <option value="FEMALE">Betina</option>
+                    <select id="gender" name="gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                        <option value="JANTAN">Jantan</option>
+                        <option value="BETINA">Betina</option>
                     </select>
                 </div>
                 <div>
@@ -52,25 +52,19 @@
                     <input type="number" id="initial_weight" name="initial_weight" step="0.01" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
                  <div>
-                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ras (Breed)</label>
+                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori & Ras (Breed)</label>
                     <select id="breed_id" name="breed_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Pilih Kategori & Ras (Opsional jika ada Pejantan) --</option>
                         @foreach($breeds as $breed)
-                            <option value="{{ $breed->id }}">{{ $breed->name }}</option>
+                            <option value="{{ $breed->id }}">[{{ $breed->category->name }}] {{ $breed->name }}</option>
                         @endforeach
                     </select>
-                </div>
-                 <div>
-                    <label for="category_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori</label>
-                    <select id="category_id" name="category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Jika Pejantan (Sire) dipilih, Kategori & Ras akan otomatis mengikuti Pejantan.</p>
                 </div>
                 <div>
-                    <label for="generation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Generasi (F1, F2, dst)</label>
+                    <label for="generation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Generasi</label>
                     <select id="generation" name="generation" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        <option value="">-- Non-Genetik --</option>
+                        <option value="">-- Non-Genetik (Atau Auto-Kalkulasi jika ada Pejantan) --</option>
                         <option value="F1">F1</option>
                         <option value="F2">F2</option>
                         <option value="F3">F3</option>
@@ -80,6 +74,7 @@
                         <option value="PURE">Purebred</option>
                         <option value="CROSS">Crossbred</option>
                     </select>
+                    <p class="mt-1 text-xs text-gray-500">Jika Pejantan (Sire) dipilih, Generasi akan dihitung otomatis (F1+F1=F2).</p>
                 </div>
                 <div>
                     <label for="necklace_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Kalung</label>

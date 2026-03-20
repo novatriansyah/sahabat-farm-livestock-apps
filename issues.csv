@@ -1,0 +1,99 @@
+ID Isu,Judul Peningkatan,Deskripsi,Dilaporkan Oleh,Prioritas,Status,Tanggal Pengajuan,Ditugaskan Kepada,Description After Issue Review
+ENH-008,Penyederhanaan UI & Edit Generasi,"Merubah ""Kategori"" menjadi ""Jenis Hewan"" dan pastikan konten ""Generasi"" dapat diedit.",Rizki Dwianda,Sedang,To Do,1/7/2026,Nova,
+ENH-009,Logika Perhitungan ADG Otomatis,Hitung Rata-rata Pertambahan Berat Harian (ADG) secara otomatis saat entri Berat Badan (BW) baru menggunakan berat saat ini vs. sebelumnya/hari berlalu.,Rizki Dwianda,Tinggi,To Do,1/7/2026,Nova,
+ENH-010,Manajemen Media & Kebijakan Penyimpanan,"Aktifkan unggah banyak foto/video, kebijakan hapus otomatis (misalnya, 6 bulan), kompresi otomatis, dan kolom opsional tautan Google Drive.",Rizki Dwianda,Sedang,In Review,1/7/2026,Nova,
+BUG-001,Error 505 saat Pengiriman Foto,Sistem mengembalikan Error 505 saat mengirimkan formulir yang menyertakan foto; pengiriman tanpa foto berfungsi dengan baik.,Rizki Dwianda,Tinggi,To Do,1/7/2026,Nova,
+ENH-011,Tombol Edit untuk Data yang Diajukan,"Tambahkan tombol edit yang mudah diakses untuk catatan yang diajukan (misalnya, tanggal lahir, lokasi kandang) untuk mengoreksi kesalahan.",Rizki Dwianda,Tinggi,To Do,1/7/2026,Nova,
+ENH-012,Tanggal Masuk untuk Ternak Beli,"Tambahkan kolom ""Tanggal Masuk"" di samping ""Tanggal Lahir"" untuk ternak yang dibeli dari sumber luar.",Rizki Dwianda,Rendah,To Do,1/7/2026,Nova,
+ENH-013,Pelacakan Riwayat Perubahan Tag Telinga,"Sistem harus menyimpan riwayat tag telinga lama saat diedit dan memungkinkan catatan ""Status"" (rusak, hilang, diganti) untuk melacak perubahan tag.",Rizki Dwianda,Tinggi,In Review,1/7/2026,Nova,
+ENH-014,Pelacakan Kepemilikan Historis,"Izinkan pembaruan kepemilikan hewan (misalnya, SFI ke Mitra) sambil mempertahankan catatan/tanggal transisi kepemilikan historis.",Rizki Dwianda,Tinggi,To Do,1/7/2026,Nova,
+ENH-015,Tampilan Menu Riwayat Hewan,"Terapkan tampilan ""Menu Riwayat"" per hewan, merinci perubahan tag, perubahan kepemilikan, frekuensi kawin, dan riwayat kelahiran.",Rizki Dwianda,Sedang,To Do,1/7/2026,Nova,
+ENH-016,Kolom Usia Hewan di Tabel Utama,"Tambahkan kolom ""Usia Hewan"" ke tampilan tabel data utama untuk referensi cepat.",Rizki Dwianda,Rendah,To Do,1/7/2026,Nova,
+ENH-017,Fungsi Pencarian & Filter yang Diperluas,"Perluas fungsi pencarian untuk menyertakan pencarian kata kunci (misalnya, Nama Mitra) dan filter untuk Jenis Kelamin, Generasi, Lokasi Kandang, dan Status Kawin.",Rizki Dwianda,Tinggi,To Do,1/7/2026,Nova,
+ENH-018,Konversi Warna Kalung ke Dropdown,"Konversi kolom ""Warna Kalung"" menjadi daftar dropdown untuk meminimalkan kesalahan pengetikan manual.",Rizki Dwianda,Rendah,To Do,1/7/2026,Nova,
+ENH-019,ID Unik: Tag + Generasi,"Hubungkan ID Tag dengan Generasi (misalnya, Tag #36 (F1)) untuk membuat pengenal unik; tolak duplikat.",Rizki Dwianda,Tinggi,In Review,1/7/2026,Nova,
+ENH-020,Warna UI Dinamis untuk Pemilihan Tag,Izinkan kotak nomor Tag Telinga atau kolom warna untuk secara dinamis mengubah warna latar belakangnya berdasarkan pemilihan warna.,Rizki Dwianda,Sedang,To Do,1/7/2026,Nova,
+ENH-021,Sub-Tab Kelompok Kawin (Koloni),"Buat sub-tab ""Kelompok Kawin"" untuk melacak koloni (1 Jantan, banyak Betina) dan mengotomatiskan pelacakan/notifikasi kawin 60 hari, kehamilan 135 hari, dan pascapartum 40 hari.",Rizki Dwianda,Tinggi,To Do,1/7/2026,Nova,
+ENH-022,Otomatisasi Pelacakan Tanggal Kemitraan,"Secara otomatis mencatat ""Tanggal Mulai Kemitraan"" dan ""Tanggal Akhir Kemitraan"" (saat kembali, disembelih, atau dijual) untuk mempertahankan catatan historis kemitraan.",Rizki Dwianda,Sedang,In Review,1/7/2026,Nova,
+ENH-023,Status & Notifikasi Otomatis,"Transisi otomatis ke status ""Disapih"" berdasarkan usia dan picu peringatan penting ""Indukan Siap Kawin"" (40 hari pasca-melahirkan, harus dimasukkan ke koloni).",Rizki Dwianda,Tinggi,To Do,1/7/2026,Nova,
+ENH-024,Visualisasi Demografi,"Tambahkan visualisasi demografi berdasarkan kategori usia (Baru Lahir, Disapih, Bakalan/Feeder, dll.).",Rizki Dwianda,Sedang,To Do,1/7/2026,Nova,
+ENH-025,Logika Perhitungan ADG yang Ditingkatkan,ADG hanya boleh dihitung ulang saat berat baru dimasukkan (Berat Saat Ini - Berat Sebelumnya / Hari Berlalu); pertahankan rata-rata jika hanya ada dua titik data.,Rizki Dwianda,Tinggi,In Review,1/7/2026,Nova,
+ENH-026,ubah tampilan beranda,"pada menu beranda, tampilannya diubah. notifikasi dikumpulin aja sendiri jadi lonceng. ketika di klik baru keliatan notfikasinya apa. setelah di buka, angka notifikasi yang udah kebuka, bakalan ilang. kayak di tokopedia aja. kalau belum di baca, angka di lonceng tambah terus. 
+
+filter sudah oke bisa dibagi per mitra. kotak notifnya jangan dibikin tambah panjang. terus kalau info notifnya soal ternak, ketika di klik angka tag ID ternak tersebut. otomatis menuju ke halaman untuk ternak tersebut. 
+
+jadi kayak notif di tokopedia. ketika di klik langsung masuk ke data ternak tersebut. keterangan notif harus dinamis berubah sesuai perubahan umur dan penambahan ternak. 
+misal ada penambahan ternak baru, hasil lahiran. lalu muncul notifikasi penambahan cempe lahir, lalu nanti muncul lagi ketika udah jadi cempe sapih. lalu jadi cempe menyusui dan seterusnya. 
+
+semua pilihan item yang mau ditampilan di beranda, bisa dipilih dan diatur pada menu pengaturan tampilan. ",Rizki Dwianda,Sedang,,2/15/2026,Nova,
+ENH-027,ubah isi kotak-kotak informasi pada beranda,"informasi yang ada di kotak sebagai dashboard, dapat ditentukan manual bagian mana saja yang mau ditampilkan, jadi di admin area pada bagian pengaturan, ada tools untuk checklist mana saja yg mau muncul di dashboard utama. lalu juga bisa diatur apa saja yg mau muncul di dashboard setiap mitra.
+
+buatkan pilihan kayak collapsnya pivot. dibagi 3 aja. inventory ternak. Pakan. keuangan. nah jadi bisa dipisah2 informasinya sesuai ada di golongan mana.. jadi nya ga campur2. karena ada yg baru keupdatenya lama, ada juga yg cepat.
+
+untuk bagian inventory ternak, isinya meliputi:
+1. demografi jumlah ternak, terbagi dari jenis kelamin, terbagi juga dengan kategori ras (f1,f2,dst) atau kategori dari usia atau dari letak kandangnya. bentuknya bisa diagram pie atau diagram batang atau grafik kayak saham)
+2. jumlah kelahiran dan kematian pada populasi di bulan itu. yang bergerak mengikuti kejadian sebenarnya. bisa menggunakan grafik kayak saham dalam sebulan posisi kelahiran dan kematian.
+3. ADG rata2 all ternak berdasarkan kategori usia. namun setiap ternak juga punya progress ADG dari bulan ke bulan. jadi bakalan ada grafik masing2 setiap ekor. kalau di dashboard rata2 keseluruhan berdasarkan kategori usia. misal rata2 ADG cempe. rata2 ADG indukan dll. perhitungan ADG diambil dari data skrg dengan data terakhir timbang saja. jadi setiap bulan ADG lgsg dibuat statis. jadi ADG itu pasti setiap bulan dan setiap kategori usia. hasilnya kita bisa liat setiap ekornya ADG bulanan. walaupun timbangnya ga setiap bulan, misal 3 bulan sekali, berarti nanti sistem langsung membagi setiap bulannya dengan komposisi sama rata. 
+
+
+untuk kolom pakan sama keuangan sama kayak sekarang tinggal dibagi2 aja mana yg masuk pakan, dan mana yang masuk penjualan. 
+
+Pakan: 
+1. ada informasi jumlah list pakan yang udah di input dari master data. misal konsentrat sudah diinput ada 32 karung, tambahkan jumlah KG per karung, dan harganya. jadi di dasboard ada data stock. termasuk juga obat dan vitamin. datanya cukup nama, jumlah bisa pilih botol atau bungkus atau pcs, berat satuan misal brp liter atau berapa kg, lalu harganya. 
+2. kalau nanti anak kandang buka item pemakaian, baru itu secara otomatis akan mengurangi stock dan juga akan menghitung dari harga sebagai HPP. jadi semua biaya obat dan pakan yang udah kepake  dalam bulan itu, dibagi jumlah ternak pada bulan itu. sehingga setiap ternak punya hpp dari sudut pandang pakan dan obat dan vitamin. tinggal nanti ditambahin sama perhitungan HPP lainnya. misal ada kolom hpp sendiri, yang harus dimasukin adalah biaya2 untuk hitung hpp. (misal: masukin biaya gaji bulan itu, masukin biaya operasional hpp yg keluar bulan itu. nanti cut off setiap bulan yang bakalan jadi penambah hpp)
+
+untuk kolom keuangan, :
+1. tampilkan rata2 HPP. tren penjualan, tren kematian untuk mengetahui loss berapa, tren biaya pakan yg terpakai setiap bulan, tren biaya obat2an terpakai setiap bulan, 
+2. diagram yang menunjukan komposisi semua biaya yang sudah diinput komposisinya banyakan mana, misal gaji, pakan, dll. semua yg diinput itu menjadi bahan hpp yang akan di bagi dengan jumlah ternak pada bulan itu juga.
+
+
+
+
+
+",Rizki Dwianda,Sedang,,2/15/2026,Nova,
+ENH-028,"tambahkan pada bar list yang dikiri, pada item gudang dan keuangan, tambahkan input biaya hpp."," jadi isinya buat input biaya yg bakalan masuk ke hpp. diisi setiap bulan, masukin nama jumlah yg di pakai, lalu otomatis akan narik biaya per pcs dari data base. semua biaya yang dinput akan otomatis juga dibagi per jumlah ternak all pada bulan itu. ",Rizki Dwianda,Sedang,,2/15/2026,Nova,
+ENH-029,pada sheet Laporan,"1. pada laporan stock dan populasi, sudah oke, namun pada rekapitulasi tambahkan jumlah ternak dibagi berdasarkan jenis per usia dan kelamin. misal cempe jantan 5 betina 3. cempe sapih jantan 2 betina 1, bakalan (jantan) 3, dara (betina) 3, Jantan siap kawin 5, betina siap kawin 5, 
+2. buatkan sortir untuk memilih apakah data populasi seluruhnya, atau hanya internal SFI atau hanya mitra saja. 
+3. pada laporan reproduksi, tambahkan laporan tentang koloni kawin, yang menampilkan data indukan yang sedang masuk koloni kawin, dan dituliskan juga sudah berapa hari pada koloni kawin.
+4. hal yang sama juga tambahkan laporan koloni menyusui, berapa banyak indukan yang sedang menyusui (diambil dari perubahan status)
+5. dan terakhir menampilkan dataww indukan yang siap kawin (diambil dari perubahan status secara otomatis)",Rizki Dwianda,Sedang,,2/15/2026,Nova,
+ENH-030,Data ternak,"1. tambahkan download tempate upload excel. sehingga list kosong langsung tempate bisa di download dari sistem. lalu nanti di bagian admin, bisa ditambahkan historical log kegiatan setia user dalam hal edit atau tambah data ternak ini. baik yang pakai excel atau input langsung lewat sistem. 
+2. tambahkan tombol untuk koloni kawin. pada tombol ini adalah memasukan manual koloni kawin. yang dipilih adalah jantannya, dan indukan mana saja yang masuk ke koloni kawin. setiap indukan yang masuk ke koloni kawin akan otomatis selama dua bulan berstatus koloni kawin, setelah 2 bulan statusnya balik lagi ke indukan selesai kawin. akan terus berstatus seperti itu sampai akhirnya ada yang mengedit manual status menjadi bunting atau tidak bunting. 
+3. kalau statusnya bunting maka otomatis sistem akan membaca kapan tanggal pertama ditetapkan kawin, lalu dihitung 2 bulan setelah kawin, maka tanggal tersebut adalah tanggal pertama bunting, dan keluar lah estimasi hari lahir yaitu 4,5 bulan - 5 bulan dari tanggal pertama bunting. 
+4. status bunting akan berubah setelah ada input manual data kelahiran, ketika input ternak lahir maka akan memasukan data indukan. pada saat itulah indukan bunting berubah menjadi indukan menyusui selama 40 hari. setelah 40 hari status berubah menjadi indukan siap kawin. dan akan berulang ke siklus awalnya. 
+5. data ternak bisa diedit pada role editor. dan bisa merubah semua status, BB atau apapun yang diinput. 
+6. data ternak bisa di sortir, berdasarkan jenis kelamin, jenis keturunan, nama mitra, atau apapun item yang sudah diinput. atau ketika di ketik pada kolom cari, keywordnya akan mensortir dari semua kolom atau tabel atau baris. 
+7. untuk jantan status fisik hanya ada siap kawin dan sedang kawin. apabila sedang kawin adalah saat masuk koloni kawin dan berlangsung selama 2 bulan. setelah 2 bulan otomatis akan berubah jadi siap kawin. selalu tampilkan informasi pada jantan kapan tanggal terakhir kawin. 
+8. semua jantan dan betina yang masuk koloni kawin, dapat di lacak historicalnya pada laporan. sehingga semua ternak selalu terdapat indukan dan jantan. dan ketika mau dibuat koloni kawin baru, selalu di cek sejarah perkawinan dan keturunan sebelumnya. dan sistem akan memberikan warning apabila ada indikasi inbreeeding. jadi ketika ada indikasi inbreeding, list koloni kawin tidak dapat dibuat dan muncul keterangan informasinya. ",Rizki Dwianda,Tinggi,,2/15/2026,Nova,
+ENH-031,urutan list tampilan di data ternak,"urutan informasi yang ada di data ternak sebagai berikut:
+1. tag ID
+2. foto (bisa diklik perbesar, dan isinya bisa lebih dari 1, sehingga ketika di klik bisa dilait semua kiri ke kanan seperti carousel)
+3. RAS Breed
+4. kelamin
+5. usia
+6. BB (inputan terakhir timbangan)
+7. kepemilikan (SFI atau Mitra)
+8. status fisik (apakah sedang kawin, menyusui, dll)
+9. warna kalung dan warna eartag
+10. ADG harian yang didapat pada bulan terakhir datanya tersedia. 
+11. lokasi kandang
+12. Aksi (saat ini sudah ada QR, Kawin, Keluar) dan ditambahkan (edit untuk mengedit semua data yang sudah diinput dari awal), pada aksi kawin, semua status indukan menyusui yang sudah lebih dari 40 hari dari tanggal pertama melahirkan, tetap bisa masuk siap kawin. bisa dikawinkan walaupun masih menyusui. tambahkan juga pilihan lokasi kandang saat menginput aksi kawin. 
+13. pada aksi keluar, ada pilihan juga masukan ke draft invoice apabila pilihannya dijual. dan sebaliknya apabila ada pembuatan invoice dengan memilih data ternak, maka otomatis ternak tersebut akan keluar dengan cara dijual.
+14. setiap ekor data ternak dapat di klik dan melihat profile lebih detail per ekor. mulai dari RAS orang tua, historical timbang, historical kawin, yang sama dengan ketika memilih laporan populasi. ",Rizki Dwianda,Tinggi,,2/15/2026,Nova,
+ENH-032,update tata cara dan data pada form registrasi kelahiran. ,"untuk kelahiran: 
+1. ras otomatis terisi dari RAS jantan.
+2. keturunan akan otomatis terisi dari keturunan indukan. apabila indukan lokal, maka keturunan otomatis terisi F1, apabila indukan F1 maka otomatis keturunan jadi F2 dan begitu juga seterusnya. 
+3. namun hingga F6 apabila dikawinkan lagi, maka anakan yang lahir dari keturunan F6 akan menjadi keturunan PUREBREED. 
+4. penulisan keturuan adalah gabungan dari keturnan berapa dengan RAS apa. contoh keturunan F2 dan RAS jantan asal Dorper, maka tulisan yang muncul pada kolom jenis adalah gabungan keturunan dan RAS. 
+5. pada form saat ini, keturunan dan kategori bisa digabung jadi satu saja. dengan ketentuan penulisan seperti di poin 4. 
+6. tambahkan upload foto atau video yang bisa lebih dari satu dan sudah memiliki auto compress, untuk video menjadi resolusi 720 atau maksimal full HD, sementara foto maksimal 300 pixel. ftur foto bisa diedit untuk di hapus atau direplace atau dikosongkan. 
+7. kepemilikan akan otomatis terisi mengikuti status kepemilikan iindukan betina. apakah milik internal SFI atau milik mitra. ",,Tinggi,,2/15/2026,Nova,
+ENH-033,update tata cara dan data pada form ternak baru,"sama dengan form registrasi kelahiran, dan untuk isi yang sekarang dipertahankan hanya saja keturunan dengan kategori digabung sama seperti form registrasi kelahiran. ",,Tinggi,,2/15/2026,Nova,
+ENH-034,penambahan admin area,"tambahkan fitur edit dan pengaturan untuk setiap item yang ada di data ternak, dan item yang ada di menu laporan.
+semua item yang diinput, harus muncul pada admin area agar mudah diubah dan diupdate. ",,Tinggi,,2/15/2026,Nova,
+ENH-035,tampilan pada mobile phone,semua fitur dan proses harus menyesuikan dengan ui ux ketika dibuka dari mobile phone. harus progresive dan enak dilihat serta user friendly,,Sedang,,2/15/2026,Nova,
+ENH-036,penambahan user mitra peternak ,"super user bisa menambahkan user login untuk masing-masing mitra. seperti;
+1. user login tersendiri khusus mitra peternak, fungsinya sama dengan super user (bisa edit, bisa tambah ternak, melihat report, etc) namun khusus ternak mitra itu saja. apabila baru dibuatkan user, berarti data awal kosong semua. bedanya dengan super user adalah dia tidak bisa melihat mitra lain, dan tidak punya wewenang untuk mengatur user lain (edit, delete mitra, etc)",,Tinggi,,2/18/2026,Nova,
+ENH-037,setting user mitra penjualan (view only),"dapat mengatur mitra penjualan, hanya melihat report yang dipilih sesuai kebutuhan mitra. hal ini juga bisa dilakukan oleh user mitra peternak. ",,Tinggi,,2/18/2026,Nova,
+ENH-038,tampilan dari handphone,semua tampilan web dapat diaplikasikan pada tampilan handphone. dibuat progresive agar enak dan mudah terlihat,,Tinggi,,2/18/2026,Nova,
+ENH-039,form template upload,"pada template upload form, breed name dengan category name digabung saja. karena generasi juga sudah ada. isinya akan sama antara breed dengan category name. ",,Sedang,,2/18/2026,Nova,

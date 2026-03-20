@@ -19,11 +19,4 @@ class WeightLog extends Model
     {
         return $this->belongsTo(Animal::class);
     }
-
-    protected static function booted()
-    {
-        static::saved(function ($weightLog) {
-            app(CalculateAdg::class)->execute($weightLog->animal);
-        });
-    }
 }

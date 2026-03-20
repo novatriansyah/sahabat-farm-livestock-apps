@@ -44,7 +44,7 @@ class ProductionSeeder extends Seeder
             [
                 'name' => 'Rizki Dwianda',
                 'password' => Hash::make('password'), // Default password
-                'role' => 'OWNER',
+                'role' => 'PEMILIK',
                 'email_verified_at' => now(),
             ]
         );
@@ -55,7 +55,7 @@ class ProductionSeeder extends Seeder
             [
                 'name' => 'Nova Triansyah Azis',
                 'password' => Hash::make('password'),
-                'role' => 'OWNER',
+                'role' => 'PEMILIK',
                 'email_verified_at' => now(),
             ]
         );

@@ -36,7 +36,7 @@ class MasterDataController extends Controller
         ]);
 
         MasterBreed::create($validated);
-        return back()->with('success', 'Breed added successfully.');
+        return back()->with('success', 'Ras/Bangsa berhasil ditambahkan.');
     }
 
     public function editBreed(MasterBreed $breed): View
@@ -56,7 +56,7 @@ class MasterDataController extends Controller
         ]);
 
         $breed->update($validated);
-        return redirect()->route('masters.index')->with('success', 'Breed updated.');
+        return redirect()->route('masters.index')->with('success', 'Ras/Bangsa berhasil diperbarui.');
     }
 
     // --- LOCATION ---
@@ -68,7 +68,7 @@ class MasterDataController extends Controller
         ]);
 
         MasterLocation::create($validated);
-        return back()->with('success', 'Location added successfully.');
+        return back()->with('success', 'Lokasi berhasil ditambahkan.');
     }
 
     public function editLocation(MasterLocation $location): View
@@ -84,7 +84,7 @@ class MasterDataController extends Controller
         ]);
 
         $location->update($validated);
-        return redirect()->route('masters.index')->with('success', 'Location updated.');
+        return redirect()->route('masters.index')->with('success', 'Lokasi berhasil diperbarui.');
     }
 
     // --- DISEASE ---
@@ -96,7 +96,7 @@ class MasterDataController extends Controller
         ]);
 
         MasterDisease::create($validated);
-        return back()->with('success', 'Disease added successfully.');
+        return back()->with('success', 'Penyakit berhasil ditambahkan.');
     }
 
     public function editDisease(MasterDisease $disease): View
@@ -112,7 +112,7 @@ class MasterDataController extends Controller
         ]);
 
         $disease->update($validated);
-        return redirect()->route('masters.index')->with('success', 'Disease updated.');
+        return redirect()->route('masters.index')->with('success', 'Penyakit berhasil diperbarui.');
     }
 
     // --- CATEGORY ---
@@ -123,7 +123,7 @@ class MasterDataController extends Controller
         ]);
 
         MasterCategory::create($validated);
-        return back()->with('success', 'Category added successfully.');
+        return back()->with('success', 'Kategori berhasil ditambahkan.');
     }
 
     public function editCategory(MasterCategory $category): View
@@ -138,7 +138,7 @@ class MasterDataController extends Controller
         ]);
 
         $category->update($validated);
-        return redirect()->route('masters.index')->with('success', 'Category updated.');
+        return redirect()->route('masters.index')->with('success', 'Kategori berhasil diperbarui.');
     }
 
     // --- ITEM ---
@@ -152,6 +152,6 @@ class MasterDataController extends Controller
         ]);
 
         InventoryItem::create($validated);
-        return back()->with('success', 'Inventory Item added successfully.');
+        return back()->with('success', 'Barang inventaris berhasil ditambahkan.');
     }
 }

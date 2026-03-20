@@ -16,7 +16,7 @@ class FinalStyleTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create(['role' => 'OWNER']);
+        $this->user = User::factory()->create(['role' => 'PEMILIK']);
     }
 
     public function test_report_page_loads_without_errors()

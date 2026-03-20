@@ -52,10 +52,14 @@ class DashboardService
                 }
             }])->get();
 
-            // 2. Growth Performance (Avg ADG)
+            // 2. Growth Performance (Avg ADG) & Avg HPP
             $avgAdg = Animal::where('is_active', true)
                  ->when($filterPartnerId, $scopePartner)
                  ->avg('daily_adg') ?? 0;
+
+            $avgHpp = Animal::where('is_active', true)
+                 ->when($filterPartnerId, $scopePartner)
+                 ->avg('current_hpp') ?? 0;
 
             // 3. Financials
             $totalStockValue = 0;
@@ -64,7 +68,7 @@ class DashboardService
             }
 
             // Sales This Month
-            $salesThisMonth = ExitLog::where('exit_type', 'SALE')
+            $salesThisMonth = ExitLog::where('exit_type', 'JUAL')
                 ->whereMonth('exit_date', Carbon::now()->month)
                 ->whereYear('exit_date', Carbon::now()->year)
                 ->when($filterPartnerId, $scopeAnimalRelation)
@@ -73,7 +77,7 @@ class DashboardService
             // Net Profit This Month
             // Optimized: Single Query Aggregation
             $netProfit = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
-                ->where('exit_type', 'SALE')
+                ->where('exit_type', 'JUAL')
                 ->whereMonth('exit_date', Carbon::now()->month)
                 ->whereYear('exit_date', Carbon::now()->year)
                 ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
@@ -85,12 +89,12 @@ class DashboardService
             $lowStockItems = (!$filterPartnerId) ? InventoryItem::where('current_stock', '<', 10)->get() : [];
 
             // 5. Conception Rate
-            $successfulBreeding = BreedingEvent::where('status', 'SUCCESS')
+            $successfulBreeding = BreedingEvent::where('status', 'BERHASIL')
                  ->when($filterPartnerId, function($q) use ($filterPartnerId) {
                      $q->whereHas('dam', fn($sq) => $sq->where('partner_id', $filterPartnerId));
                  })
                  ->count();
-            $failedBreeding = BreedingEvent::where('status', 'FAILED')
+            $failedBreeding = BreedingEvent::where('status', 'GAGAL')
                  ->when($filterPartnerId, function($q) use ($filterPartnerId) {
                      $q->whereHas('dam', fn($sq) => $sq->where('partner_id', $filterPartnerId));
                  })
@@ -138,13 +142,18 @@ class DashboardService
                 }
                 $totalMedicineCost = $medicineCost;
 
-                // Add Estimated Operational Cost for Global View too
-                $estOpsCost = $activeAnimals * 15000;
+                // Fetch actual Manual HPP Costs for this month
+                $manualCosts = \App\Models\HppManualCost::where('month', Carbon::now()->format('Y-m'))->get();
+                
+                $expenseLabels = ['Pakan (Feed)', 'Obat & Vitamin'];
+                $expenseData = [$totalFeedCost, $totalMedicineCost];
 
-                $expenseLabels = ['Pakan (Feed)', 'Obat & Vitamin', 'Operasional (Estimasi)'];
-                $expenseData = [$totalFeedCost, $totalMedicineCost, $estOpsCost];
+                foreach($manualCosts as $mc) {
+                    $expenseLabels[] = $mc->name;
+                    $expenseData[] = (float) $mc->amount;
+                }
             } else {
-                // ESTIMATION for Partner View
+                // ESTIMATION for Partner View since partners don't directly see farm-wide expenses usually
                 $estFeedCost = $activeAnimals * 5000 * 30;
                 $estHealthCost = $activeAnimals * 10000;
                 $estOpsCost = $activeAnimals * 15000;
@@ -154,34 +163,34 @@ class DashboardService
             }
 
             // Mortality Stats This Month
-            $deathCount = ExitLog::where('exit_type', 'DEATH')
+            $deathCount = ExitLog::where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
                 ->when($filterPartnerId, $scopeAnimalRelation)
                 ->count();
 
             // Lost Asset Value
-            $deathValue = ExitLog::where('exit_type', 'DEATH')
+            $deathValue = ExitLog::where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
                 ->when($filterPartnerId, $scopeAnimalRelation)
                 ->join('animals', 'exit_logs.animal_id', '=', 'animals.id')
                 ->sum(DB::raw('COALESCE(animals.purchase_price, 0) + exit_logs.final_hpp'));
 
             // 7. Breakdown by Sex (Live)
-            $liveMale = Animal::where('is_active', true)->where('gender', 'MALE')->when($filterPartnerId, $scopePartner)->count();
-            $liveFemale = Animal::where('is_active', true)->where('gender', 'FEMALE')->when($filterPartnerId, $scopePartner)->count();
+            $liveMale = Animal::where('is_active', true)->where('gender', 'JANTAN')->when($filterPartnerId, $scopePartner)->count();
+            $liveFemale = Animal::where('is_active', true)->where('gender', 'BETINA')->when($filterPartnerId, $scopePartner)->count();
 
             // 8. Breakdown by Sex (Dead - This Month)
-            $deadMale = ExitLog::where('exit_type', 'DEATH')
+            $deadMale = ExitLog::where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
                 ->whereHas('animal', function($q) use ($filterPartnerId) { 
-                    $q->where('gender', 'MALE');
+                    $q->where('gender', 'JANTAN');
                     if ($filterPartnerId) $q->where('partner_id', $filterPartnerId);
                 })
                 ->count();
-            $deadFemale = ExitLog::where('exit_type', 'DEATH')
+            $deadFemale = ExitLog::where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
                 ->whereHas('animal', function($q) use ($filterPartnerId) { 
-                    $q->where('gender', 'FEMALE');
+                    $q->where('gender', 'BETINA');
                     if ($filterPartnerId) $q->where('partner_id', $filterPartnerId);
                 })
                 ->count();
@@ -195,7 +204,7 @@ class DashboardService
                 ->take(50)
                 ->get();
 
-            $matingSeparationCandidates = BreedingEvent::where('status', 'PENDING')
+            $matingSeparationCandidates = BreedingEvent::where('status', 'MENUNGGU')
                  ->whereDate('mating_date', '<=', Carbon::now()->subDays(60))
                  ->with(['dam', 'sire'])
                  ->when($filterPartnerId, function($q) use ($filterPartnerId) {
@@ -229,7 +238,7 @@ class DashboardService
                 $date = Carbon::now()->subMonths($i);
                 $monthName = $date->format('M Y');
                 $count = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
-                    ->where('exit_type', 'DEATH')
+                    ->where('exit_type', 'MATI')
                     ->whereMonth('exit_date', $date->month)
                     ->whereYear('exit_date', $date->year)
                     ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
@@ -249,7 +258,7 @@ class DashboardService
                 $financialLabels[] = $date->format('M Y');
 
                 $rev = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
-                    ->where('exit_type', 'SALE')
+                    ->where('exit_type', 'JUAL')
                     ->whereMonth('exit_date', $date->month)
                     ->whereYear('exit_date', $date->year)
                     ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
@@ -259,7 +268,7 @@ class DashboardService
                 $financialRevenue[] = $rev;
 
                 $loss = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
-                    ->where('exit_type', 'DEATH')
+                    ->where('exit_type', 'MATI')
                     ->whereMonth('exit_date', $date->month)
                     ->whereYear('exit_date', $date->year)
                     ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
@@ -308,8 +317,8 @@ class DashboardService
                         $q->where('animals.partner_id', $filterPartnerId);
                     })
                     ->selectRaw("
-                        SUM(CASE WHEN animals.gender = 'MALE' AND animals.birth_date <= ? THEN weight_logs.weight_kg ELSE 0 END) as male_biomass,
-                        SUM(CASE WHEN animals.gender = 'FEMALE' AND animals.birth_date <= ? THEN weight_logs.weight_kg ELSE 0 END) as female_biomass,
+                        SUM(CASE WHEN animals.gender = 'JANTAN' AND animals.birth_date <= ? THEN weight_logs.weight_kg ELSE 0 END) as male_biomass,
+                        SUM(CASE WHEN animals.gender = 'BETINA' AND animals.birth_date <= ? THEN weight_logs.weight_kg ELSE 0 END) as female_biomass,
                         SUM(CASE WHEN animals.birth_date > ? THEN weight_logs.weight_kg ELSE 0 END) as kid_biomass
                     ", [$oneYearAgo, $oneYearAgo, $oneYearAgo])
                     ->first();
@@ -321,7 +330,7 @@ class DashboardService
 
             return compact(
                 'filterPartnerId',
-                'activeAnimals', 'populationByCage', 'avgAdg', 'totalStockValue',
+                'activeAnimals', 'populationByCage', 'avgAdg', 'avgHpp', 'totalStockValue',
                 'salesThisMonth', 'netProfit', 'lowStockItems', 'conceptionRate',
                 'feedUsage', 'medicineCost', 'deathCount', 'deathValue',
                 'liveMale', 'liveFemale', 'deadMale', 'deadFemale',

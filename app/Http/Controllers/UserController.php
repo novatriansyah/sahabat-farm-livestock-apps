@@ -39,7 +39,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:OWNER,STAFF,BREEDER,PARTNER'],
+            'role' => ['required', 'in:PEMILIK,STAF,PETERNAK,MITRA'],
             'partner_id' => ['nullable', 'exists:master_partners,id'],
         ]);
 
@@ -48,12 +48,12 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'partner_id' => $request->role === 'PARTNER' ? $request->partner_id : null,
+            'partner_id' => $request->role === 'MITRA' ? $request->partner_id : null,
         ]);
 
         event(new Registered($user));
 
-        return redirect()->route('users.index')->with('success', 'User registered successfully.');
+        return redirect()->route('users.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
     public function edit(User $user): View
@@ -67,7 +67,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'role' => ['required', 'in:OWNER,STAFF,BREEDER,PARTNER'],
+            'role' => ['required', 'in:PEMILIK,STAF,PETERNAK,MITRA'],
             'partner_id' => ['nullable', 'exists:master_partners,id'],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -76,7 +76,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
-            'partner_id' => $validated['role'] === 'PARTNER' ? $validated['partner_id'] : null,
+            'partner_id' => $validated['role'] === 'MITRA' ? $validated['partner_id'] : null,
         ]);
 
         if ($request->filled('password')) {
@@ -85,7 +85,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'Pengguna berhasil diperbarui.');
     }
 
     public function destroy(User $user): RedirectResponse
@@ -95,6 +95,6 @@ class UserController extends Controller
         }
 
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted.');
+        return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus.');
     }
 }

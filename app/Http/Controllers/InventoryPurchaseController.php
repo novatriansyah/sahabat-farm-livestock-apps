@@ -27,6 +27,6 @@ class InventoryPurchaseController extends Controller
         $item = InventoryItem::findOrFail($validated['item_id']);
         $item->increment('current_stock', $validated['qty']);
 
-        return redirect()->route('inventory.index')->with('success', 'Purchase recorded and stock updated.');
+        return redirect()->route('inventory.index')->with('success', 'Pembelian dicatat dan stok diperbarui.');
     }
 }

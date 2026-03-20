@@ -69,7 +69,7 @@ class SimulationSeeder extends Seeder
                     'name' => 'Owner ' . $partner->name,
                     'email' => $email,
                     'password' => Hash::make('password'),
-                    'role' => 'PARTNER',
+                    'role' => 'MITRA',
                     'partner_id' => $partner->id
                 ]);
             }
@@ -82,21 +82,21 @@ class SimulationSeeder extends Seeder
                 // 30% Kids, 50% Adult Females, 20% Adult Males
                 $rand = rand(1, 100);
                 
-                $gender = 'FEMALE';
+                $gender = 'BETINA';
                 $statusId = $idDara;
                 $birthDate = Carbon::now();
                 $weight = 0;
 
                 if ($rand <= 30) {
                     // Kid (Cempe)
-                    $gender = rand(0, 1) ? 'MALE' : 'FEMALE';
+                    $gender = rand(0, 1) ? 'JANTAN' : 'BETINA';
                     $ageDays = rand(1, 150);
                     $birthDate = Carbon::now()->subDays($ageDays);
                     $statusId = ($ageDays < 90) ? $idCempe : $idSapih;
                     $weight = rand(3, 15);
                 } elseif ($rand <= 80) {
                     // Adult Female
-                    $gender = 'FEMALE';
+                    $gender = 'BETINA';
                     $ageMonths = rand(8, 48); // 8 months to 4 years
                     $birthDate = Carbon::now()->subMonths($ageMonths);
                     $weight = rand(25, 60);
@@ -108,7 +108,7 @@ class SimulationSeeder extends Seeder
                     else $statusId = $idDara; // or Siap Kawin
                 } else {
                     // Adult Male
-                    $gender = 'MALE';
+                    $gender = 'JANTAN';
                     $ageMonths = rand(8, 60);
                     $birthDate = Carbon::now()->subMonths($ageMonths);
                     $weight = rand(35, 90);
@@ -126,7 +126,7 @@ class SimulationSeeder extends Seeder
                     'current_location_id' => $locationIds[array_rand($locationIds)],
                     'current_phys_status_id' => $statusId,
                     'is_active' => true,
-                    'acquisition_type' => 'BOUGHT', // Required enum
+                    'acquisition_type' => 'BELI', // Required enum
                     'purchase_price' => rand(1000000, 3000000),
                     'partner_id' => $partner->id,
                     'daily_adg' => $faker->randomFloat(3, 0.1, 0.4),
@@ -165,12 +165,12 @@ class SimulationSeeder extends Seeder
             for ($s = 0; $s < rand(2, 10); $s++) {
                 $soldAnimal = Animal::create([
                     'tag_id' => 'SOLD-' . $faker->unique()->bothify('??####'),
-                    'gender' => 'MALE',
+                    'gender' => 'JANTAN',
                     'birth_date' => $date->copy()->subMonths(12),
                     'is_active' => false,
-                    'health_status' => 'SOLD',
+                    'health_status' => 'TERJUAL',
                     'partner_id' => MasterPartner::inRandomOrder()->first()->id ?? 1,
-                    'acquisition_type' => 'BRED',
+                    'acquisition_type' => 'HASIL_TERNAK',
                     'breed_id' => $breeds[array_rand($breeds)] ?? 1,
                     'category_id' => $sheepCatId,
                     'current_location_id' => $locationIds[array_rand($locationIds)],
@@ -180,7 +180,7 @@ class SimulationSeeder extends Seeder
                 \App\Models\ExitLog::create([
                     'animal_id' => $soldAnimal->id,
                     'exit_date' => $date->copy()->addDays(rand(1, 28)),
-                    'exit_type' => 'SALE',
+                    'exit_type' => 'JUAL',
                     'price' => rand(1500000, 3000000),
                     'price' => rand(1500000, 3000000),
                     'final_hpp' => 1000000,
@@ -191,12 +191,12 @@ class SimulationSeeder extends Seeder
             for ($d = 0; $d < rand(0, 3); $d++) {
                 $deadAnimal = Animal::create([
                     'tag_id' => 'DIED-' . $faker->unique()->bothify('??####'),
-                    'gender' => rand(0,1) ? 'MALE' : 'FEMALE',
+                    'gender' => rand(0,1) ? 'JANTAN' : 'BETINA',
                     'birth_date' => $date->copy()->subMonths(rand(1,6)),
                     'is_active' => false,
-                    'health_status' => 'DECEASED',
+                    'health_status' => 'MATI',
                     'partner_id' => MasterPartner::inRandomOrder()->first()->id ?? 1,
-                    'acquisition_type' => 'BRED',
+                    'acquisition_type' => 'HASIL_TERNAK',
                     'breed_id' => $breeds[array_rand($breeds)] ?? 1,
                     'category_id' => $sheepCatId,
                     'current_location_id' => $locationIds[array_rand($locationIds)],
@@ -206,7 +206,7 @@ class SimulationSeeder extends Seeder
                 \App\Models\ExitLog::create([
                     'animal_id' => $deadAnimal->id,
                     'exit_date' => $date->copy()->addDays(rand(1, 28)),
-                    'exit_type' => 'DEATH',
+                    'exit_type' => 'MATI',
                     'price' => 0,
                     'final_hpp' => 500000,
                 ]);

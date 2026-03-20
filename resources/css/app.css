@@ -12,3 +12,6 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Disable dark mode by overriding the dark variant to never match */
+@custom-variant dark (&:where(.forces-light-mode-only));

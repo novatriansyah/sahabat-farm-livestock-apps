@@ -1,11 +1,11 @@
 <x-app-layout>
 
     <!-- Partner Filter (Owner Only) -->
-    @if(Auth::user()->role === 'OWNER')
+    @if(Auth::user()->role === 'PEMILIK')
     <div class="mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
-        <form method="GET" action="{{ route('dashboard') }}" class="flex items-center gap-4">
+        <form method="GET" action="{{ route('dashboard') }}" class="flex flex-col md:flex-row items-start md:items-center gap-4">
             <label for="partner_id" class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter Dashboard per Mitra:</label>
-            <select name="partner_id" id="partner_id" onchange="updateDashboard(this.value)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-64 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <select name="partner_id" id="partner_id" onchange="updateDashboard(this.value)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-64 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <option value="">-- Semua Mitra (Global) --</option>
                 @foreach($partners as $partner)
                     <option value="{{ $partner->id }}" {{ isset($filterPartnerId) && $filterPartnerId == $partner->id ? 'selected' : '' }}>
@@ -147,10 +147,10 @@
             </div>
         </div>
 
-        <!-- Metric 4: Net Profit -->
+        <!-- Metric 4: Laba Bersih -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="w-full">
-                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Net Profit (Bulan Ini)</h3>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Laba Bersih (Bulan Ini)</h3>
                 <span id="stat-net-profit" class="text-2xl font-bold leading-none {{ $netProfit >= 0 ? 'text-green-500' : 'text-red-500' }} sm:text-3xl">
                     Rp {{ number_format($netProfit, 0, ',', '.') }}
                 </span>
@@ -159,37 +159,40 @@
     </div>
 
     <!-- Additional Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+        <!-- Rata-rata HPP -->
+        <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="w-full">
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Rata-rata HPP</h3>
+                <span id="stat-avg-hpp" class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">Rp {{ number_format($avgHpp, 0, ',', '.') }}</span>
+            </div>
+        </div>
         <!-- Feed Usage -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="w-full">
                 <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Penggunaan Pakan (Kg)</h3>
-                <span id="stat-feed-usage" class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">{{ number_format($feedUsage, 1) }}</span>
+                <span id="stat-feed-usage" class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">{{ number_format($feedUsage, 1) }}</span>
             </div>
         </div>
         <!-- Medicine Cost -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="w-full">
                 <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Biaya Obat (Est)</h3>
-                <span id="stat-medicine-cost" class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white">Rp {{ number_format($medicineCost, 0, ',', '.') }}</span>
+                <span id="stat-medicine-cost" class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white">Rp {{ number_format($medicineCost, 0, ',', '.') }}</span>
             </div>
         </div>
         <!-- Mortality -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="w-full">
-                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Kematian (Bulan Ini)</h3>
-                <span id="stat-death-count" class="text-2xl font-bold leading-none text-red-600 sm:text-3xl dark:text-red-500">{{ $deathCount }} Ekor</span>
-                <p class="text-xs text-gray-500 mt-1">
-                    Jantan: <span id="stat-dead-male">{{ $deadMale }}</span> | 
-                    Betina: <span id="stat-dead-female">{{ $deadFemale }}</span>
-                </p>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Kematian</h3>
+                <span id="stat-death-count" class="text-xl font-bold leading-none text-red-600 sm:text-2xl dark:text-red-500">{{ $deathCount }} Ekor</span>
             </div>
         </div>
         <!-- Mortality Value -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="w-full">
-                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Kerugian Aset (Kematian)</h3>
-                <span id="stat-death-value" class="text-2xl font-bold leading-none text-red-600 sm:text-3xl dark:text-red-500">Rp {{ number_format($deathValue, 0, ',', '.') }}</span>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Kerugian (Mati)</h3>
+                <span id="stat-death-value" class="text-xl font-bold leading-none text-red-600 sm:text-2xl dark:text-red-500">Rp {{ number_format($deathValue, 0, ',', '.') }}</span>
             </div>
         </div>
     </div>
@@ -243,9 +246,9 @@
             <h3 class="text-xl font-bold mb-4 dark:text-white">Performa & Biaya</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Conception Rate Text -->
+                <!-- Tingkat Kebuntingan Text -->
                 <div class="flex flex-col justify-center items-center">
-                    <span class="text-gray-500 dark:text-gray-400 mb-1">Conception Rate</span>
+                    <span class="text-gray-500 dark:text-gray-400 mb-1">Tingkat Kebuntingan</span>
                     <span class="text-4xl font-extrabold text-blue-600 dark:text-blue-500">{{ number_format($conceptionRate, 1) }}%</span>
                     <p class="text-xs text-gray-400 mt-2 text-center">Persentase keberhasilan kebuntingan (Excl. Pending)</p>
                 </div>
@@ -323,7 +326,7 @@
                 labels: @json($expenseLabels),
                 datasets: [{
                     data: @json($expenseData),
-                    backgroundColor: ['#E3A008', '#7E3AF2', '#1C64F2'], // Yellow (Feed), Purple (Meds), Blue (Ops)
+                    backgroundColor: ['#E3A008', '#7E3AF2', '#1C64F2', '#16BDCA', '#FDBA8C', '#E74694', '#9061F9', '#FACA15', '#31C48D'],
                     borderWidth: 0
                 }]
             },
@@ -422,6 +425,7 @@
                 updateText('stat-live-male', data.liveMale);
                 updateText('stat-live-female', data.liveFemale);
                 updateText('stat-avg-adg', formatNumber(data.avgAdg, 3) + ' kg/hari');
+                updateText('stat-avg-hpp', formatCurrency(data.avgHpp));
                 updateText('stat-sales-month', formatCurrency(data.salesThisMonth));
                 
                 // Net Profit Color & Value
@@ -471,7 +475,7 @@
                 updateList('alert-vaccine', 'list-vaccine', data.vaccineAlerts, item => `${item.tag_id} - ${item.notes} <span class="font-bold">(${item.date})</span>`);
                 updateList('alert-weaming', 'list-weaning', data.weaningAlerts, item => `${item.tag_id} (Usia: ${item.age_days} hari) - Lokasi: ${item.location}`);
                 updateList('alert-separation', 'list-separation', data.separationCandidates, item => `ID: ${item.tag_id} (Usia: ${item.age_months} bulan)`);
-                updateList('alert-mating', 'list-mating', data.matingSeparationCandidates, item => `Dam: ${item.dam_tag} + Sire: ${item.sire_tag} (Mulai: ${item.date})`);
+                updateList('alert-mating', 'list-mating', data.matingSeparationCandidates, item => `Induk: ${item.dam_tag} + Pejantan: ${item.sire_tag} (Mulai: ${item.date})`);
                 updateList('alert-stock', 'list-stock', data.lowStockItems, item => `${item.name} (Sisa: ${item.stock} ${item.unit})`);
 
             })

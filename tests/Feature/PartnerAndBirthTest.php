@@ -29,11 +29,11 @@ class PartnerAndBirthTest extends TestCase
         parent::setUp();
 
         // Setup common data
-        $this->user = User::factory()->create(['role' => 'OWNER']);
+        $this->user = User::factory()->create(['role' => 'PEMILIK']);
         $this->category = MasterCategory::create(['name' => 'Sheep']);
         $this->breed = MasterBreed::create(['name' => 'Dorper', 'category_id' => $this->category->id]);
         $this->location = MasterLocation::create(['name' => 'Cage A', 'type' => 'Colony']);
-        $this->status = MasterPhysStatus::create(['name' => 'Healthy']);
+        $this->status = MasterPhysStatus::create(['name' => 'Sehat']);
         MasterPhysStatus::create(['name' => 'Cempe']); // Required for birth logic
         MasterPhysStatus::create(['name' => 'Lactating']); // Required for dam update
 
@@ -62,11 +62,15 @@ class PartnerAndBirthTest extends TestCase
             'breed_id' => $this->breed->id,
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
-            'gender' => 'FEMALE',
+            'gender' => 'BETINA',
             'birth_date' => Carbon::now()->subYears(2),
-            'acquisition_type' => 'BRED',
-            'initial_weight' => 40,
+            'acquisition_type' => 'HASIL_TERNAK',
             'is_active' => true,
+        ]);
+
+        $dam->weightLogs()->create([
+            'weigh_date' => Carbon::now(),
+            'weight_kg' => 40
         ]);
 
         // 2. Register Birth
@@ -74,7 +78,7 @@ class PartnerAndBirthTest extends TestCase
             'tag_id' => 'KID001',
             'dam_id' => $dam->id,
             'birth_date' => Carbon::now()->format('Y-m-d'),
-            'gender' => 'MALE',
+            'gender' => 'JANTAN',
             'initial_weight' => 3.5,
             'breed_id' => $this->breed->id,
             'category_id' => $this->category->id,

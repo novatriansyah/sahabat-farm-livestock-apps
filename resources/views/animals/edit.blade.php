@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800">
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Edit Data Ternak: {{ $animal->tag_id }}</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Ubah Data Ternak: {{ $animal->tag_id }}</h2>
         <form action="{{ route('animals.update', $animal->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -18,19 +18,11 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
-                    <label for="category_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori</label>
-                    <select id="category_id" name="category_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ $animal->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ras (Breed)</label>
+                <div class="md:col-span-2">
+                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori & Ras (Breed)</label>
                     <select id="breed_id" name="breed_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         @foreach($breeds as $breed)
-                            <option value="{{ $breed->id }}" {{ $animal->breed_id == $breed->id ? 'selected' : '' }}>{{ $breed->name }}</option>
+                            <option value="{{ $breed->id }}" {{ $animal->breed_id == $breed->id ? 'selected' : '' }}>[{{ $breed->category->name ?? 'Tanpa Kategori' }}] {{ $breed->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -46,13 +38,17 @@
                 <div>
                     <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis Kelamin</label>
                     <select id="gender" name="gender" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                        <option value="MALE" {{ $animal->gender == 'MALE' ? 'selected' : '' }}>Jantan</option>
-                        <option value="FEMALE" {{ $animal->gender == 'FEMALE' ? 'selected' : '' }}>Betina</option>
+                        <option value="JANTAN" {{ $animal->gender == 'JANTAN' ? 'selected' : '' }}>Jantan</option>
+                        <option value="BETINA" {{ $animal->gender == 'BETINA' ? 'selected' : '' }}>Betina</option>
                     </select>
                 </div>
                 <div>
                     <label for="birth_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Lahir</label>
                     <input type="date" id="birth_date" name="birth_date" value="{{ old('birth_date', $animal->birth_date->format('Y-m-d')) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                </div>
+                <div>
+                    <label for="entry_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Masuk (Khusus Ternak Beli)</label>
+                    <input type="date" id="entry_date" name="entry_date" value="{{ old('entry_date', $animal->entry_date ? $animal->entry_date->format('Y-m-d') : '') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 </div>
                  <div>
                     <label for="current_location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lokasi Kandang</label>
@@ -72,7 +68,21 @@
                 </div>
                  <div>
                     <label for="necklace_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Kalung</label>
-                    <input type="text" id="necklace_color" name="necklace_color" value="{{ old('necklace_color', $animal->necklace_color) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                    <select id="necklace_color" name="necklace_color" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Tanpa Kalung --</option>
+                        @foreach(['Merah', 'Biru', 'Hijau', 'Kuning', 'Hitam', 'Putih'] as $color)
+                            <option value="{{ $color }}" {{ $animal->necklace_color == $color ? 'selected' : '' }}>{{ $color }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                 <div>
+                    <label for="ear_tag_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Ear Tag</label>
+                    <select id="ear_tag_color" name="ear_tag_color" onchange="updateTagColor()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Standar --</option>
+                        @foreach(['Merah', 'Biru', 'Hijau', 'Kuning', 'Hitam'] as $color)
+                            <option value="{{ $color }}" {{ $animal->ear_tag_color == $color ? 'selected' : '' }}>{{ $color }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-span-2">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Update Foto</label>
@@ -82,4 +92,24 @@
             <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Simpan Perubahan</button>
         </form>
     </div>
+    </div>
+    <script>
+        function updateTagColor() {
+            const tagInput = document.getElementById('tag_id');
+            const color = document.getElementById('ear_tag_color').value;
+            const colorMap = {
+                'Merah': '#fee2e2',
+                'Biru': '#dbeafe',
+                'Hijau': '#dcfce7',
+                'Kuning': '#fef9c3',
+                'Hitam': '#e5e7eb',
+            };
+            if(color && colorMap[color]) {
+                tagInput.style.backgroundColor = colorMap[color];
+            } else {
+                tagInput.style.backgroundColor = '';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', updateTagColor);
+    </script>
 </x-app-layout>

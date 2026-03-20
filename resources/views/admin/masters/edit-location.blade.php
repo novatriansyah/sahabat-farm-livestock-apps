@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800">
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Edit Location: {{ $location->name }}</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Ubah Location: {{ $location->name }}</h2>
         <form action="{{ route('masters.location.update', $location->id) }}" method="POST">
             @csrf
             @method('PUT')
@@ -10,7 +10,7 @@
                     <input type="text" id="name" name="name" value="{{ old('name', $location->name) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
                 <div>
-                    <label for="type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Type</label>
+                    <label for="type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipe</label>
                     <select id="type" name="type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         <option value="Kandang Individu" {{ $location->type == 'Kandang Individu' ? 'selected' : '' }}>Kandang Individu</option>
                         <option value="Kandang Koloni" {{ $location->type == 'Kandang Koloni' ? 'selected' : '' }}>Kandang Koloni</option>

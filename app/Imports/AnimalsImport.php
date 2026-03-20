@@ -38,10 +38,9 @@ class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
 
             // JOIN DATA LOOKUP
             $breedName = $row['breed_name'] ?? '';
-            $catName = $row['category_name'] ?? '';
             
             $breed = MasterBreed::where('name', 'like', '%' . $breedName . '%')->first();
-            $category = MasterCategory::where('name', 'like', '%' . $catName . '%')->first();
+            $categoryId = $breed ? $breed->category_id : $defaultCategory;
             
             $locationId = $defaultLocation;
             if (!empty($row['location_name'])) {
@@ -58,22 +57,20 @@ class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
 
             // Partner Assignment
             $partnerId = $currentUser->partner_id;
-            if ($currentUser->role !== 'PARTNER' && !empty($row['partner_name'])) {
+            if ($currentUser->role !== 'MITRA' && !empty($row['partner_name'])) {
                 $partner = MasterPartner::where('name', 'like', '%' . $row['partner_name'] . '%')->first();
                 if ($partner) $partnerId = $partner->id;
             }
 
-            $acqType = 'BOUGHT';
-            if (!empty($row['acquisition_type'])) {
-                $val = strtoupper($row['acquisition_type']);
-                if (in_array($val, ['BOUGHT', 'BRED'])) $acqType = $val;
-            }
+                if (in_array($val, ['BELI', 'HASIL_TERNAK', 'BOUGHT', 'BRED'])) {
+                    $acqType = ($val === 'BRED' || $val === 'HASIL_TERNAK') ? 'HASIL_TERNAK' : 'BELI';
+                }
             
-            $gender = 'FEMALE'; // Default
+            $gender = 'BETINA'; // Default
             if (!empty($row['gender'])) {
                 $gVal = strtoupper($row['gender']);
                  if (in_array($gVal, ['MALE', 'FEMALE', 'JANTAN', 'BETINA'])) {
-                     $gender = ($gVal === 'MALE' || $gVal === 'JANTAN') ? 'MALE' : 'FEMALE';
+                     $gender = ($gVal === 'MALE' || $gVal === 'JANTAN') ? 'JANTAN' : 'BETINA';
                  }
             }
 
@@ -81,7 +78,7 @@ class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
                 'tag_id' => $row['tag_id'],
                 'gender' => $gender,
                 'breed_id' => $breed ? $breed->id : $defaultBreed,
-                'category_id' => $category ? $category->id : $defaultCategory,
+                'category_id' => $categoryId,
                 'current_location_id' => $locationId,
                 'current_phys_status_id' => $physStatusId,
                 'owner_id' => $currentUser->id,

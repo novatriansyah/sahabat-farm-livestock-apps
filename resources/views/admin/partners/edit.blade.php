@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800">
-        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Edit Data Mitra</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Ubah Data Mitra</h2>
         <form action="{{ route('partners.update', $partner) }}" method="POST">
             @csrf
             @method('PUT')

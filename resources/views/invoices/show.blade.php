@@ -5,7 +5,7 @@
                 Detail Invoice: {{ $invoice->invoice_number }}
             </h2>
             <div class="flex gap-2">
-                @if($invoice->status == 'ISSUED' || $invoice->status == 'DRAFT')
+                @if($invoice->status == 'DITERBITKAN' || $invoice->status == 'DRAFT')
                     @if($invoice->type == 'PROFORMA')
                         <!-- Convert Action -->
                         <form action="{{ route('invoices.convert', $invoice->id) }}" method="POST" onsubmit="return confirm('Konversi ke Commercial Invoice? Ini akan mengubah nomor invoice dan status menjadi Issued.');">
@@ -14,7 +14,7 @@
                                 Konversi ke Commercial
                             </button>
                         </form>
-                    @elseif($invoice->type == 'COMMERCIAL' && $invoice->status == 'ISSUED')
+                    @elseif($invoice->type == 'KOMERSIAL' && $invoice->status == 'DITERBITKAN')
                         <!-- Payment Action -->
                         <form action="{{ route('invoices.paid', $invoice->id) }}" method="POST" onsubmit="return confirm('Tandai sebagai LUNAS?');">
                             @csrf
@@ -58,11 +58,11 @@
                 <div>
                     Status: 
                      @if($invoice->status == 'DRAFT')
-                        <span class="font-bold text-gray-500">DRAFT</span>
-                    @elseif($invoice->status == 'ISSUED')
-                        <span class="font-bold text-yellow-600">TERBIT / UNPAID</span>
-                    @elseif($invoice->status == 'PAID')
-                        <span class="font-bold text-green-600">LUNAS</span>
+                        <span class="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">Draft</span>
+                    @elseif($invoice->status == 'DITERBITKAN')
+                        <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Terbit</span>
+                    @elseif($invoice->status == 'LUNAS')
+                        <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Lunas</span>
                     @else
                         <span class="font-bold text-red-600">BATAL</span>
                     @endif

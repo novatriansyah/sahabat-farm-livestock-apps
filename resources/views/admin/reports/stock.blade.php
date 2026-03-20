@@ -67,9 +67,17 @@
         </div>
     </div>
 
-    <div class="flex justify-between items-center mb-4 no-print">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 no-print gap-4">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('Laporan Stok & Populasi') }}</h2>
-        <a href="{{ route('reports.stock', array_merge(request()->all(), ['mode' => 'print'])) }}" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700">Cetak (Print All)</a>
+        
+        <form method="GET" action="{{ route('reports.stock') }}" class="flex items-center gap-2">
+            <select name="ownership" onchange="this.form.submit()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option value="">Semua (Internal & Mitra)</option>
+                <option value="INTERNAL" {{ request('ownership') === 'INTERNAL' ? 'selected' : '' }}>Internal (SFI)</option>
+                <option value="MITRA" {{ request('ownership') === 'MITRA' ? 'selected' : '' }}>Mitra / Investor</option>
+            </select>
+            <a href="{{ route('reports.stock', array_merge(request()->all(), ['mode' => 'print'])) }}" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 whitespace-nowrap">Cetak (Print All)</a>
+        </form>
     </div>
 
     <!-- Print Summary (Visible only in Print) -->
@@ -80,27 +88,36 @@
         </div>
         <div style="border: 1px solid #000; padding: 8px; text-align: center; flex: 1;">
             <div style="font-size: 10pt; font-weight: bold; text-transform: uppercase;">Total Jantan</div>
-            <div style="font-size: 14pt; font-weight: bold;">{{ $byGender['MALE'] }}</div>
+            <div style="font-size: 14pt; font-weight: bold;">{{ $byGender['JANTAN'] }}</div>
         </div>
         <div style="border: 1px solid #000; padding: 8px; text-align: center; flex: 1;">
             <div style="font-size: 10pt; font-weight: bold; text-transform: uppercase;">Total Betina</div>
-            <div style="font-size: 14pt; font-weight: bold;">{{ $byGender['FEMALE'] }}</div>
+            <div style="font-size: 14pt; font-weight: bold;">{{ $byGender['BETINA'] }}</div>
         </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-3 gap-4 mb-6 no-print">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 no-print">
         <div class="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg text-center">
-            <p class="text-sm text-blue-600 dark:text-blue-200">Total Populasi</p>
+            <p class="text-sm text-blue-600 dark:text-blue-200 uppercase font-bold">Total Populasi</p>
             <p class="text-3xl font-bold text-blue-800 dark:text-blue-100">{{ $byGender['TOTAL'] }}</p>
         </div>
-        <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg text-center">
-            <p class="text-sm text-green-600 dark:text-green-200">Total Jantan</p>
-            <p class="text-3xl font-bold text-green-800 dark:text-green-100">{{ $byGender['MALE'] }}</p>
+        @foreach($byAgeGroup as $groupName => $count)
+        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
+            <p class="text-sm text-gray-600 dark:text-gray-300 uppercase font-bold">{{ $groupName }}</p>
+            <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ $count }}</p>
         </div>
-        <div class="p-4 bg-pink-50 dark:bg-pink-900 rounded-lg text-center">
-            <p class="text-sm text-pink-600 dark:text-pink-200">Total Betina</p>
-            <p class="text-3xl font-bold text-pink-800 dark:text-pink-100">{{ $byGender['FEMALE'] }}</p>
+        @endforeach
+    </div>
+
+    <!-- Gender Split (Small Cards) -->
+    <div class="grid grid-cols-2 gap-4 mb-6 no-print">
+        <div class="p-3 bg-green-50 dark:bg-green-900 rounded-lg flex justify-between items-center px-6">
+            <p class="text-sm text-green-600 dark:text-green-200 font-bold uppercase">Total Jantan</p>
+            <p class="text-2xl font-bold text-green-800 dark:text-green-100">{{ $byGender['JANTAN'] }}</p>
+        </div>
+        <div class="p-3 bg-pink-50 dark:bg-pink-900 rounded-lg flex justify-between items-center px-6">
+            <p class="text-sm text-pink-600 dark:text-pink-200 font-bold uppercase">Total Betina</p>
+            <p class="text-2xl font-bold text-pink-800 dark:text-pink-100">{{ $byGender['BETINA'] }}</p>
         </div>
     </div>
 
@@ -173,7 +190,7 @@
                             <th class="px-6 py-3">Usia (Bulan)</th>
                             <th class="px-6 py-3">Lokasi</th>
                             <th class="px-6 py-3">Status Fisik</th>
-                            @if(Auth::user()->role === 'OWNER')
+                            @if(Auth::user()->role === 'PEMILIK')
                             <th class="px-6 py-3">Mitra</th>
                             @endif
                         </tr>
@@ -182,12 +199,16 @@
                         @foreach($animals as $animal)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $animal->tag_id }}</td>
-                            <td class="px-6 py-4">{{ $animal->gender == 'MALE' ? 'Jantan' : 'Betina' }}</td>
+                            <td class="px-6 py-4">{{ $animal->gender == 'JANTAN' ? 'Jantan' : 'Betina' }}</td>
                             <td class="px-6 py-4">{{ $animal->breed->name }}</td>
                             <td class="px-6 py-4">{{ number_format($animal->birth_date->diffInMonths(now()), 1) }} bln</td>
                             <td class="px-6 py-4">{{ $animal->location->name ?? '-' }}</td>
-                            <td class="px-6 py-4">{{ $animal->current_phys_status_id ?? '-' }}</td>
-                            @if(Auth::user()->role === 'OWNER')
+                            <td class="px-6 py-4">
+                                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">
+                                    {{ $animal->physStatus->name ?? '-' }}
+                                </span>
+                            </td>
+                            @if(Auth::user()->role === 'PEMILIK')
                             <td class="px-6 py-4">{{ $animal->partner->name ?? '-' }}</td>
                             @endif
                         </tr>
