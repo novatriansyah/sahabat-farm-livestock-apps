@@ -39,15 +39,14 @@ class UpdateAnimalCategory extends Command
         // 3-8 Months: Lepas Sapih (Weaned)
         // > 8 Months: Siap Kawin (Ready to Mate) / Dara
 
-        // I need to find the IDs for these statuses.
-        // Assuming MasterPhysStatus has these names.
+        $cempe = MasterPhysStatus::where('name', 'Cempe')->first();
+        $bakalan = MasterPhysStatus::where('name', 'Bakalan (Jantan)')->first();
+        $dara = MasterPhysStatus::where('name', 'Dara (Betina)')->first();
+        $jantanSiap = MasterPhysStatus::where('name', 'Jantan siap kawin')->first();
+        $betinaSiap = MasterPhysStatus::where('name', 'Betina siap kawin')->first();
 
-        $cempe = MasterPhysStatus::where('name', 'Cempe Lahir')->first();
-        $weaned = MasterPhysStatus::where('name', 'Cempe Sapih')->first();
-        $ready = MasterPhysStatus::where('name', 'Dara')->first();
-
-        if (!$cempe || !$weaned || !$ready) {
-            $this->error('Master Physical Statuses not found. Please seed DB.');
+        if (!$cempe || !$bakalan || !$dara || !$jantanSiap || !$betinaSiap) {
+            $this->error('Required Master Physical Statuses not found. Please verify migration.');
             return;
         }
 
@@ -69,11 +68,11 @@ class UpdateAnimalCategory extends Command
             if ($ageMonths < 3) {
                 $newStatusId = $cempe->id;
             } elseif ($ageMonths >= 3 && $ageMonths < 8) {
-                $newStatusId = $weaned->id;
+                $newStatusId = ($animal->gender === 'JANTAN') ? $bakalan->id : $dara->id;
             } elseif ($ageMonths >= 8) {
                 // Only update to Ready if not currently Pregnant or Lactating
                 if (!in_array($currentStatusName, ['Bunting', 'Menyusui'])) {
-                    $newStatusId = $ready->id;
+                    $newStatusId = ($animal->gender === 'JANTAN') ? $jantanSiap->id : $betinaSiap->id;
                 }
             }
 

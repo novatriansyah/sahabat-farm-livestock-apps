@@ -36,11 +36,33 @@ class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
                 continue;
             }
 
-            // JOIN DATA LOOKUP
-            $breedName = $row['breed_name'] ?? '';
-            
-            $breed = MasterBreed::where('name', 'like', '%' . $breedName . '%')->first();
-            $categoryId = $breed ? $breed->category_id : $defaultCategory;
+            // Parsing format: [Kategori] Ras (e.g. [Kambing] Boer)
+            $breedNameInput = $row['breed_name'] ?? '';
+            $categoryId = $defaultCategory;
+            $breedId = $defaultBreed;
+
+            if (preg_match('/\[(.*?)\]\s*(.*)/', $breedNameInput, $matches)) {
+                $categoryName = trim($matches[1]);
+                $breedName = trim($matches[2]);
+
+                // Find Category
+                $category = MasterCategory::where('name', 'like', '%' . $categoryName . '%')->first();
+                if ($category) {
+                    $categoryId = $category->id;
+                    // Find Breed within this category
+                    $breed = MasterBreed::where('category_id', $categoryId)
+                        ->where('name', 'like', '%' . $breedName . '%')
+                        ->first();
+                    if ($breed) $breedId = $breed->id;
+                }
+            } else {
+                // Legacy format: just Breed Name
+                $breed = MasterBreed::where('name', 'like', '%' . $breedNameInput . '%')->first();
+                if ($breed) {
+                    $breedId = $breed->id;
+                    $categoryId = $breed->category_id;
+                }
+            }
             
             $locationId = $defaultLocation;
             if (!empty($row['location_name'])) {
@@ -49,9 +71,22 @@ class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
             }
 
             // Phys Status Lookup
-            $physStatusId = 1; // Default Sehat
+            $physStatusId = MasterPhysStatus::first()->id ?? null;
             if (!empty($row['physical_status'])) {
-                $status = MasterPhysStatus::where('name', 'like', '%' . $row['physical_status'] . '%')->first();
+                $statusInput = strtoupper($row['physical_status']);
+                $genderInput = strtoupper($row['gender'] ?? '');
+                
+                // Gender-Aware Mapping for abbreviated names
+                $statusNameSearch = $row['physical_status'];
+                if ($statusInput === 'DARA') {
+                    $statusNameSearch = 'Dara (Betina)';
+                } elseif ($statusInput === 'BAKALAN') {
+                    $statusNameSearch = 'Bakalan (Jantan)';
+                } elseif ($statusInput === 'SIAP KAWIN') {
+                    $statusNameSearch = ($genderInput === 'JANTAN' || $genderInput === 'MALE') ? 'Jantan siap kawin' : 'Betina siap kawin';
+                }
+
+                $status = MasterPhysStatus::where('name', 'like', '%' . $statusNameSearch . '%')->first();
                 if ($status) $physStatusId = $status->id;
             }
 
@@ -82,7 +117,7 @@ class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
             $animal = Animal::create([
                 'tag_id' => $row['tag_id'],
                 'gender' => $gender,
-                'breed_id' => $breed ? $breed->id : $defaultBreed,
+                'breed_id' => $breedId,
                 'category_id' => $categoryId,
                 'current_location_id' => $locationId,
                 'current_phys_status_id' => $physStatusId,

@@ -15,19 +15,17 @@ class SopSeeder extends Seeder
     public function run(): void
     {
         // 1. Lifecycle States (Status Fisik)
-        $statuses = [
-            ['name' => 'Cempe Lahir', 'rules' => 'Cempe 0-3 bulan'],
-            ['name' => 'Cempe Sapih', 'rules' => 'Lepas Sapih 3-6 bulan'],
-            ['name' => 'Dara', 'rules' => 'Siap Kawin >6 bulan'],
-            ['name' => 'Bunting', 'rules' => 'Bunting'],
-            ['name' => 'Menyusui', 'rules' => 'Menyusui'],
-            ['name' => 'Penggemukan - Siap Jual', 'rules' => 'Penggemukan - Siap Jual'],
-            ['name' => 'Karantina', 'rules' => 'Baru Datang/Sakit'],
-        ];
+        $statuses = \Database\Seeders\PhysStatusSeeder::$statuses;
 
-        foreach ($statuses as $status) {
-            MasterPhysStatus::updateOrCreate(['name' => $status['name']], $status);
+        foreach ($statuses as $index => $status) {
+            MasterPhysStatus::updateOrCreate(
+                ['id' => $index + 1],
+                ['name' => $status]
+            );
         }
+
+        // Cleanup any legacy IDs
+        MasterPhysStatus::where('id', '>', count($statuses))->delete();
 
         // 2. Master Breeds
         // Ensure Categories exist

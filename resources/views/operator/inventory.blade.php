@@ -2,21 +2,6 @@
     <div class="max-w-md mx-auto bg-white p-4 rounded-lg shadow dark:bg-gray-800">
         <h2 class="text-xl font-bold mb-4 dark:text-white">Pemberian Pakan Harian & Stok</h2>
 
-        @if(session('success'))
-            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if($errors->any())
-            <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         <form action="{{ route('inventory.usage.store') }}" method="POST">
             @csrf

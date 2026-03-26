@@ -4,11 +4,6 @@
         <p class="text-gray-500 dark:text-gray-400">Mengelola konfigurasi peternakan (Bibit, Kandang, Penyakit, Item).</p>
     </div>
 
-    @if(session('success'))
-        <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Use Tabs for better organization -->
     <div class="mb-4 border-b border-gray-200 dark:border-gray-700">

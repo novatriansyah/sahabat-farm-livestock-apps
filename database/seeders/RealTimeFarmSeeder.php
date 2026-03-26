@@ -71,11 +71,11 @@ class RealTimeFarmSeeder extends Seeder
         $this->locations['Nursery'] = MasterLocation::firstOrCreate(['name' => 'Kandang Cempe', 'type' => 'Kandang Individu']);
 
         // Statuses
-        $this->statuses['Ready'] = MasterPhysStatus::where('name', 'Dara')->first();
+        $this->statuses['Ready'] = MasterPhysStatus::where('name', 'Dara (Betina)')->first();
         $this->statuses['Pregnant'] = MasterPhysStatus::where('name', 'Bunting')->first();
         $this->statuses['Lactating'] = MasterPhysStatus::where('name', 'Menyusui')->first();
-        $this->statuses['Cempe'] = MasterPhysStatus::where('name', 'Cempe Lahir')->first();
-        $this->statuses['Weaned'] = MasterPhysStatus::where('name', 'Cempe Sapih')->first();
+        $this->statuses['Cempe'] = MasterPhysStatus::where('name', 'Cempe')->first();
+        $this->statuses['Weaned'] = MasterPhysStatus::where('name', 'Bakalan (Jantan)')->first(); // Or Dara
         $this->statuses['Fattening'] = MasterPhysStatus::where('name', 'Penggemukan - Siap Jual')->first();
 
         // Feed
@@ -154,7 +154,7 @@ class RealTimeFarmSeeder extends Seeder
             // 1. Growth (Weight Log)
             // Sires grow slow, Dams fluctuate, Cempe grows fast
             $adgGrams = 0; // Daily gain in grams
-            if ($animal->physStatus->name == 'Cempe Lahir') $adgGrams = rand(150, 300); // 150-300g/day
+            if ($animal->physStatus->name == 'Cempe') $adgGrams = rand(150, 300); // 150-300g/day
             elseif ($animal->physStatus->name == 'Penggemukan - Siap Jual') $adgGrams = rand(200, 400); // 200-400g/day
             else $adgGrams = rand(-50, 50); // Adults stable/fluctuate
 

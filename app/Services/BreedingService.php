@@ -65,8 +65,9 @@ class BreedingService
         }
 
         // Rule 4: Health Status
-        // ID 7 = Karantina (Sick/Compromised), ID 4 = Bunting (Already Pregnant)
-        $restrictedStatuses = [4, 7]; 
+        // ID 6 = Bunting (Already Pregnant), ID 9 = Karantina (Sick/Compromised)
+        // Note: ID 7 (Menyusui) is now ALLOWED if it passes the 40-day nifas check in Rule 3.
+        $restrictedStatuses = [6, 9]; 
         if (in_array($animal->current_phys_status_id, $restrictedStatuses)) {
             $statusName = $animal->physStatus->name ?? 'Unknown';
             return [

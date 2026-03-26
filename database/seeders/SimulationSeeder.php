@@ -32,12 +32,13 @@ class SimulationSeeder extends Seeder
         // Map Status Names to IDs for easier logic
         $statusMap = MasterPhysStatus::pluck('id', 'name')->toArray();
         // Fallback or defaults if names differ slightly
-        $idCempe = $statusMap['Cempe Lahir'] ?? 1;
-        $idSapih = $statusMap['Cempe Sapih'] ?? 2;
-        $idDara = $statusMap['Dara'] ?? 3;
-        $idBunting = $statusMap['Bunting'] ?? 4;
-        $idMenyusui = $statusMap['Menyusui'] ?? 5;
-        $idSiapJual = $statusMap['Penggemukan - Siap Jual'] ?? 6;
+        $defaultId = MasterPhysStatus::first()->id ?? 1;
+        $idCempe = $statusMap['Cempe Lahir'] ?? $defaultId;
+        $idSapih = $statusMap['Cempe Sapih'] ?? $defaultId;
+        $idDara = $statusMap['Dara'] ?? $defaultId;
+        $idBunting = $statusMap['Bunting'] ?? $defaultId;
+        $idMenyusui = $statusMap['Menyusui'] ?? $defaultId;
+        $idSiapJual = $statusMap['Penggemukan - Siap Jual'] ?? $defaultId;
         
         // 3. Create Locations (Cages) - Simulate "Much locations"
         // Create 20 Cages/Locations

@@ -18,7 +18,7 @@
                     </select>
                 </div>
                 <div class="md:col-span-2">
-                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kategori & Ras</label>
+                    <label for="breed_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jenis Hewan & Ras</label>
                     <select id="breed_id" name="breed_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         @foreach($breeds as $breed)
                             <option value="{{ $breed->id }}">[{{ $breed->category->name ?? 'Tanpa Kategori' }}] {{ $breed->name }}</option>
@@ -70,6 +70,16 @@
                         @endforeach
                     </select>
                 </div>
+                <div>
+                    <label for="health_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status Kesehatan</label>
+                    <select id="health_status" name="health_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="SEHAT" selected>Sehat</option>
+                        <option value="SAKIT">Sakit</option>
+                        <option value="KARANTINA">Karantina</option>
+                        <option value="MATI">Mati</option>
+                        <option value="TERJUAL">Terjual</option>
+                    </select>
+                </div>
                  <div>
                     <label for="necklace_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Kalung</label>
                     <select id="necklace_color" name="necklace_color" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
@@ -106,10 +116,14 @@
                     <label for="purchase_price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga Beli (Rp)</label>
                     <input type="number" id="purchase_price" name="purchase_price" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
+                <div class="md:col-span-2">
+                    <label for="google_drive_link" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Link Google Drive (Opsional)</label>
+                    <input type="url" id="google_drive_link" name="google_drive_link" placeholder="https://drive.google.com/..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                </div>
                 <div class="col-span-2">
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Upload Foto Hewan</label>
-                    <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="photo" name="photo" type="file">
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 20MB).</p>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Upload Foto Hewan (Bisa multiple)</label>
+                    <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="photo" name="photo[]" type="file" multiple>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG (Maks. 10MB per file. Foto akan dikompresi otomatis).</p>
                 </div>
             </div>
             <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Simpan</button>

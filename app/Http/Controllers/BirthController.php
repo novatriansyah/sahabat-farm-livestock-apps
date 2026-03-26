@@ -61,26 +61,31 @@ class BirthController extends Controller
             $sire = Animal::find($validated['sire_id']);
             $breedId = $sire->breed_id; // Auto-detect breed from Male parent
             
-            // Mathematically calculate generation (F1 + F1 = F2) capping at F6 (PURE)
+            // Mathematically calculate generation (F+1)
             $sGen = $sire->generation;
             $dGen = $dam->generation;
 
-            if ($sGen && $dGen) {
-                preg_match('/F(\d+)/i', $sGen, $sMatch);
-                preg_match('/F(\d+)/i', $dGen, $dMatch);
-                
-                $sNum = !empty($sMatch[1]) ? (int)$sMatch[1] : 0;
+            // Extract Numbers from F1, F2...
+            preg_match('/F(\d+)/i', $sGen, $sMatch);
+            preg_match('/F(\d+)/i', $dGen, $dMatch);
+            
+            $sNum = !empty($sMatch[1]) ? (int)$sMatch[1] : 0;
+            $dNum = !empty($dMatch[1]) ? (int)$dMatch[1] : 0;
+            
+            // PUREBREED/PURE logic (treated as F6)
+            if (in_array(strtoupper($sGen), ['PURE', 'PUREBREED', 'PB'])) $sNum = 6;
+            if (in_array(strtoupper($dGen), ['PURE', 'PUREBREED', 'PB'])) $dNum = 6;
+            
+            // Logic: max(parents) + 1
+            $next = max($sNum, $dNum) + 1;
+            $generation = ($next >= 6) ? 'PURE' : 'F' . $next;
+        } else {
+            // If no sire, fallback to Dam's generation or default F1 if Dam is Lokal
+            if (!$generation) {
+                preg_match('/F(\d+)/i', $dam->generation, $dMatch);
                 $dNum = !empty($dMatch[1]) ? (int)$dMatch[1] : 0;
-                
-                if (in_array(strtoupper($sGen), ['PURE', 'PUREBREED'])) $sNum = 6;
-                if (in_array(strtoupper($dGen), ['PURE', 'PUREBREED'])) $dNum = 6;
-                
-                if ($sNum > 0 && $dNum > 0) {
-                    $next = max($sNum, $dNum) + 1;
-                    $generation = $next >= 6 ? 'PURE' : 'F' . $next;
-                } elseif (in_array(strtoupper($sGen), ['PURE', 'PUREBREED']) && in_array(strtoupper($dGen), ['PURE', 'PUREBREED'])) {
-                    $generation = 'PURE';
-                }
+                $next = $dNum + 1;
+                $generation = ($next >= 6) ? 'PURE' : 'F' . $next;
             }
         }
         

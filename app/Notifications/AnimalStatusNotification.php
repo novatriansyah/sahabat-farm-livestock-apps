@@ -14,15 +14,17 @@ class AnimalStatusNotification extends Notification
     protected $animal;
     protected $message;
     protected $type;
+    protected $customUrl;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($animal, $message, $type = 'info')
+    public function __construct($animal, $message, $type = 'info', $customUrl = null)
     {
         $this->animal = $animal;
         $this->message = $message;
         $this->type = $type;
+        $this->customUrl = $customUrl;
     }
 
     /**
@@ -40,10 +42,13 @@ class AnimalStatusNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $subject = 'Notifikasi Ternak: ' . ($this->animal->tag_id ?? 'Sistem');
+        $url = $this->customUrl ?? ($this->animal ? route('animals.show', $this->animal->id) : route('dashboard'));
+
         return (new MailMessage)
-            ->subject('Notifikasi Ternak: ' . ($this->animal->tag_id ?? 'Sistem'))
+            ->subject($subject)
             ->line($this->message)
-            ->action('Lihat Ternak', route('animals.show', $this->animal->id))
+            ->action('Lihat Detail', $url)
             ->line('Terima kasih telah menggunakan Sahabat Farm Indonesia!');
     }
 
@@ -55,11 +60,11 @@ class AnimalStatusNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'animal_id' => $this->animal->id,
-            'tag_id' => $this->animal->tag_id,
+            'animal_id' => $this->animal->id ?? null,
+            'tag_id' => $this->animal->tag_id ?? 'Sistem',
             'message' => $this->message,
             'type' => $this->type,
-            'url' => route('animals.show', $this->animal->id),
+            'url' => $this->customUrl ?? ($this->animal ? route('animals.show', $this->animal->id) : route('dashboard')),
         ];
     }
 }

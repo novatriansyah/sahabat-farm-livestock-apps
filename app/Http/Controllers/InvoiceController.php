@@ -225,4 +225,104 @@ class InvoiceController extends Controller
             return back()->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
         }
     }
+
+    public function edit(Invoice $invoice): View
+    {
+        $invoice->load('items');
+        $itemAnimalIds = $invoice->items->pluck('related_animal_id')->filter()->toArray();
+        
+        $animals = Animal::where(function($q) use ($itemAnimalIds) {
+                $q->where('is_active', true)
+                  ->orWhereIn('id', $itemAnimalIds);
+            })
+            ->where('health_status', '!=', 'MATI')
+            ->with(['breed', 'latestWeightLog'])
+            ->get();
+
+        return view('invoices.edit', compact('invoice', 'animals'));
+    }
+
+    public function update(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_contact' => 'nullable|string|max:255',
+            'customer_address' => 'nullable|string',
+            'issued_date' => 'required|date',
+            'due_date' => 'nullable|after_or_equal:issued_date',
+            'type' => 'required|in:PROFORMA,KOMERSIAL',
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
+            'additional_tax_rate' => 'nullable|numeric|min:0|max:100',
+            'down_payment' => 'nullable|numeric|min:0',
+            'items' => 'required|array|min:1',
+            'items.*.description' => 'required|string',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.related_animal_id' => 'nullable|exists:animals,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Update Number if type changed
+            $number = $invoice->invoice_number;
+            if ($validated['type'] !== $invoice->type) {
+                 if ($validated['type'] === 'PROFORMA' && str_starts_with($number, 'INV')) {
+                     $number = str_replace('INV', 'PRF', $number);
+                 } elseif ($validated['type'] === 'KOMERSIAL' && str_starts_with($number, 'PRF')) {
+                     $number = str_replace('PRF', 'INV', $number);
+                 }
+            }
+
+            // Calculate Totals
+            $subtotal = 0;
+            foreach ($validated['items'] as $itemData) {
+                $qty = isset($itemData['related_animal_id']) && $itemData['related_animal_id'] ? 1 : $itemData['quantity'];
+                $subtotal += $qty * $itemData['unit_price'];
+            }
+
+            $taxRate = $validated['tax_rate'] ?? 0;
+            $addTaxRate = $validated['additional_tax_rate'] ?? 0;
+            $taxAmount = $subtotal * ($taxRate / 100);
+            $addTaxAmount = $subtotal * ($addTaxRate / 100);
+            $totalTax = $taxAmount + $addTaxAmount;
+            $total = $subtotal + $totalTax;
+
+            $invoice->update([
+                'invoice_number' => $number,
+                'customer_name' => $validated['customer_name'],
+                'customer_contact' => $validated['customer_contact'],
+                'customer_address' => $validated['customer_address'],
+                'type' => $validated['type'],
+                'issued_date' => $validated['issued_date'],
+                'due_date' => $validated['due_date'] ?? null,
+                'subtotal' => $subtotal,
+                'tax_rate' => $taxRate,
+                'additional_tax_rate' => $addTaxRate,
+                'tax_amount' => $totalTax,
+                'total_amount' => $total,
+                'down_payment' => $validated['down_payment'] ?? 0,
+            ]);
+
+            // Refresh items
+            $invoice->items()->delete();
+            foreach ($validated['items'] as $itemData) {
+                $qty = isset($itemData['related_animal_id']) && $itemData['related_animal_id'] ? 1 : $itemData['quantity'];
+                InvoiceItem::create([
+                    'invoice_id' => $invoice->id,
+                    'description' => $itemData['description'],
+                    'quantity' => $qty,
+                    'unit_price' => $itemData['unit_price'],
+                    'subtotal' => $qty * $itemData['unit_price'],
+                    'related_animal_id' => $itemData['related_animal_id'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('invoices.show', $invoice->id)->with('success', 'Invoice berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui invoice: ' . $e->getMessage())->withInput();
+        }
+    }
 }

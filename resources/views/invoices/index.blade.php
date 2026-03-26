@@ -53,8 +53,11 @@
                         <td class="px-6 py-4 font-bold">
                             Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
                         </td>
-                        <td class="px-6 py-4 space-x-2">
+                        <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('invoices.show', $invoice->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Detail</a>
+                            @if($invoice->status == 'DRAFT')
+                                <a href="{{ route('invoices.edit', $invoice->id) }}" class="font-medium text-yellow-600 dark:text-yellow-500 hover:underline">Edit</a>
+                            @endif
                         </td>
                     </tr>
                     @empty

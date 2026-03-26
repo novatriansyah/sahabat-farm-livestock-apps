@@ -13,4 +13,6 @@ Schedule::call(function () {
     app(CalculateDailyHpp::class)->execute();
 })->dailyAt('00:00');
 
-Schedule::command('animals:update-status')->dailyAt('01:00');
+Schedule::command('animal:auto-status')->dailyAt('01:00');
+Schedule::command('app:sync-notifications')->dailyAt('02:00');
+Schedule::command('app:clean-old-records')->monthly();

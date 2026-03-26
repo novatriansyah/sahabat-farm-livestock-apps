@@ -17,100 +17,9 @@
     </div>
     @endif
 
-    <!-- Smart Alerts Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <!-- Vaccine Alerts -->
-        @if(count($vaccineAlerts) > 0)
-        <div id="alert-vaccine" class="p-4 text-sm text-cyan-800 rounded-lg bg-cyan-50 dark:bg-gray-800 dark:text-cyan-300" role="alert">
-            <span class="font-medium">💉 Jadwal Vaksinasi/Obat!</span> Berikut yang perlu ditangani (7 Hari Kedepan):
-            <ul id="list-vaccine" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto">
-                @foreach($vaccineAlerts as $log)
-                    <li>
-                        {{ $log->animal->tag_id }} - {{ $log->notes }} 
-                        <span class="font-bold">({{ $log->next_due_date->format('d M') }})</span>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-        @else
-        <div id="alert-vaccine" class="hidden p-4 text-sm text-cyan-800 rounded-lg bg-cyan-50 dark:bg-gray-800 dark:text-cyan-300" role="alert">
-             <span class="font-medium">💉 Jadwal Vaksinasi/Obat!</span> Berikut yang perlu ditangani (7 Hari Kedepan):
-             <ul id="list-vaccine" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto"></ul>
-        </div>
-        @endif
+    <!-- Alerts have been moved to the notification bell system -->
 
-        <!-- Weaning Alerts (Ready to Wean) -->
-        @if(count($weaningAlerts) > 0)
-        <div id="alert-weaming" class="p-4 text-sm text-indigo-800 rounded-lg bg-indigo-50 dark:bg-gray-800 dark:text-indigo-300" role="alert">
-            <span class="font-medium">🍼 Siap Sapih (35+ Hari)!</span> Cempe ini sudah mendekati usia sapih:
-            <ul id="list-weaning" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto">
-                @foreach($weaningAlerts as $animal)
-                    <li>
-                         {{ $animal->tag_id }} (Usia: {{ number_format($animal->birth_date->diffInDays(now()), 0) }} hari)
-                         - Lokasi: {{ $animal->location->name ?? '-' }}
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-        @else
-        <div id="alert-weaming" class="hidden p-4 text-sm text-indigo-800 rounded-lg bg-indigo-50 dark:bg-gray-800 dark:text-indigo-300" role="alert">
-            <span class="font-medium">🍼 Siap Sapih (35+ Hari)!</span> Cempe ini sudah mendekati usia sapih:
-            <ul id="list-weaning" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto"></ul>
-        </div>
-        @endif
-    </div>
-
-    <!-- Separation Alert (Pisah Koloni / Sapih > 60 Hari) -->
-    @if(count($separationCandidates) > 0)
-    <div id="alert-separation" class="mb-4 p-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-300" role="alert">
-        <span class="font-medium">⚠️ Waktunya Sapih (Pisah Induk)!</span> Cempe berikut sudah berusia > 2 bulan:
-        <ul id="list-separation" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto">
-            @foreach($separationCandidates as $animal)
-                <li>ID: {{ $animal->tag_id }} (Usia: {{ number_format($animal->birth_date->floatDiffInMonths(now()), 1) }} bulan)</li>
-            @endforeach
-        </ul>
-    </div>
-    @else
-    <div id="alert-separation" class="hidden mb-4 p-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-300" role="alert">
-        <span class="font-medium">⚠️ Waktunya Sapih (Pisah Induk)!</span> Cempe berikut sudah berusia > 2 bulan:
-        <ul id="list-separation" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto"></ul>
-    </div>
-    @endif
-
-    <!-- Mating Separation Alert (Pisah Pejantan) -->
-    @if(count($matingSeparationCandidates) > 0)
-    <div id="alert-mating" class="mb-4 p-4 text-sm text-orange-800 rounded-lg bg-orange-50 dark:bg-gray-800 dark:text-orange-300" role="alert">
-        <span class="font-medium">⚠️ Waktunya Pisah Pejantan!</span> Pasangan berikut sudah disatukan > 2 bulan:
-        <ul id="list-mating" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto">
-            @foreach($matingSeparationCandidates as $event)
-                <li>Dam: {{ $event->dam->tag_id }} + Sire: {{ $event->sire->tag_id }} (Mulai: {{ $event->mating_date->format('d M Y') }})</li>
-            @endforeach
-        </ul>
-    </div>
-    @else
-    <div id="alert-mating" class="hidden mb-4 p-4 text-sm text-orange-800 rounded-lg bg-orange-50 dark:bg-gray-800 dark:text-orange-300" role="alert">
-         <span class="font-medium">⚠️ Waktunya Pisah Pejantan!</span> Pasangan berikut sudah disatukan > 2 bulan:
-         <ul id="list-mating" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto"></ul>
-    </div>
-    @endif
-
-    <!-- Low Stock Alert -->
-    @if(count($lowStockItems) > 0)
-    <div id="alert-stock" class="mb-4 p-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
-        <span class="font-medium">⚠️ Peringatan Stok!</span> Item berikut hampir habis (< 10 unit):
-        <ul id="list-stock" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto">
-            @foreach($lowStockItems as $item)
-                <li>{{ $item->name }} (Sisa: {{ $item->current_stock }} {{ $item->unit }})</li>
-            @endforeach
-        </ul>
-    </div>
-    @else
-    <div id="alert-stock" class="hidden mb-4 p-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
-        <span class="font-medium">⚠️ Peringatan Stok!</span> Item berikut hampir habis (< 10 unit):
-         <ul id="list-stock" class="mt-1.5 list-disc list-inside max-h-64 overflow-y-auto"></ul>
-    </div>
-    @endif
-
+    @if($dashboardSettings['metrics']->is_visible ?? true)
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <!-- Metric 1: Active Animals -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
@@ -157,8 +66,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Additional Stats -->
+    @if($dashboardSettings['additional_stats']->is_visible ?? true)
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
         <!-- Rata-rata HPP -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
@@ -196,11 +107,12 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Charts & Tables -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
-
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <!-- 1. Population Demographics & Cage (Mixed Layout) -->
+        @if($dashboardSettings['charts_demographics']->is_visible ?? true)
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
             <h3 class="text-xl font-bold mb-4 dark:text-white">Demografi & Kandang</h3>
 
@@ -224,24 +136,30 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- 2. Financial Summary (Bar Chart) -->
+        @if($dashboardSettings['charts_financial']->is_visible ?? true)
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
             <h3 class="text-xl font-bold mb-4 dark:text-white">Ringkasan Keuangan (6 Bulan)</h3>
             <div class="relative h-64 w-full">
                 <canvas id="financialChart"></canvas>
             </div>
         </div>
+        @endif
 
         <!-- 3. Mortality Trend (Line Chart) -->
+        @if($dashboardSettings['charts_mortality']->is_visible ?? true)
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
             <h3 class="text-xl font-bold mb-4 dark:text-white">Tren Kematian (6 Bulan)</h3>
             <div class="relative h-64 w-full">
                 <canvas id="mortalityChart"></canvas>
             </div>
         </div>
+        @endif
 
         <!-- 4. Expense Breakdown & Conception Rate -->
+        @if($dashboardSettings['charts_performance']->is_visible ?? true)
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
             <h3 class="text-xl font-bold mb-4 dark:text-white">Performa & Biaya</h3>
 
@@ -259,16 +177,19 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     <!-- 5. Biomass Trend (Aggregate Weight) -->
-    <div class="mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
+    @if($dashboardSettings['charts_biomass']->is_visible ?? true)
+    <div class="mt-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
         <h3 class="text-xl font-bold mb-4 dark:text-white">Pertumbuhan Biomassa (Total Bobot Kg)</h3>
         <p class="text-sm text-gray-500 mb-2">Tren total berat hidup berdasarkan kategori usia & gender.</p>
         <div class="relative h-72 w-full">
             <canvas id="biomassChart"></canvas>
         </div>
     </div>
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -276,127 +197,137 @@
         window.dashboardCharts = {};
 
         // 1. Demographics Chart (Pie)
-        window.dashboardCharts.demographics = new Chart(document.getElementById('demographicsChart'), {
-            type: 'pie',
-            data: {
-                labels: @json($demographicsLabels),
-                datasets: [{
-                    data: @json($demographicsData),
-                    backgroundColor: ['#1C64F2', '#16BDCA', '#FDBA8C', '#E74694', '#9061F9', '#FACA15', '#31C48D'],
-                    borderWidth: 0
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }
-        });
+        if (document.getElementById('demographicsChart')) {
+            window.dashboardCharts.demographics = new Chart(document.getElementById('demographicsChart'), {
+                type: 'pie',
+                data: {
+                    labels: @json($demographicsLabels),
+                    datasets: [{
+                        data: @json($demographicsData),
+                        backgroundColor: ['#1C64F2', '#16BDCA', '#FDBA8C', '#E74694', '#9061F9', '#FACA15', '#31C48D'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }
+            });
+        }
 
         // 2. Financial Chart (Bar)
-        window.dashboardCharts.financial = new Chart(document.getElementById('financialChart'), {
-            type: 'bar',
-            data: {
-                labels: @json($financialLabels),
-                datasets: [
-                    { label: 'Pendapatan (Jual)', data: @json($financialRevenue), backgroundColor: '#31C48D' },
-                    { label: 'Kerugian (Mati)', data: @json($financialLoss), backgroundColor: '#F05252' }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-        });
+        if (document.getElementById('financialChart')) {
+            window.dashboardCharts.financial = new Chart(document.getElementById('financialChart'), {
+                type: 'bar',
+                data: {
+                    labels: @json($financialLabels),
+                    datasets: [
+                        { label: 'Pendapatan (Jual)', data: @json($financialRevenue), backgroundColor: '#31C48D' },
+                        { label: 'Kerugian (Mati)', data: @json($financialLoss), backgroundColor: '#F05252' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            });
+        }
 
         // 3. Mortality Chart (Line)
-        window.dashboardCharts.mortality = new Chart(document.getElementById('mortalityChart'), {
-            type: 'line',
-            data: {
-                labels: @json($mortalityTrendLabels),
-                datasets: [{
-                    label: 'Jumlah Kematian',
-                    data: @json($mortalityTrendData),
-                    borderColor: '#F05252',
-                    backgroundColor: 'rgba(240, 82, 82, 0.1)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-        });
+        if (document.getElementById('mortalityChart')) {
+            window.dashboardCharts.mortality = new Chart(document.getElementById('mortalityChart'), {
+                type: 'line',
+                data: {
+                    labels: @json($mortalityTrendLabels),
+                    datasets: [{
+                        label: 'Jumlah Kematian',
+                        data: @json($mortalityTrendData),
+                        borderColor: '#F05252',
+                        backgroundColor: 'rgba(240, 82, 82, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
 
         // 4. Expense Chart (Pie)
-        window.dashboardCharts.expense = new Chart(document.getElementById('expenseChart'), {
-            type: 'pie',
-            data: {
-                labels: @json($expenseLabels),
-                datasets: [{
-                    data: @json($expenseData),
-                    backgroundColor: ['#E3A008', '#7E3AF2', '#1C64F2', '#16BDCA', '#FDBA8C', '#E74694', '#9061F9', '#FACA15', '#31C48D'],
-                    borderWidth: 0
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
+        if (document.getElementById('expenseChart')) {
+            window.dashboardCharts.expense = new Chart(document.getElementById('expenseChart'), {
+                type: 'pie',
+                data: {
+                    labels: @json($expenseLabels),
+                    datasets: [{
+                        data: @json($expenseData),
+                        backgroundColor: ['#E3A008', '#7E3AF2', '#1C64F2', '#16BDCA', '#FDBA8C', '#E74694', '#9061F9', '#FACA15', '#31C48D'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
 
         // 5. Biomass Chart (Aggregate Line)
-        window.dashboardCharts.biomass = new Chart(document.getElementById('biomassChart'), {
-            type: 'line',
-            data: {
-                labels: @json($biomassLabels),
-                datasets: [
-                    {
-                        label: 'Jantan Dewasa',
-                        data: @json($biomassDataMale),
-                        borderColor: '#1C64F2', // Blue
-                        backgroundColor: '#1C64F2',
-                        fill: false,
-                        tension: 0.1
-                    },
-                    {
-                        label: 'Betina Dewasa',
-                        data: @json($biomassDataFemale),
-                        borderColor: '#E74694', // Pink
-                        backgroundColor: '#E74694',
-                        fill: false,
-                        tension: 0.1
-                    },
-                    {
-                        label: 'Anakan (<1 th)',
-                        data: @json($biomassDataKids),
-                        borderColor: '#31C48D', // Green
-                        backgroundColor: '#31C48D',
-                        fill: false,
-                        tension: 0.1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Total Berat (Kg)' }
-                    }
+        if (document.getElementById('biomassChart')) {
+            window.dashboardCharts.biomass = new Chart(document.getElementById('biomassChart'), {
+                type: 'line',
+                data: {
+                    labels: @json($biomassLabels),
+                    datasets: [
+                        {
+                            label: 'Jantan Dewasa',
+                            data: @json($biomassDataMale),
+                            borderColor: '#1C64F2', // Blue
+                            backgroundColor: '#1C64F2',
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Betina Dewasa',
+                            data: @json($biomassDataFemale),
+                            borderColor: '#E74694', // Pink
+                            backgroundColor: '#E74694',
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Anakan (<1 th)',
+                            data: @json($biomassDataKids),
+                            borderColor: '#31C48D', // Green
+                            backgroundColor: '#31C48D',
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
                 },
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Total Berat (Kg)' }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += Math.round(context.parsed.y) + ' Kg';
+                                    }
+                                    return label;
                                 }
-                                if (context.parsed.y !== null) {
-                                    label += Math.round(context.parsed.y) + ' Kg';
-                                }
-                                return label;
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // Global controller for aborting fetch
         let currentController = null;
@@ -444,32 +375,42 @@
 
                 // 2. Update Charts
                 // Demographics
-                window.dashboardCharts.demographics.data.labels = data.demographicsLabels;
-                window.dashboardCharts.demographics.data.datasets[0].data = data.demographicsData;
-                window.dashboardCharts.demographics.update();
+                if (window.dashboardCharts.demographics) {
+                    window.dashboardCharts.demographics.data.labels = data.demographicsLabels;
+                    window.dashboardCharts.demographics.data.datasets[0].data = data.demographicsData;
+                    window.dashboardCharts.demographics.update();
+                }
 
                 // Financial
-                window.dashboardCharts.financial.data.labels = data.financialLabels;
-                window.dashboardCharts.financial.data.datasets[0].data = data.financialRevenue;
-                window.dashboardCharts.financial.data.datasets[1].data = data.financialLoss;
-                window.dashboardCharts.financial.update();
+                if (window.dashboardCharts.financial) {
+                    window.dashboardCharts.financial.data.labels = data.financialLabels;
+                    window.dashboardCharts.financial.data.datasets[0].data = data.financialRevenue;
+                    window.dashboardCharts.financial.data.datasets[1].data = data.financialLoss;
+                    window.dashboardCharts.financial.update();
+                }
 
                 // Mortality
-                window.dashboardCharts.mortality.data.labels = data.mortalityTrendLabels;
-                window.dashboardCharts.mortality.data.datasets[0].data = data.mortalityTrendData;
-                window.dashboardCharts.mortality.update();
+                if (window.dashboardCharts.mortality) {
+                    window.dashboardCharts.mortality.data.labels = data.mortalityTrendLabels;
+                    window.dashboardCharts.mortality.data.datasets[0].data = data.mortalityTrendData;
+                    window.dashboardCharts.mortality.update();
+                }
 
                 // Expense
-                window.dashboardCharts.expense.data.labels = data.expenseLabels;
-                window.dashboardCharts.expense.data.datasets[0].data = data.expenseData;
-                window.dashboardCharts.expense.update();
+                if (window.dashboardCharts.expense) {
+                    window.dashboardCharts.expense.data.labels = data.expenseLabels;
+                    window.dashboardCharts.expense.data.datasets[0].data = data.expenseData;
+                    window.dashboardCharts.expense.update();
+                }
 
                 // Biomass
-                window.dashboardCharts.biomass.data.labels = data.biomassLabels;
-                window.dashboardCharts.biomass.data.datasets[0].data = data.biomassDataMale;
-                window.dashboardCharts.biomass.data.datasets[1].data = data.biomassDataFemale;
-                window.dashboardCharts.biomass.data.datasets[2].data = data.biomassDataKids;
-                window.dashboardCharts.biomass.update();
+                if (window.dashboardCharts.biomass) {
+                    window.dashboardCharts.biomass.data.labels = data.biomassLabels;
+                    window.dashboardCharts.biomass.data.datasets[0].data = data.biomassDataMale;
+                    window.dashboardCharts.biomass.data.datasets[1].data = data.biomassDataFemale;
+                    window.dashboardCharts.biomass.data.datasets[2].data = data.biomassDataKids;
+                    window.dashboardCharts.biomass.update();
+                }
 
                 // 3. Update Alerts (Lists)
                 updateList('alert-vaccine', 'list-vaccine', data.vaccineAlerts, item => `${item.tag_id} - ${item.notes} <span class="font-bold">(${item.date})</span>`);

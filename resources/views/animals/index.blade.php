@@ -13,7 +13,7 @@
                     
                     <!-- Breed Filter -->
                     <div>
-                        <label class="block mb-1 text-xs font-semibold uppercase text-gray-500">Ras</label>
+                        <label class="block mb-1 text-xs font-semibold uppercase text-gray-500">Jenis & Ras</label>
                         <select name="breed_id" class="w-full text-sm border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <option value="">Semua Ras</option>
                             @foreach($breeds as $breed)
@@ -125,7 +125,7 @@
                 <tr>
                     <th scope="col" class="px-6 py-3">Tag ID</th>
                     <th scope="col" class="px-6 py-3">Foto</th>
-                    <th scope="col" class="px-6 py-3 hidden md:table-cell">Ras</th>
+                    <th scope="col" class="px-6 py-3 hidden md:table-cell">Jenis & Ras</th>
                     <th scope="col" class="px-6 py-3">Kelamin</th>
                     <th scope="col" class="px-6 py-3">Usia Hewan</th>
                     <th scope="col" class="px-6 py-3 hidden md:table-cell">Status Kesehatan</th>
@@ -133,6 +133,8 @@
                     <th scope="col" class="px-6 py-3 hidden lg:table-cell">Warna Eartag</th>
                     <th scope="col" class="px-6 py-3 hidden lg:table-cell">Warna Kalung</th>
                     <th scope="col" class="px-6 py-3 hidden md:table-cell">Lokasi</th>
+                    <th scope="col" class="px-6 py-3">BB (kg)</th>
+                    <th scope="col" class="px-6 py-3">Kepemilikan</th>
                     <th scope="col" class="px-6 py-3">ADG (kg/hari)</th>
                     <th scope="col" class="px-6 py-3 hidden sm:table-cell">HPP (Rp)</th>
                     @if(auth()->user()->role !== 'MITRA')
@@ -147,20 +149,53 @@
                         <a href="{{ route('animals.show', $animal->id) }}" class="hover:underline text-blue-600">
                             {{ $animal->tag_id }}
                         </a>
-                        @if($animal->generation)
-                            <span class="bg-gray-100 text-gray-800 text-xs font-medium ml-1 px-1.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{ $animal->generation }}</span>
-                        @endif
                     </th>
                     <td class="px-6 py-4">
                         @if($animal->photos->count() > 0)
-                            <img class="w-10 h-10 rounded-full" src="{{ Storage::url($animal->photos->first()->photo_url) }}" alt="Animal Photo">
+                            <div x-data="{ open: false, index: 0, photos: {{ json_encode($animal->photos->map(fn($p) => Storage::url($p->photo_url))) }} }">
+                                <img @click="open = true" class="w-10 h-10 rounded-full cursor-pointer hover:opacity-75 transition-opacity" src="{{ Storage::url($animal->photos->first()->photo_url) }}" alt="Animal Photo">
+                                
+                                <!-- Lightbox Modal -->
+                                <template x-teleport="body">
+                                    <div x-show="open" 
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0"
+                                         x-transition:enter-end="opacity-100"
+                                         x-transition:leave="transition ease-in duration-200"
+                                         x-transition:leave-start="opacity-100"
+                                         x-transition:leave-end="opacity-0"
+                                         class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-90 p-4"
+                                         @keydown.escape.window="open = false">
+                                        
+                                        <button @click="open = false" class="absolute top-5 right-5 text-white hover:text-gray-300">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+
+                                        <div class="relative max-w-4xl w-full flex items-center justify-center">
+                                            <button x-show="photos.length > 1" @click="index = (index - 1 + photos.length) % photos.length" class="absolute left-0 text-white p-2 hover:bg-white/10 rounded-full transition-colors">
+                                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                            </button>
+
+                                            <img :src="photos[index]" class="max-h-[85vh] max-w-full object-contain shadow-2xl rounded-lg">
+
+                                            <button x-show="photos.length > 1" @click="index = (index + 1) % photos.length" class="absolute right-0 text-white p-2 hover:bg-white/10 rounded-full transition-colors">
+                                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                            </button>
+                                        </div>
+
+                                        <div class="absolute bottom-5 text-white font-medium bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
+                                            <span x-text="index + 1"></span> / <span x-text="photos.length"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
                         @else
                             <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                             </div>
                         @endif
                     </td>
-                    <td class="px-6 py-4 hidden md:table-cell">{{ $animal->breed->name ?? '-' }}</td>
+                    <td class="px-6 py-4 hidden md:table-cell">{{ $animal->full_breed }}</td>
                     <td class="px-6 py-4">{{ $animal->gender == 'JANTAN' ? 'Jantan' : 'Betina' }}</td>
                     <td class="px-6 py-4">{{ $animal->age_string }}</td>
                     <td class="px-6 py-4 hidden md:table-cell">
@@ -178,6 +213,8 @@
                     <td class="px-6 py-4 hidden lg:table-cell">{{ $animal->ear_tag_color ?? '-' }}</td>
                     <td class="px-6 py-4 hidden lg:table-cell">{{ $animal->necklace_color ?? '-' }}</td>
                     <td class="px-6 py-4 hidden md:table-cell">{{ $animal->location->name ?? '-' }}</td>
+                    <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">{{ $animal->latestWeightLog->weight_kg ?? '-' }}</td>
+                    <td class="px-6 py-4 text-xs font-semibold">{{ $animal->partner->name ?? 'Internal SFI' }}</td>
                     <td class="px-6 py-4">
                         @if($animal->daily_adg < 0.1)
                             <span class="text-red-600 font-bold dark:text-red-500">{{ number_format($animal->daily_adg, 3) }} ▼</span>

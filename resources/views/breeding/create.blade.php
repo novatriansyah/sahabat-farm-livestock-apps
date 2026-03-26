@@ -40,6 +40,18 @@
                     <label for="mating_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Kawin</label>
                     <input type="date" id="mating_date" name="mating_date" value="{{ date('Y-m-d') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
+
+                <!-- Location / Cage Selection -->
+                <div>
+                    <label for="location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lokasi / Kandang Perkawinan (Opsional)</label>
+                    <select id="location_id" name="location_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Tetap di Kandang Saat Ini --</option>
+                        @foreach($locations as $location)
+                            <option value="{{ $location->id }}" {{ $animal->current_location_id == $location->id ? 'selected' : '' }}>{{ $location->name }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Pilih jika ingin memindahkan betina ke kandang koloni/pejantan.</p>
+                </div>
             </div>
 
             @if(!$eligibility['eligible'])
