@@ -89,6 +89,11 @@ class ReportController extends Controller
             }
         }
 
+        // Filter by Location
+        if ($request->filled('location_id')) {
+            $baseQuery->where('current_location_id', $request->input('location_id'));
+        }
+
         // Partner Scoping (for limited roles)
         if ($request->user()->role === 'MITRA') {
             $baseQuery->where('partner_id', $request->user()->partner_id);
