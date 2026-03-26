@@ -120,15 +120,22 @@ class SyncNotifications extends Command
             $users = $users->concat($partnerUsers)->unique('id');
         }
 
-        foreach ($users as $user) {
-            $exists = $user->unreadNotifications()
-                ->where('data->animal_id', $animal->id)
-                ->where('data->message', $message)
-                ->exists();
+        $userIds = $users->pluck('id');
 
-            if (!$exists) {
-                $user->notify(new \App\Notifications\AnimalStatusNotification($animal, $message, $type));
-            }
+        // Get IDs of users who already have this specific unread notification
+        $notifiedUserIds = \Illuminate\Support\Facades\DB::table('notifications')
+            ->where('notifiable_type', \App\Models\User::class)
+            ->whereIn('notifiable_id', $userIds)
+            ->whereNull('read_at')
+            ->where('data->animal_id', $animal->id)
+            ->where('data->message', $message)
+            ->pluck('notifiable_id');
+
+        // Filter out users who have already been notified
+        $usersToNotify = $users->whereNotIn('id', $notifiedUserIds);
+
+        foreach ($usersToNotify as $user) {
+            $user->notify(new \App\Notifications\AnimalStatusNotification($animal, $message, $type));
         }
     }
 }

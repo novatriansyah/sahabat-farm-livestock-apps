@@ -60,7 +60,18 @@ class ExitController extends Controller
 
             // Create Draft Invoice if Sold
             if ($validated['exit_type'] === 'JUAL') {
-                $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+                $prefix = 'INV-' . now()->format('Ymd');
+                $lastInvoice = \App\Models\Invoice::where('invoice_number', 'like', "{$prefix}-%")
+                    ->latest('id')
+                    ->first();
+                
+                $nextNumber = 1;
+                if ($lastInvoice) {
+                    $lastNumber = (int) substr($lastInvoice->invoice_number, -4);
+                    $nextNumber = $lastNumber + 1;
+                }
+                
+                $invoiceNumber = $prefix . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
                 
                 $invoice = \App\Models\Invoice::create([
                     'invoice_number' => $invoiceNumber,
