@@ -24,7 +24,8 @@ trait GeneratesInvoiceNumbers
 
         $nextNumber = 1;
         if ($lastInvoice) {
-            $lastNumberStr = substr($lastInvoice->invoice_number, -4);
+            $parts = explode($separator, $lastInvoice->invoice_number);
+            $lastNumberStr = end($parts);
             if (!is_numeric($lastNumberStr)) {
                 throw new UnexpectedValueException("Tidak dapat menentukan nomor invoice berikutnya dari nomor yang salah format: {$lastInvoice->invoice_number}");
             }
