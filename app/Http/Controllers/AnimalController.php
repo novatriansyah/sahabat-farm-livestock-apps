@@ -148,8 +148,11 @@ class AnimalController extends Controller
             'purchase_price' => 'nullable|required_if:acquisition_type,BELI|numeric|min:0',
             'initial_weight' => 'required|numeric|min:0.1',
             'necklace_color' => 'nullable|string',
+            'health_status' => 'nullable|in:SEHAT,SAKIT,KARANTINA,MATI,TERJUAL',
             'generation' => 'nullable|string',
-            'photo' => 'nullable|image|max:20480', // 20MB Max
+            'google_drive_link' => 'nullable|url',
+            'photo' => 'nullable|array',
+            'photo.*' => 'nullable|image|max:10240', // 10MB Max per file
         ]);
 
         // Auto-assign owner_id to current user (System User)
@@ -202,20 +205,21 @@ class AnimalController extends Controller
         }
 
         if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $filename = 'animal-photos/' . uniqid() . '.webp';
+            foreach ($request->file('photo') as $file) {
+                $filename = 'animal-photos/' . uniqid() . '.webp';
 
-            // Optimize: Resize to 800px width, convert to WebP, Quality 75%
-            $image = Image::read($file);
-            $image->scale(width: 800);
-            $encoded = $image->toWebp(75);
+                // Optimize: Resize to 800px width, convert to WebP, Quality 75%
+                $image = Image::read($file);
+                $image->scale(width: 800);
+                $encoded = $image->toWebp(75);
 
-            Storage::disk('public')->put($filename, (string) $encoded);
+                Storage::disk('public')->put($filename, (string) $encoded);
 
-            $animal->photos()->create([
-                'photo_url' => $filename,
-                'capture_date' => Carbon::now(),
-            ]);
+                $animal->photos()->create([
+                    'photo_url' => $filename,
+                    'capture_date' => Carbon::now(),
+                ]);
+            }
         }
 
         return redirect()->route('animals.index')->with('success', 'Ternak berhasil ditambahkan.');
@@ -223,10 +227,7 @@ class AnimalController extends Controller
 
     public function show(Animal $animal): View
     {
-        // MITRA Security: Can only view their own animals
-        if (auth()->user()->role === 'MITRA' && $animal->partner_id !== auth()->user()->partner_id) {
-            abort(403, 'Unauthorized access to this animal data.');
-        }
+        $this->authorize('view', $animal);
 
         $animal->load(['category', 'breed', 'location', 'physStatus', 'photos', 'weightLogs', 'treatmentLogs', 'owner', 'ownershipLogs.oldPartner', 'ownershipLogs.newPartner', 'earTagLogs', 'offspring']);
 
@@ -240,6 +241,7 @@ class AnimalController extends Controller
 
     public function edit(Animal $animal): View
     {
+        $this->authorize('update', $animal);
         $categories = MasterCategory::all();
         $breeds = MasterBreed::all();
         $locations = MasterLocation::all();
@@ -251,6 +253,7 @@ class AnimalController extends Controller
 
     public function update(Request $request, Animal $animal): RedirectResponse
     {
+        $this->authorize('update', $animal);
         $validated = $request->validate([
             'tag_id' => [
                 'required',
@@ -269,9 +272,12 @@ class AnimalController extends Controller
             'gender' => 'required|in:JANTAN,BETINA',
             'birth_date' => 'required|date',
             'entry_date' => 'nullable|date',
+            'health_status' => 'required|in:SEHAT,SAKIT,KARANTINA,MATI,TERJUAL',
             'necklace_color' => 'nullable|string',
             'generation' => 'nullable|string',
-            'photo' => 'nullable|image|max:20480',
+            'google_drive_link' => 'nullable|url',
+            'photo' => 'nullable|array',
+            'photo.*' => 'nullable|image|max:10240',
         ]);
 
         // Auto-assign category from breed
@@ -294,6 +300,11 @@ class AnimalController extends Controller
         }
 
         if ($oldPartnerId != $animal->partner_id) {
+            // Close old log
+            $animal->ownershipLogs()->whereNull('end_date')->update([
+                'end_date' => Carbon::now()
+            ]);
+
             \App\Models\AnimalOwnershipLog::create([
                 'animal_id' => $animal->id,
                 'old_partner_id' => $oldPartnerId,
@@ -304,20 +315,21 @@ class AnimalController extends Controller
         }
 
         if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $filename = 'animal-photos/' . uniqid() . '.webp';
+            foreach ($request->file('photo') as $file) {
+                $filename = 'animal-photos/' . uniqid() . '.webp';
 
-            // Optimize: Resize to 800px width, convert to WebP, Quality 75%
-            $image = Image::read($file);
-            $image->scale(width: 800);
-            $encoded = $image->toWebp(75);
+                // Optimize: Resize to 800px width, convert to WebP, Quality 75%
+                $image = Image::read($file);
+                $image->scale(width: 800);
+                $encoded = $image->toWebp(75);
 
-            Storage::disk('public')->put($filename, (string) $encoded);
+                Storage::disk('public')->put($filename, (string) $encoded);
 
-            $animal->photos()->create([
-                'photo_url' => $filename,
-                'capture_date' => Carbon::now(),
-            ]);
+                $animal->photos()->create([
+                    'photo_url' => $filename,
+                    'capture_date' => Carbon::now(),
+                ]);
+            }
         }
 
         return redirect()->route('animals.show', $animal->id)->with('success', 'Ternak berhasil diperbarui.');

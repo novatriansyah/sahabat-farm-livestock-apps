@@ -4,15 +4,6 @@
         <a href="{{ route('mating-colonies.index') }}" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">← Kembali</a>
     </div>
 
-    @if ($errors->any())
-        <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-            <ul class="list-disc pl-5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <div class="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
         <form action="{{ route('mating-colonies.store') }}" method="POST">

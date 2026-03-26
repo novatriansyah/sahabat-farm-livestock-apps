@@ -31,49 +31,49 @@ class AutoStatusTransitions extends Command
     {
         $this->info('Starting auto status transitions...');
 
-        $cempeLahirLabel = 'Cempe Lahir';
-        $cempeSapihLabel = 'Cempe Sapih';
+        $cempeLabel = 'Cempe';
+        $bakalanLabel = 'Bakalan (Jantan)';
+        $daraLabel = 'Dara (Betina)';
         $menyusuiLabel = 'Menyusui';
-        $daraLabel = 'Dara';
 
-        $cempeLahirId = MasterPhysStatus::where('name', $cempeLahirLabel)->value('id');
-        $cempeSapihId = MasterPhysStatus::where('name', $cempeSapihLabel)->value('id');
-        $menyusuiId = MasterPhysStatus::where('name', $menyusuiLabel)->value('id');
+        $cempeId = MasterPhysStatus::where('name', $cempeLabel)->value('id');
+        $bakalanId = MasterPhysStatus::where('name', $bakalanLabel)->value('id');
         $daraId = MasterPhysStatus::where('name', $daraLabel)->value('id');
+        $menyusuiId = MasterPhysStatus::where('name', $menyusuiLabel)->value('id');
 
-        if (!$cempeLahirId || !$cempeSapihId) {
-            $this->error('Required physical statuses not found in DB. Check translation sync.');
+        if (!$cempeId || !$bakalanId || !$daraId) {
+            $this->error('Required physical statuses not found in DB.');
             return;
         }
 
         // 1. Disapih (Weaning) - Cempe > 60 days
         $thresholdDate = Carbon::now()->subDays(60);
-        $weanableAnimals = Animal::where('current_phys_status_id', $cempeLahirId)
+        $weanableAnimals = Animal::where('current_phys_status_id', $cempeId)
             ->where('is_active', true)
             ->where('birth_date', '<=', $thresholdDate)
             ->get();
 
         $count = 0;
-        DB::transaction(function () use ($weanableAnimals, $cempeSapihId, $menyusuiId, $daraId, &$count) {
-            foreach ($weanableAnimals as $animal) {
-                // Update Cempe to "Disapih"
-                $animal->update(['current_phys_status_id' => $cempeSapihId]);
+        foreach ($weanableAnimals as $animal) {
+            $targetId = ($animal->gender === 'JANTAN') ? $bakalanId : $daraId;
+            
+            DB::transaction(function () use ($animal, $targetId, $menyusuiId, $daraId, &$count) {
+                // Update Cempe to "Bakalan" or "Dara"
+                $animal->update(['current_phys_status_id' => $targetId]);
                 $count++;
 
                 // If mother is currently "Menyusui", revert to "Dara" (Ready to Mate)
                 if ($animal->dam_id && $menyusuiId && $daraId) {
                     $dam = Animal::find($animal->dam_id);
-                    // Check if Dam has other suckling kids before switching? 
-                    // To be safe, we just switch her if she is marked Menyusui
                     if ($dam && $dam->current_phys_status_id === $menyusuiId) {
                         $dam->update(['current_phys_status_id' => $daraId]);
                         if ($dam->owner) {
-                            $dam->owner->notify(new \App\Notifications\AnimalStatusNotification($dam, "Status berubah kembali ke Dara (Siap Kawin) setelah masa menyusui.", "success"));
+                            $dam->owner->notify(new \App\Notifications\AnimalStatusNotification($dam, "Status berubah kembali ke Dara (Betina) setelah masa menyusui.", "success"));
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         $this->info("Successfully weaned {$count} animals.");
 

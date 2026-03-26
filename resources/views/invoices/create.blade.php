@@ -5,23 +5,6 @@
         <form action="{{ route('invoices.store') }}" method="POST">
             @csrf
 
-            <!-- Alerts -->
-            @if ($errors->any())
-                <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                    <span class="font-medium">Gagal menyimpan!</span> Periksa input Anda:
-                    <ul class="mt-1.5 list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                    <span class="font-medium">Error!</span> {{ session('error') }}
-                </div>
-            @endif
 
             <!-- 1. Customer Info -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6 border-l-4 border-blue-500">

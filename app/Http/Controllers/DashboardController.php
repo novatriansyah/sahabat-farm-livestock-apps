@@ -20,6 +20,17 @@ class DashboardController extends Controller
         $filterPartnerId = $request->input('partner_id');
         $partners = \App\Models\MasterPartner::all();
 
+        // 1. Sync Notifications (Throttled)
+        if (!\Illuminate\Support\Facades\Cache::has('last_sync_notifications_' . \Illuminate\Support\Facades\Auth::id())) {
+            \Illuminate\Support\Facades\Artisan::call('app:sync-notifications');
+            \Illuminate\Support\Facades\Cache::put('last_sync_notifications_' . \Illuminate\Support\Facades\Auth::id(), true, now()->addHours(1));
+        }
+
+        // 2. Fetch Dashboard Settings
+        $dashboardSettings = \App\Models\DashboardSetting::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->get()
+            ->keyBy('component_name');
+
         // Delegate logic to Service
         $data = $dashboardService->getDashboardData($filterPartnerId);
         
@@ -99,7 +110,10 @@ class DashboardController extends Controller
             return response()->json($ajaxData);
         }
 
-        return view('dashboard', array_merge($data, ['partners' => $partners]));
+        return view('dashboard', array_merge($data, [
+            'partners' => $partners,
+            'dashboardSettings' => $dashboardSettings
+        ]));
     }
 
 }

@@ -24,6 +24,13 @@ class Animal extends Model
         'daily_adg' => 'float',
     ];
 
+    public function getFullBreedAttribute()
+    {
+        $gen = $this->generation ? $this->generation . ' ' : '';
+        $breed = $this->breed->name ?? '-';
+        return $gen . $breed;
+    }
+
     public function getAgeStringAttribute()
     {
         if (!$this->birth_date) return '-';
@@ -120,5 +127,10 @@ class Animal extends Model
     public function earTagLogs(): HasMany
     {
         return $this->hasMany(AnimalEarTagLog::class);
+    }
+
+    public function breedingEvents(): HasMany
+    {
+        return $this->hasMany(BreedingEvent::class, $this->gender === 'JANTAN' ? 'sire_id' : 'dam_id');
     }
 }

@@ -26,6 +26,8 @@ class ExitController extends Controller
             'exit_type' => 'required|in:JUAL,MATI',
             'exit_date' => 'required|date',
             'price' => 'nullable|numeric|min:0', // Required if SALE
+            'customer_name' => 'nullable|string|max:255',
+            'customer_contact' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);
 
@@ -54,6 +56,38 @@ class ExitController extends Controller
             $animal->update([
                 'is_active' => false,
                 'health_status' => $validated['exit_type'] === 'JUAL' ? 'TERJUAL' : 'MATI',
+            ]);
+
+            // Create Draft Invoice if Sold
+            if ($validated['exit_type'] === 'JUAL') {
+                $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+                
+                $invoice = \App\Models\Invoice::create([
+                    'invoice_number' => $invoiceNumber,
+                    'customer_name' => $validated['customer_name'] ?? 'Draft Customer',
+                    'customer_contact' => $validated['customer_contact'],
+                    'status' => 'DRAFT',
+                    'type' => 'KOMERSIAL',
+                    'issued_date' => $validated['exit_date'],
+                    'due_date' => \Carbon\Carbon::parse($validated['exit_date'])->addDays(7),
+                    'subtotal' => $validated['price'],
+                    'total_amount' => $validated['price'],
+                    'notes' => 'Otomatis dibuat dari penjualan hewan ' . $animal->tag_id,
+                ]);
+
+                \App\Models\InvoiceItem::create([
+                    'invoice_id' => $invoice->id,
+                    'description' => 'Penjualan Ternak: ' . $animal->tag_id . ' (' . $animal->full_breed . ')',
+                    'quantity' => 1,
+                    'unit_price' => $validated['price'],
+                    'subtotal' => $validated['price'],
+                    'related_animal_id' => $animal->id,
+                ]);
+            }
+
+            // Sync Partnership End Date
+            $animal->ownershipLogs()->whereNull('end_date')->update([
+                'end_date' => $validated['exit_date']
             ]);
         });
 

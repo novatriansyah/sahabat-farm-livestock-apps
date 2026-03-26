@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\BreedingEvent;
 use App\Models\MasterPhysStatus;
+use App\Models\MasterLocation;
 use App\Services\BreedingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -37,7 +38,9 @@ class BreedingController extends Controller
             ->where('category_id', $animal->category_id)
             ->get();
 
-        return view('breeding.create', compact('animal', 'eligibility', 'sires'));
+        $locations = MasterLocation::all();
+
+        return view('breeding.create', compact('animal', 'eligibility', 'sires', 'locations'));
     }
 
     public function store(Request $request, Animal $animal): RedirectResponse
@@ -45,6 +48,7 @@ class BreedingController extends Controller
         $validated = $request->validate([
             'sire_id' => 'required|exists:animals,id',
             'mating_date' => 'required|date',
+            'location_id' => 'nullable|exists:master_locations,id',
         ]);
 
         // Enforcement: Check Eligibility
@@ -73,6 +77,11 @@ class BreedingController extends Controller
         // Let's leave status as is for now, or maybe move to 'PREGNANT' if the user is confident.
         // For now, just logging the event is key for the Conception Rate.
 
-        return redirect()->route('animals.index')->with('success', 'Perkawinan berhasil dicatat.');
+        // Sync Physical Location if changed
+        if ($request->filled('location_id')) {
+            $animal->update(['current_location_id' => $validated['location_id']]);
+        }
+
+        return redirect()->route('animals.show', $animal->id)->with('success', 'Perkawinan berhasil dicatat.');
     }
 }

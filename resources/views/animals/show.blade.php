@@ -27,7 +27,7 @@
                         </div>
                     @endif
                     <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{ $animal->tag_id }}</h5>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $animal->breed->name }} ({{ $animal->gender == 'JANTAN' ? 'Jantan' : 'Betina' }})</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{ $animal->full_breed }} ({{ $animal->gender == 'JANTAN' ? 'Jantan' : 'Betina' }})</span>
 
                     <div class="mt-4 flex space-x-3 md:mt-6">
                         @if($animal->health_status == 'SEHAT')
@@ -56,6 +56,12 @@
                         <span class="text-sm font-medium text-gray-500 dark:text-gray-400">HPP Saat Ini:</span>
                         <span class="text-sm font-bold text-gray-900 dark:text-white">Rp {{ number_format($animal->current_hpp, 0, ',', '.') }}</span>
                     </div>
+                    @if($animal->google_drive_link)
+                    <div class="flex justify-between border-t pt-2 mt-2">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Dokumen/GDrive:</span>
+                        <a href="{{ $animal->google_drive_link }}" target="_blank" class="text-sm font-medium text-blue-600 hover:underline">Buka Link ↗</a>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -75,8 +81,11 @@
                         <li class="mr-2" role="presentation">
                             <button class="inline-block p-4 border-b-2 rounded-t-lg" id="ownership-tab" data-tabs-target="#ownership" type="button" role="tab" aria-controls="ownership" aria-selected="false">Kepemilikan</button>
                         </li>
-                        <li role="presentation">
+                        <li class="mr-2" role="presentation">
                             <button class="inline-block p-4 border-b-2 rounded-t-lg" id="offspring-tab" data-tabs-target="#offspring" type="button" role="tab" aria-controls="offspring" aria-selected="false">Keturunan</button>
+                        </li>
+                        <li role="presentation">
+                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="breeding-tab" data-tabs-target="#breeding" type="button" role="tab" aria-controls="breeding" aria-selected="false">Riwayat Kawin</button>
                         </li>
                     </ul>
                 </div>
@@ -212,6 +221,76 @@
                                     @if($animal->offspring->isEmpty())
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                         <td colspan="4" class="px-6 py-4 text-center">Belum ada catatan keturunan</td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="breeding" role="tabpanel" aria-labelledby="breeding-tab">
+                        @php
+                            $events = $animal->breedingEvents()->orderByDesc('mating_date')->get();
+                            $totalEvents = $events->count();
+                            $successEvents = $events->whereIn('status', ['SUCCESS', 'COMPLETED'])->count();
+                            $rate = $totalEvents > 0 ? ($successEvents / $totalEvents) * 100 : 0;
+                        @endphp
+
+                        <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-700 border-l-4 border-blue-500">
+                                <p class="text-xs text-gray-500 uppercase font-bold">Total Kawin</p>
+                                <p class="text-2xl font-black text-gray-900 dark:text-white">{{ $totalEvents }} x</p>
+                            </div>
+                            <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-700 border-l-4 border-green-500">
+                                <p class="text-xs text-gray-500 uppercase font-bold">Berhasil</p>
+                                <p class="text-2xl font-black text-gray-900 dark:text-white">{{ $successEvents }} x</p>
+                            </div>
+                            <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-700 border-l-4 border-purple-500">
+                                <p class="text-xs text-gray-500 uppercase font-bold">Success Rate</p>
+                                <p class="text-2xl font-black text-gray-900 dark:text-white">{{ number_format($rate, 1) }}%</p>
+                            </div>
+                        </div>
+
+                        <div class="relative overflow-x-auto">
+                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Tanggal Kawin</th>
+                                        <th scope="col" class="px-6 py-3">Pasangan</th>
+                                        <th scope="col" class="px-6 py-3">Status</th>
+                                        <th scope="col" class="px-6 py-3">Est. Kelahiran</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($events as $event)
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td class="px-6 py-4 font-medium">{{ $event->mating_date->format('d M Y') }}</td>
+                                        <td class="px-6 py-4">
+                                            @php
+                                                $partner = $animal->gender === 'JANTAN' ? $event->dam : $event->sire;
+                                            @endphp
+                                            @if($partner)
+                                                <a href="{{ route('animals.show', $partner->id) }}" class="text-blue-600 hover:underline">{{ $partner->tag_id }}</a>
+                                                <span class="text-xs text-gray-400">({{ $partner->breed->name ?? '-' }})</span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if($event->status === 'SUCCESS' || $event->status === 'COMPLETED')
+                                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Berhasil</span>
+                                            @elseif($event->status === 'FAILED')
+                                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Gagal</span>
+                                            @else
+                                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Menunggu</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 text-xs">{{ $event->est_birth_date ? $event->est_birth_date->format('d M Y') : '-' }}</td>
+                                    </tr>
+                                    @endforeach
+                                    @if($events->isEmpty())
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <td colspan="4" class="px-6 py-4 text-center">Belum ada riwayat perkawinan</td>
                                     </tr>
                                     @endif
                                 </tbody>

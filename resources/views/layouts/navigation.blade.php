@@ -30,7 +30,7 @@
                   <path d="M4.5 16.5a1.5 1.5 0 0 0 3 0V16h-3v.5Z" />
                 </svg>
                 @if(Auth::user()->unreadNotifications->count() > 0)
-                <div class="absolute inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -right-1 dark:border-gray-900">{{ Auth::user()->unreadNotifications->count() }}</div>
+                <div id="notif-count" class="absolute inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -right-1 dark:border-gray-900">{{ Auth::user()->unreadNotifications->count() }}</div>
                 @endif
               </button>
               
@@ -39,12 +39,14 @@
                 <div class="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
                     Notifikasi
                 </div>
-                <div class="divide-y divide-gray-100 dark:divide-gray-600 max-h-80 overflow-y-auto">
-                  @forelse(Auth::user()->notifications()->take(5)->get() as $notification)
-                    <a href="{{ route('notifications.read', $notification->id) }}" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 {{ $notification->read_at ? 'opacity-75' : 'bg-blue-50 dark:bg-gray-600' }}">
+                <div class="divide-y divide-gray-100 dark:divide-gray-600 max-h-80 overflow-y-auto w-80 md:w-96">
+                  @forelse(Auth::user()->notifications()->latest()->take(10)->get() as $notification)
+                    <a href="{{ $notification->data['url'] ?? '#' }}" 
+                       class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 {{ $notification->read_at ? 'opacity-50' : 'bg-blue-50 dark:bg-gray-800' }}"
+                       onclick="markAsRead('{{ $notification->id }}')">
                       <div class="w-full pl-3">
                           <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">
-                              <span class="font-semibold text-gray-900 dark:text-white">{{ $notification->data['tag_id'] ?? 'Sistem' }}</span>: {{ $notification->data['message'] ?? '' }}
+                               <span class="font-semibold text-gray-900 dark:text-white">{{ $notification->data['tag_id'] ?? 'Sistem' }}</span>: {{ $notification->data['message'] ?? '' }}
                           </div>
                           <div class="text-xs text-blue-600 dark:text-blue-500">{{ $notification->created_at->diffForHumans() }}</div>
                       </div>
@@ -93,3 +95,27 @@
     </div>
   </div>
 </nav>
+
+<script>
+    function markAsRead(id) {
+        fetch(`/notifications/${id}/read`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(response => {
+            if (response.ok) {
+                // Update UI count if needed, or just let the redirect happen
+                const countElem = document.getElementById('notif-count');
+                if (countElem) {
+                    let count = parseInt(countElem.innerText);
+                    if (count > 1) {
+                        countElem.innerText = count - 1;
+                    } else {
+                        countElem.remove();
+                    }
+                }
+            }
+        });
+    }
+</script>

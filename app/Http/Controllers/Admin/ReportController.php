@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Animal;
 use App\Models\ExitLog;
+use App\Exports\StockReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -131,7 +133,41 @@ class ReportController extends Controller
             $animals = $query->paginate(50);
         }
 
-        return view('admin.reports.stock', compact('animals', 'byGender', 'byBreed', 'byLocation', 'byAgeGroup'));
+        $locations = \App\Models\MasterLocation::all();
+
+        return view('admin.reports.stock', compact('animals', 'byGender', 'byBreed', 'byLocation', 'byAgeGroup', 'locations'));
+    }
+
+    public function exportStock(Request $request)
+    {
+        $baseQuery = Animal::where('is_active', true);
+        
+        // Filter by Internal vs Mitra
+        if ($request->filled('ownership')) {
+            if ($request->input('ownership') === 'INTERNAL') {
+                $baseQuery->whereHas('partner', function($q) {
+                    $q->where('name', 'like', '%Internal%');
+                });
+            } elseif ($request->input('ownership') === 'MITRA') {
+                $baseQuery->whereHas('partner', function($q) {
+                    $q->where('name', 'not like', '%Internal%');
+                });
+            }
+        }
+
+        // Filter by Location
+        if ($request->filled('location_id')) {
+            $baseQuery->where('current_location_id', $request->input('location_id'));
+        }
+
+        // Partner Scoping (for limited roles)
+        if ($request->user()->role === 'MITRA') {
+            $baseQuery->where('partner_id', $request->user()->partner_id);
+        }
+
+        $animals = $baseQuery->with(['breed', 'location', 'partner', 'physStatus', 'latestWeightLog'])->get();
+
+        return Excel::download(new StockReportExport($animals), 'laporan_stok_' . now()->format('Y-m-d') . '.xlsx');
     }
 
     public function partners(Request $request): View

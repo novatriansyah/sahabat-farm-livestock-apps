@@ -34,7 +34,10 @@
         
         <div class="flex flex-col sm:flex-row gap-5 justify-center w-full px-4 animate-fade-in-up" style="animation-duration: 1.1s;">
             @auth
-                <a href="{{ url('/dashboard') }}" class="group inline-flex justify-center items-center px-10 py-5 text-xl font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 rounded-2xl shadow-2xl shadow-slate-900/20 dark:shadow-emerald-900/40 transition-all hover:-translate-y-1 active:scale-95">
+                @php
+                    $dashboardUrl = auth()->user()->role === 'MITRA' ? route('partner.dashboard') : route('dashboard');
+                @endphp
+                <a href="{{ $dashboardUrl }}" class="group inline-flex justify-center items-center px-10 py-5 text-xl font-bold text-white bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 rounded-2xl shadow-2xl shadow-slate-900/20 dark:shadow-emerald-900/40 transition-all hover:-translate-y-1 active:scale-95">
                     Buka Dasbor
                     <svg class="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                 </a>

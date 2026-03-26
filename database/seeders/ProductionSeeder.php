@@ -116,21 +116,16 @@ class ProductionSeeder extends Seeder
         }
 
         // Physical Statuses
-        $statuses = [
-            'Sehat',
-            'Sakit',
-            'Bunting',
-            'Menyusui',
-            'Cempe Lahir',
-            'Cempe Sapih',
-            'Dara',
-            'Pejantan',
-            'Penggemukan - Siap Jual',
-            'Karantina'
-        ];
-        foreach ($statuses as $status) {
-            MasterPhysStatus::firstOrCreate(['name' => $status]);
+        $statuses = \Database\Seeders\PhysStatusSeeder::$statuses;
+        foreach ($statuses as $index => $status) {
+            MasterPhysStatus::updateOrCreate(
+                ['id' => $index + 1],
+                ['name' => $status]
+            );
         }
+
+        // Cleanup any legacy IDs
+        MasterPhysStatus::where('id', '>', count($statuses))->delete();
         
         $this->command->info('Master Data Created (Categories, Breeds, Statuses)');
     }
