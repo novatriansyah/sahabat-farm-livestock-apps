@@ -10,9 +10,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Traits\GeneratesInvoiceNumbers;
 
 class InvoiceController extends Controller
 {
+    use GeneratesInvoiceNumbers;
     /**
      * Display a listing of the resource.
      */
