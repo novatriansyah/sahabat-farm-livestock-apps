@@ -58,7 +58,7 @@ class SyncNotifications extends Command
             ->get();
 
         foreach ($animals as $animal) {
-            $months = \Carbon\Carbon::parse($animal->birth_date)->diffInMonths(now());
+            $months = number_format(\Carbon\Carbon::parse($animal->birth_date)->floatDiffInMonths(now()), 1, ',', '.');
             $this->notifyRelevantUsers($animal, "Waktunya Sapih (Pisah Induk)! Cempe ini sudah berusia {$months} bulan.", 'warning');
         }
     }
