@@ -58,7 +58,7 @@ class SyncNotifications extends Command
             ->get();
 
         foreach ($animals as $animal) {
-            $months = number_format(\Carbon\Carbon::parse($animal->birth_date)->floatDiffInMonths(now()), 1);
+            $months = \Carbon\Carbon::parse($animal->birth_date)->diffInMonths(now());
             $this->notifyRelevantUsers($animal, "Waktunya Sapih (Pisah Induk)! Cempe ini sudah berusia {$months} bulan.", 'warning');
         }
     }
@@ -96,7 +96,8 @@ class SyncNotifications extends Command
 
         foreach ($items as $item) {
             foreach ($adminUsers as $user) {
-                $message = "Peringatan Stok Low! {$item->name} sisa {$item->current_stock} {$item->unit}.";
+                $stockVal = number_format($item->current_stock, 1, ',', '.');
+                $message = "Peringatan Stok Low! {$item->name} sisa {$stockVal} {$item->unit}.";
                 
                 $exists = $user->unreadNotifications()
                     ->where('data->message', $message)
