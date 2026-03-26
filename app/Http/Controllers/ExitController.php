@@ -63,6 +63,7 @@ class ExitController extends Controller
                 $prefix = 'INV-' . now()->format('Ymd');
                 $lastInvoice = \App\Models\Invoice::where('invoice_number', 'like', "{$prefix}-%")
                     ->latest('id')
+                    ->lockForUpdate()
                     ->first();
                 
                 $nextNumber = 1;

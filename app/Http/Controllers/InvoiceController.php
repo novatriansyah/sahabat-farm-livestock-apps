@@ -64,13 +64,20 @@ class InvoiceController extends Controller
             // Generate Invoice Number
             // Format: INV/YYYY/MM/XXXX
             $date = Carbon::parse($validated['issued_date']);
-            $count = Invoice::whereYear('issued_date', $date->year)
-                ->whereMonth('issued_date', $date->month)
-                ->count();
-            $number = 'INV/' . $date->format('Y/m') . '/' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
-            if ($validated['type'] === 'PROFORMA') {
-                $number = 'PRF/' . $date->format('Y/m') . '/' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+            $prefix = ($validated['type'] === 'PROFORMA' ? 'PRF/' : 'INV/') . $date->format('Y/m');
+            
+            $lastInvoice = Invoice::where('invoice_number', 'like', "{$prefix}/%")
+                ->latest('id')
+                ->lockForUpdate()
+                ->first();
+
+            $nextNumber = 1;
+            if ($lastInvoice) {
+                $lastNumber = (int) substr($lastInvoice->invoice_number, -4);
+                $nextNumber = $lastNumber + 1;
             }
+            
+            $number = $prefix . '/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             // Calculate Totals
             $subtotal = 0;
