@@ -10,9 +10,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Traits\GeneratesInvoiceNumbers;
 
 class InvoiceController extends Controller
 {
+    use GeneratesInvoiceNumbers;
     /**
      * Display a listing of the resource.
      */
@@ -65,22 +67,7 @@ class InvoiceController extends Controller
             // Format: INV/YYYY/MM/XXXX
             $date = Carbon::parse($validated['issued_date']);
             $prefix = ($validated['type'] === 'PROFORMA' ? 'PRF/' : 'INV/') . $date->format('Y/m');
-            
-            $lastInvoice = Invoice::where('invoice_number', 'like', "{$prefix}/%")
-                ->latest('id')
-                ->lockForUpdate()
-                ->first();
-
-            $nextNumber = 1;
-            if ($lastInvoice) {
-                $lastNumberStr = substr($lastInvoice->invoice_number, -4);
-                if (!is_numeric($lastNumberStr)) {
-                    throw new \Exception("Tidak dapat menentukan nomor invoice berikutnya dari nomor yang salah format: {$lastInvoice->invoice_number}");
-                }
-                $nextNumber = (int) $lastNumberStr + 1;
-            }
-            
-            $number = $prefix . '/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            $number = $this->generateNextInvoiceNumber($prefix, '/');
 
             // Calculate Totals
             $subtotal = 0;

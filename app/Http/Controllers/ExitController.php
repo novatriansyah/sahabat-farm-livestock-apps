@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use App\Traits\GeneratesInvoiceNumbers;
 
 class ExitController extends Controller
 {
+    use GeneratesInvoiceNumbers;
     public function create(Animal $animal): View
     {
         return view('animals.exit', compact('animal'));
@@ -61,21 +63,7 @@ class ExitController extends Controller
             // Create Draft Invoice if Sold
             if ($validated['exit_type'] === 'JUAL') {
                 $prefix = 'INV-' . now()->format('Ymd');
-                $lastInvoice = \App\Models\Invoice::where('invoice_number', 'like', "{$prefix}-%")
-                    ->latest('id')
-                    ->lockForUpdate()
-                    ->first();
-                
-                $nextNumber = 1;
-                if ($lastInvoice) {
-                    $lastNumberStr = substr($lastInvoice->invoice_number, -4);
-                    if (!is_numeric($lastNumberStr)) {
-                        throw new \Exception("Tidak dapat menentukan nomor invoice berikutnya dari nomor yang salah format: {$lastInvoice->invoice_number}");
-                    }
-                    $nextNumber = (int) $lastNumberStr + 1;
-                }
-                
-                $invoiceNumber = $prefix . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                $invoiceNumber = $this->generateNextInvoiceNumber($prefix, '-');
                 
                 $invoice = \App\Models\Invoice::create([
                     'invoice_number' => $invoiceNumber,

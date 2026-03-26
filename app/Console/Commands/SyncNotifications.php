@@ -45,7 +45,7 @@ class SyncNotifications extends Command
             ->get();
 
         foreach ($animals as $animal) {
-            $days = \Carbon\Carbon::parse($animal->birth_date)->diffInDays(now());
+            $days = (int) \Carbon\Carbon::parse($animal->birth_date)->diffInDays(now());
             $this->notifyRelevantUsers($animal, "Siap Sapih ({$days} Hari)! Cempe ini sudah mendekati usia sapih.", 'info');
         }
     }
