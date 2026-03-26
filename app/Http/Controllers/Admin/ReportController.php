@@ -74,30 +74,7 @@ class ReportController extends Controller
 
     public function stock(Request $request): View
     {
-        $baseQuery = Animal::where('is_active', true);
-        
-        // Filter by Internal vs Mitra
-        if ($request->filled('ownership')) {
-            if ($request->input('ownership') === 'INTERNAL') {
-                $baseQuery->whereHas('partner', function($q) {
-                    $q->where('name', 'like', '%Internal%');
-                });
-            } elseif ($request->input('ownership') === 'MITRA') {
-                $baseQuery->whereHas('partner', function($q) {
-                    $q->where('name', 'not like', '%Internal%');
-                });
-            }
-        }
-
-        // Filter by Location
-        if ($request->filled('location_id')) {
-            $baseQuery->where('current_location_id', $request->input('location_id'));
-        }
-
-        // Partner Scoping (for limited roles)
-        if ($request->user()->role === 'MITRA') {
-            $baseQuery->where('partner_id', $request->user()->partner_id);
-        }
+        $baseQuery = $this->getStockReportQuery($request);
 
         // Calculate Summaries
         $byGender = [
@@ -145,30 +122,7 @@ class ReportController extends Controller
 
     public function exportStock(Request $request)
     {
-        $baseQuery = Animal::where('is_active', true);
-        
-        // Filter by Internal vs Mitra
-        if ($request->filled('ownership')) {
-            if ($request->input('ownership') === 'INTERNAL') {
-                $baseQuery->whereHas('partner', function($q) {
-                    $q->where('name', 'like', '%Internal%');
-                });
-            } elseif ($request->input('ownership') === 'MITRA') {
-                $baseQuery->whereHas('partner', function($q) {
-                    $q->where('name', 'not like', '%Internal%');
-                });
-            }
-        }
-
-        // Filter by Location
-        if ($request->filled('location_id')) {
-            $baseQuery->where('current_location_id', $request->input('location_id'));
-        }
-
-        // Partner Scoping (for limited roles)
-        if ($request->user()->role === 'MITRA') {
-            $baseQuery->where('partner_id', $request->user()->partner_id);
-        }
+        $baseQuery = $this->getStockReportQuery($request);
 
         $animals = $baseQuery->with(['breed', 'location', 'partner', 'physStatus', 'latestWeightLog'])->get();
 
@@ -483,5 +437,35 @@ class ReportController extends Controller
             ->get();
 
         return view('admin.reports.nursing', compact('nursingAnimals'));
+    }
+
+    private function getStockReportQuery(Request $request)
+    {
+        $baseQuery = Animal::where('is_active', true);
+
+        // Filter by Internal vs Mitra
+        if ($request->filled('ownership')) {
+            if ($request->input('ownership') === 'INTERNAL') {
+                $baseQuery->whereHas('partner', function($q) {
+                    $q->where('name', 'like', '%Internal%');
+                });
+            } elseif ($request->input('ownership') === 'MITRA') {
+                $baseQuery->whereHas('partner', function($q) {
+                    $q->where('name', 'not like', '%Internal%');
+                });
+            }
+        }
+
+        // Filter by Location
+        if ($request->filled('location_id')) {
+            $baseQuery->where('current_location_id', $request->input('location_id'));
+        }
+
+        // Partner Scoping (for limited roles)
+        if ($request->user()->role === 'MITRA') {
+            $baseQuery->where('partner_id', $request->user()->partner_id);
+        }
+
+        return $baseQuery;
     }
 }

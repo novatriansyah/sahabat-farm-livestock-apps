@@ -54,10 +54,10 @@ class AutoStatusTransitions extends Command
             ->get();
 
         $count = 0;
-        foreach ($weanableAnimals as $animal) {
-            $targetId = ($animal->gender === 'JANTAN') ? $bakalanId : $daraId;
-            
-            DB::transaction(function () use ($animal, $targetId, $menyusuiId, $daraId, &$count) {
+        DB::transaction(function () use ($weanableAnimals, $bakalanId, $daraId, $menyusuiId, &$count) {
+            foreach ($weanableAnimals as $animal) {
+                $targetId = ($animal->gender === 'JANTAN') ? $bakalanId : $daraId;
+
                 // Update Cempe to "Bakalan" or "Dara"
                 $animal->update(['current_phys_status_id' => $targetId]);
                 $count++;
@@ -72,8 +72,8 @@ class AutoStatusTransitions extends Command
                         }
                     }
                 }
-            });
-        }
+            }
+        });
 
         $this->info("Successfully weaned {$count} animals.");
 

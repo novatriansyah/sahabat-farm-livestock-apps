@@ -33,16 +33,22 @@ class CleanOldPhotosAndLogs extends Command
         $cutoffDate = Carbon::now()->subMonths(6);
 
         // 1. Cleanup Animal Photos
-        $oldPhotos = AnimalPhoto::where('created_at', '<', $cutoffDate)->get();
+        $oldPhotos = AnimalPhoto::where('created_at', '<', $cutoffDate);
         $photoCount = 0;
 
-        foreach ($oldPhotos as $photo) {
-            if ($photo->photo_url && Storage::disk('public')->exists($photo->photo_url)) {
-                Storage::disk('public')->delete($photo->photo_url);
+        $oldPhotos->chunkById(200, function ($photos) use (&$photoCount) {
+            $photoUrls = $photos->pluck('photo_url')->filter()->all();
+
+            // Batch delete files from storage
+            if (count($photoUrls) > 0) {
+                Storage::disk('public')->delete($photoUrls);
             }
-            $photo->delete();
-            $photoCount++;
-        }
+
+            // Batch delete records from database
+            AnimalPhoto::whereIn('id', $photos->pluck('id'))->delete();
+
+            $photoCount += $photos->count();
+        });
 
         $this->info("Deleted {$photoCount} old animal photos.");
 

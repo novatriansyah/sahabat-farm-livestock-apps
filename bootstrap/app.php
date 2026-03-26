@@ -21,24 +21,24 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->respond(function ($response, Throwable $e, $request) {
             if ($request->isMethod('GET') && !$request->expectsJson()) {
-                if ($response->getStatusCode() === 403 || $e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                $getRedirectRoute = function () {
                     $user = auth()->user();
-                    $route = 'dashboard';
-                    if ($user) {
-                        if ($user->role === 'MITRA') $route = 'partner.dashboard';
-                        elseif ($user->role === 'STAF') $route = 'scan.index';
+                    if (!$user) {
+                        return 'dashboard';
                     }
-                    return redirect()->route($route)->with('error', 'Akses Ditolak: Anda tidak memiliki izin untuk fitur/halaman tersebut.');
+                    return match ($user->role) {
+                        'MITRA' => 'partner.dashboard',
+                        'STAF' => 'scan.index',
+                        default => 'dashboard',
+                    };
+                };
+
+                if ($response->getStatusCode() === 403 || $e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                    return redirect()->route($getRedirectRoute())->with('error', 'Akses Ditolak: Anda tidak memiliki izin untuk fitur/halaman tersebut.');
                 }
 
                 if ($response->getStatusCode() === 404) {
-                    $user = auth()->user();
-                    $route = 'dashboard';
-                    if ($user) {
-                        if ($user->role === 'MITRA') $route = 'partner.dashboard';
-                        elseif ($user->role === 'STAF') $route = 'scan.index';
-                    }
-                    return redirect()->route($route)->with('error', 'Halaman atau data tidak ditemukan.');
+                    return redirect()->route($getRedirectRoute())->with('error', 'Halaman atau data tidak ditemukan.');
                 }
 
                 if ($e instanceof \Illuminate\Http\Exceptions\PostTooLargeException) {
