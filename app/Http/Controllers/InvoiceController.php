@@ -73,8 +73,11 @@ class InvoiceController extends Controller
 
             $nextNumber = 1;
             if ($lastInvoice) {
-                $lastNumber = (int) substr($lastInvoice->invoice_number, -4);
-                $nextNumber = $lastNumber + 1;
+                $lastNumberStr = substr($lastInvoice->invoice_number, -4);
+                if (!is_numeric($lastNumberStr)) {
+                    throw new \Exception("Tidak dapat menentukan nomor invoice berikutnya dari nomor yang salah format: {$lastInvoice->invoice_number}");
+                }
+                $nextNumber = (int) $lastNumberStr + 1;
             }
             
             $number = $prefix . '/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
