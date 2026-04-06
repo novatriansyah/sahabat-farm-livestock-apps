@@ -229,7 +229,7 @@ class AnimalController extends Controller
     {
         $this->authorize('view', $animal);
 
-        $animal->load(['category', 'breed', 'location', 'physStatus', 'photos', 'weightLogs', 'treatmentLogs', 'owner', 'ownershipLogs.oldPartner', 'ownershipLogs.newPartner', 'earTagLogs', 'offspring']);
+        $animal->load(['category', 'breed', 'location', 'physStatus', 'photos', 'weightLogs', 'treatmentLogs', 'owner', 'ownershipLogs.oldPartner', 'ownershipLogs.newPartner', 'earTagLogs', 'offspring', 'sire', 'dam']);
 
         // Prepare Chart Data
         $weightLogs = $animal->weightLogs()->orderBy('weigh_date', 'asc')->get();

@@ -199,7 +199,30 @@
                     </div>
 
                     <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="offspring" role="tabpanel" aria-labelledby="offspring-tab">
+                        <!-- Ancestry (Silsilah) -->
+                        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                                <p class="text-xs text-gray-500 uppercase font-bold mb-1">Pejantan (Ayah)</p>
+                                @if($animal->sire)
+                                    <a href="{{ route('animals.show', $animal->sire->id) }}" class="text-lg font-bold text-blue-600 hover:underline">{{ $animal->sire->tag_id }}</a>
+                                    <p class="text-xs text-gray-500">{{ $animal->sire->full_breed }}</p>
+                                @else
+                                    <p class="text-gray-400 italic text-sm">Data tidak tersedia</p>
+                                @endif
+                            </div>
+                            <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                                <p class="text-xs text-gray-500 uppercase font-bold mb-1">Indukan (Ibu)</p>
+                                @if($animal->dam)
+                                    <a href="{{ route('animals.show', $animal->dam->id) }}" class="text-lg font-bold text-blue-600 hover:underline">{{ $animal->dam->tag_id }}</a>
+                                    <p class="text-xs text-gray-500">{{ $animal->dam->full_breed }}</p>
+                                @else
+                                    <p class="text-gray-400 italic text-sm">Data tidak tersedia</p>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="relative overflow-x-auto">
+                            <h4 class="text-sm font-semibold mb-3 text-gray-900 dark:text-white uppercase tracking-wider">Daftar Keturunan (Anak)</h4>
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
