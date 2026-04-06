@@ -67,8 +67,9 @@ class OperatorController extends Controller
             TreatmentLog::create([
                 'animal_id' => $animal->id,
                 'treatment_date' => Carbon::now(),
-                'type' => $request->filled('medicine_id') ? 'MEDICATION' : 'CHECKUP',
-                'notes' => ($diagnosis ? "Diagnosis: $diagnosis. " : '') . ($validated['symptoms'] ?? 'Health Check'),
+                'disease_id' => $validated['disease_id'] ?? null,
+                'type' => $request->filled('medicine_id') ? 'PENGOBATAN' : 'PEMERIKSAAN',
+                'notes' => ($diagnosis ? "Diagnosis: $diagnosis. " : '') . ($validated['symptoms'] ?? 'Pemeriksaan Kesehatan'),
             ]);
         }
 
@@ -94,11 +95,11 @@ class OperatorController extends Controller
                  $animal->increment('current_hpp', $cost);
 
             } else {
-                return back()->withErrors(['medicine_qty' => 'Not enough stock.']);
+                return back()->withErrors(['medicine_qty' => 'Stok tidak mencukupi.']);
             }
         }
 
-        return redirect()->route('operator.show', $animal->id)->with('success', 'Status kesehatan diperbarui.');
+        return redirect()->route('operator.show', $animal->id)->with('success', 'Status kesehatan berhasil diperbarui.');
     }
 
     public function moveCage(Request $request, Animal $animal): RedirectResponse

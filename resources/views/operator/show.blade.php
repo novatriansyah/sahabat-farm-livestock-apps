@@ -65,8 +65,8 @@
                     <div class="mb-4">
                         <label for="health_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
                         <select id="health_status" name="health_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                            <option value="SEHAT" {{ $animal->health_status == 'SEHAT' ? 'selected' : '' }}>Sehat (Healthy)</option>
-                            <option value="SAKIT" {{ $animal->health_status == 'SAKIT' ? 'selected' : '' }}>Sakit (Sick)</option>
+                            <option value="SEHAT" {{ $animal->health_status == 'SEHAT' ? 'selected' : '' }}>Sehat</option>
+                            <option value="SAKIT" {{ $animal->health_status == 'SAKIT' ? 'selected' : '' }}>Sakit</option>
                             <option value="KARANTINA" {{ $animal->health_status == 'KARANTINA' ? 'selected' : '' }}>Karantina</option>
                         </select>
                     </div>
@@ -135,7 +135,7 @@
             // For MVP, we'll just show the hint rule.
             const hint = document.getElementById('dosage-hint');
             if (dosagePerKg) {
-                hint.textContent = `Recommended Dosage: ${dosagePerKg} per kg`;
+                hint.textContent = `Rekomendasi Dosis: ${dosagePerKg} per kg`;
 
                 // If we want to auto-fill, we need the animal's weight.
                 // We can pass it via PHP to a JS variable.
@@ -143,7 +143,7 @@
                 if (currentWeight > 0) {
                     const recommended = (currentWeight * dosagePerKg).toFixed(2);
                     document.getElementById('medicine_qty').value = recommended;
-                    hint.textContent += ` (Auto-calc for ${currentWeight}kg: ${recommended})`;
+                    hint.textContent += ` (Kalkulasi Otomatis untuk ${currentWeight}kg: ${recommended})`;
                 }
             } else {
                 hint.textContent = '';

@@ -25,6 +25,15 @@
                     <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga Penjualan (Rp)</label>
                     <input type="number" id="price" name="price" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 </div>
+                <div id="disease-field" style="display: none;">
+                    <label for="disease_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Penyebab / Penyakit (Opsional)</label>
+                    <select id="disease_id" name="disease_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Pilih Penyebab --</option>
+                        @foreach($diseases as $disease)
+                            <option value="{{ $disease->id }}">{{ $disease->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div id="customer-fields">
                     <div class="mb-4">
                         <label for="customer_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Pelanggan (Opsional)</label>
@@ -48,13 +57,18 @@
         function togglePriceField(type) {
             const priceField = document.getElementById('price-field');
             const customerFields = document.getElementById('customer-fields');
+            const diseaseField = document.getElementById('disease-field');
+
             if (type === 'MATI') {
                 priceField.style.display = 'none';
                 customerFields.style.display = 'none';
+                diseaseField.style.display = 'block';
                 document.getElementById('price').value = 0;
             } else {
                 priceField.style.display = 'block';
                 customerFields.style.display = 'block';
+                diseaseField.style.display = 'none';
+                document.getElementById('disease_id').value = '';
             }
         }
     </script>

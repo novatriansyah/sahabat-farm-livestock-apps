@@ -15,7 +15,8 @@ class ExitController extends Controller
     use GeneratesInvoiceNumbers;
     public function create(Animal $animal): View
     {
-        return view('animals.exit', compact('animal'));
+        $diseases = \App\Models\MasterDisease::all();
+        return view('animals.exit', compact('animal', 'diseases'));
     }
 
     public function store(Request $request, Animal $animal): RedirectResponse
@@ -31,10 +32,11 @@ class ExitController extends Controller
             'customer_name' => 'nullable|string|max:255',
             'customer_contact' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
+            'disease_id' => 'nullable|exists:master_diseases,id',
         ]);
 
         if ($validated['exit_type'] === 'JUAL' && empty($validated['price'])) {
-            return back()->withErrors(['price' => 'Price is required for sales.']);
+            return back()->withErrors(['price' => 'Harga penjualan wajib diisi untuk transaksi JUAL.']);
         }
 
         DB::transaction(function () use ($request, $animal, $validated) {
@@ -48,6 +50,7 @@ class ExitController extends Controller
             // Create Exit Log
             ExitLog::create([
                 'animal_id' => $animal->id,
+                'disease_id' => $validated['disease_id'] ?? null,
                 'exit_date' => $validated['exit_date'],
                 'exit_type' => $validated['exit_type'] === 'JUAL' ? 'JUAL' : 'MATI',
                 'price' => $validated['price'] ?? 0,

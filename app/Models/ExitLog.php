@@ -19,4 +19,9 @@ class ExitLog extends Model
     {
         return $this->belongsTo(Animal::class);
     }
+
+    public function disease(): BelongsTo
+    {
+        return $this->belongsTo(MasterDisease::class);
+    }
 }

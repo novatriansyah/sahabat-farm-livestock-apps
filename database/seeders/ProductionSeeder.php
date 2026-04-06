@@ -33,6 +33,9 @@ class ProductionSeeder extends Seeder
         // 4. Create Specific Locations
         $this->createLocations();
 
+        // 5. Create Master Diseases
+        $this->call(MasterDiseaseSeeder::class);
+
         $this->command->info('Production Seeder Complete. Ready for deployment.');
     }
 
