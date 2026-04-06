@@ -71,6 +71,14 @@ Route::middleware(['auth'])->group(function () {
             Route::get('masters/disease/{disease}/edit', [MasterDataController::class , 'editDisease'])->name('masters.disease.edit');
             Route::put('masters/disease/{disease}', [MasterDataController::class , 'updateDisease'])->name('masters.disease.update');
 
+            // SOP Tasks
+            Route::post('masters/sops', [MasterDataController::class , 'storeSop'])->name('masters.sop.store');
+            Route::put('masters/sops/{sop}', [MasterDataController::class , 'updateSop'])->name('masters.sop.update');
+            Route::delete('masters/sops/{sop}', [MasterDataController::class , 'destroySop'])->name('masters.sop.destroy');
+
+            // Farm Settings
+            Route::post('masters/settings', [MasterDataController::class , 'updateSettings'])->name('masters.settings.update');
+
             // User Management (Full Resource)
             Route::resource('users', UserController::class);
 
@@ -146,7 +154,7 @@ Route::middleware(['auth'])->group(function () {
         );
 
         // --- GROUP 3: OPERATIONAL (Staff & Owner & Breeder) ---
-        Route::middleware(['role:STAF,PETERNAK'])->group(function () {
+        Route::middleware(['role:PEMILIK,STAF,PETERNAK'])->group(function () {
             Route::get('scan', [ScanController::class , 'index'])->name('scan.index');
 
             // Operator Workflow
@@ -164,6 +172,13 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware(['role:MITRA'])->group(function () {
             Route::get('/partner/dashboard', [PartnerDashboardController::class , 'index'])->name('partner.dashboard');
         }
-        );    });
+        );
+
+        // --- ANIMAL TASKS ---
+        Route::put('/tasks/{task}/mark-completed', [\App\Http\Controllers\AnimalTaskController::class, 'markCompleted'])->name('tasks.complete');
+
+        // --- ANIMAL PHOTOS ---
+        Route::delete('/animals/{animal}/photos/{photo}', [\App\Http\Controllers\AnimalController::class, 'deletePhoto'])->name('animals.photos.destroy');
+    });
 
 require __DIR__ . '/auth.php';

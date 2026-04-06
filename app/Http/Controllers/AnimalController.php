@@ -37,11 +37,11 @@ class AnimalController extends Controller
         // 2. Search Scope
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('tag_id', 'like', "%{$search}%")
-                  ->orWhereHas('breed', function($bq) use ($search) {
-                      $bq->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('breed', function ($bq) use ($search) {
+                        $bq->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -91,14 +91,14 @@ class AnimalController extends Controller
         try {
             $import = new AnimalsImport;
             Excel::import($import, $request->file('file'));
-            
+
             $msg = "Import Berhasil! {$import->importedCount} data masuk. {$import->skippedCount} data duplikat dilewati.";
-            
+
             return redirect()->route('animals.index')->with('success', $msg);
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
             $errorMessages = [];
-            
+
             foreach ($failures as $failure) {
                 $row = $failure->row();
                 $attrib = $failure->attribute();
@@ -106,7 +106,7 @@ class AnimalController extends Controller
                     $errorMessages[] = "Baris {$row} ({$attrib}): {$error}";
                 }
             }
-            
+
             return redirect()->route('animals.index')->with('error', $errorMessages);
         } catch (\Exception $e) {
             return redirect()->route('animals.index')->with('error', 'Gagal Import: ' . $e->getMessage());
@@ -173,10 +173,13 @@ class AnimalController extends Controller
         $birthDate = Carbon::parse($validated['birth_date']);
         $ageInDays = $birthDate->diffInDays(Carbon::now());
 
-        // Auto-assign Status/Location for Kids (< 40 days)
-        if ($ageInDays < 40) {
-            $validated['current_phys_status_id'] = 1; // Cempe Lahir
-            $validated['current_location_id'] = 3;    // Kandang Cempe
+        // Auto-assign Status/Location for Kids (Cempe)
+        $kidThreshold = (int) \App\Models\FarmSetting::get('kid_threshold_days', 40);
+        if ($ageInDays < $kidThreshold) {
+            $kidStatus = \App\Models\MasterPhysStatus::where('name', 'like', '%Cempe%')->first();
+            $kidLocation = \App\Models\MasterLocation::where('name', 'like', '%Cempe%')->first();
+            if ($kidStatus) $validated['current_phys_status_id'] = $kidStatus->id;
+            if ($kidLocation) $validated['current_location_id'] = $kidLocation->id;
         }
 
         if ($validated['acquisition_type'] === 'HASIL_TERNAK') {
@@ -236,7 +239,11 @@ class AnimalController extends Controller
         $weightLabels = $weightLogs->pluck('weigh_date')->map(fn($d) => $d->format('d M Y'));
         $weightData = $weightLogs->pluck('weight_kg');
 
-        return view('animals.show', compact('animal', 'weightLabels', 'weightData'));
+        $diseases = \App\Models\MasterDisease::with('recommendedTreatments')->get();
+        $locations = \App\Models\MasterLocation::all();
+        $medicines = \App\Models\InventoryItem::whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin'])->get();
+
+        return view('animals.show', compact('animal', 'weightLabels', 'weightData', 'diseases', 'locations', 'medicines'));
     }
 
     public function edit(Animal $animal): View
@@ -345,5 +352,27 @@ class AnimalController extends Controller
         }
 
         return redirect()->route('animals.show', $animal->id)->with('success', 'Ternak berhasil diperbarui.');
+    }
+
+    /**
+     * Delete a specific photo of an animal.
+     */
+    public function deletePhoto(Animal $animal, \App\Models\AnimalPhoto $photo): RedirectResponse
+    {
+        $this->authorize('update', $animal);
+
+        // Ensure the photo belongs to the animal
+        if ($photo->animal_id !== $animal->id) {
+            abort(403);
+        }
+
+        // Delete file from storage
+        if (Storage::disk('public')->exists($photo->photo_url)) {
+            Storage::disk('public')->delete($photo->photo_url);
+        }
+
+        $photo->delete();
+
+        return back()->with('success', 'Foto berhasil dihapus.');
     }
 }

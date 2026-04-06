@@ -20,28 +20,30 @@ class BirthController extends Controller
     public function create(): View
     {
         // Fetch possible Dams (Females) - ideally Pregnant ones, but lets list all active females for flexibility
-        $dams = Animal::where('gender', 'BETINA')->where('is_active', true)->get();
+        $dams = Animal::where('gender', 'BETINA')->where('is_active', true)->with('breed')->get();
 
         // Fetch possible Sires (Males)
-        $sires = Animal::where('gender', 'JANTAN')->where('is_active', true)->get();
+        $sires = Animal::where('gender', 'JANTAN')->where('is_active', true)->with('breed')->get();
 
         $categories = MasterCategory::all();
         $breeds = MasterBreed::all();
         $locations = MasterLocation::all();
+        $partners = MasterPartner::all();
 
         // Status for Newborn = 'Cempe'
         $cempeStatus = MasterPhysStatus::where('name', 'Cempe')->first();
         $allStatuses = MasterPhysStatus::all();
 
-        return view('animals.birth.create', compact('dams', 'sires', 'categories', 'breeds', 'locations', 'cempeStatus', 'allStatuses'));
+        return view('animals.birth.create', compact('dams', 'sires', 'categories', 'breeds', 'locations', 'cempeStatus', 'allStatuses', 'partners'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, \App\Services\TaskService $taskService): RedirectResponse
     {
         $validated = $request->validate([
             'tag_id' => 'required|unique:animals',
             'dam_id' => 'required|exists:animals,id',
             'sire_id' => 'nullable|exists:animals,id',
+            'partner_id' => 'nullable|exists:master_partners,id',
             'birth_date' => 'required|date',
             'gender' => 'required|in:JANTAN,BETINA',
             'initial_weight' => 'required|numeric|min:0.1',
@@ -93,18 +95,23 @@ class BirthController extends Controller
         $breed = MasterBreed::find($breedId);
         $categoryId = $breed ? $breed->category_id : null;
 
-        // 1. Check "Nifas" (Recovery)
-        $lactating = MasterPhysStatus::where('name', 'like', 'Menyusui')->orWhere('name', 'like', 'Lactating')->first();
+        // Partner inheritance logic
+        // If Dam has a partner, offspring MUST belong to that partner.
+        // Otherwise, use the manually selected partner (or null if "Tidak Diketahui")
+        $finalPartnerId = $dam->partner_id ?? $validated['partner_id'];
+
+        // 1. Update Dam Status to Lactating
+        $lactating = MasterPhysStatus::where('is_lactating', true)->first();
         if ($lactating) {
             $dam->update(['current_phys_status_id' => $lactating->id]);
         }
 
         // 2. Create Offspring
-        $cempeStatus = MasterPhysStatus::where('name', 'like', 'Cempe')->first();
+        $cempeStatus = MasterPhysStatus::where('name', 'like', '%Cempe%')->first();
         $offspring = Animal::create([
             'tag_id' => $validated['tag_id'],
             'owner_id' => auth()->id(), // System User
-            'partner_id' => $dam->partner_id, // Inherit Ownership
+            'partner_id' => $finalPartnerId,
             'dam_id' => $dam->id,
             'sire_id' => $validated['sire_id'] ?? null,
             'category_id' => $categoryId,
@@ -127,12 +134,9 @@ class BirthController extends Controller
             'weight_kg' => $validated['initial_weight'],
         ]);
 
-        // 4. Update Breeding Event if exists?
-        // If we tracked Pregnancy via BreedingEvent, we should close it as SUCCESS.
-        // Finding the latest PENDING breeding event for this Dam.
-        // (Assuming BreedingEvent model exists from previous context)
-        // BreedingEvent::where('dam_id', $dam->id)->where('status', 'MENUNGGU')->update(['status' => 'BERHASIL']);
+        // 4. Generate SOP Tasks
+        $taskService->generateBirthTasks($offspring);
 
-        return redirect()->route('animals.index')->with('success', 'Kelahiran berhasil dicatat. Cempe baru telah ditambahkan.');
+        return redirect()->route('animals.index')->with('success', 'Kelahiran berhasil dicatat. Cempe baru telah ditambahkan dan tugas SOP telah dibuat.');
     }
 }

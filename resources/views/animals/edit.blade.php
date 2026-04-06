@@ -115,7 +115,31 @@
                     <input type="url" id="google_drive_link" name="google_drive_link" value="{{ old('google_drive_link', $animal->google_drive_link) }}" placeholder="https://drive.google.com/..." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                 </div>
                 <div class="col-span-2">
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Update Foto (Bisa multiple)</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Foto Saat Ini</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4" x-data="{ 
+                        confirmDelete(photoId) {
+                            if (confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
+                                document.getElementById('delete-photo-' + photoId).submit();
+                            }
+                        }
+                    }">
+                        @foreach($animal->photos as $photo)
+                            <div class="relative group">
+                                <img src="{{ Storage::url($photo->photo_url) }}" class="h-24 w-full object-cover rounded-lg border border-gray-200 dark:border-gray-600">
+                                <button type="button" @click="confirmDelete({{ $photo->id }})" class="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                                <form id="delete-photo-{{ $photo->id }}" action="{{ route('animals.photos.destroy', [$animal->id, $photo->id]) }}" method="POST" class="hidden">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                    
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="photo">Tambah Foto Baru (Bisa multiple)</label>
                     <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="photo" name="photo[]" type="file" multiple>
                 </div>
             </div>

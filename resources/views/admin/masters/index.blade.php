@@ -23,6 +23,12 @@
             <li role="presentation">
                 <button class="inline-block p-4 border-b-2 rounded-t-lg" id="diseases-tab" data-tabs-target="#diseases" type="button" role="tab" aria-controls="diseases" aria-selected="false">Penyakit</button>
             </li>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="sops-tab" data-tabs-target="#sops" type="button" role="tab" aria-controls="sops" aria-selected="false">SOP Tugas</button>
+            </li>
+            <li role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="settings-tab" data-tabs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Pengaturan Farm</button>
+            </li>
         </ul>
     </div>
 
@@ -282,8 +288,18 @@
                         <textarea name="symptoms" placeholder="Ceritakan gejala yang umum terlihat..." class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" rows="2"></textarea>
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block mb-1 text-xs font-semibold text-gray-500 uppercase">Deskripsi/Penyebab</label>
-                        <textarea name="description" placeholder="Informasi tambahan mengenai penyebab atau pencegahan..." class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" rows="2"></textarea>
+                        <label class="block mb-2 text-xs font-semibold text-gray-500 uppercase">Rekomendasi Penanganan (Obat/Vitamin)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
+                            @foreach($items->whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin']) as $item)
+                                <div class="flex items-center justify-between p-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" name="treatments[]" value="{{ $item->id }}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{ $item->name }}</label>
+                                    </div>
+                                    <input type="text" name="custom_dosages[{{ $item->id }}]" placeholder="Dosis Khusus (Opsional)" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
                 <div class="flex justify-end">
@@ -320,6 +336,112 @@
             <div class="mt-4">
                 {{ $diseases->links() }}
             </div>
+        </div>
+
+        <!-- SOP Tasks Section -->
+        <div class="hidden p-6 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700" id="sops" role="tabpanel" aria-labelledby="sops-tab">
+            <h3 class="mb-6 text-xl font-bold text-gray-900 dark:text-white">Standar Operasional Prosedur (Tugas Otomatis)</h3>
+            <form action="{{ route('masters.sop.store') }}" method="POST" class="mb-8 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                @csrf
+                <div class="grid gap-4 mb-4 md:grid-cols-4">
+                    <div>
+                        <label class="block mb-1 text-xs font-semibold text-gray-500 uppercase">Event Pemicu</label>
+                        <select name="event_type" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                            <option value="BIRTH">Kelahiran (Birth)</option>
+                            <option value="ARRIVAL">Kedatangan (Arrival)</option>
+                            <option value="ROUTINE">Rutin (Routine)</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block mb-1 text-xs font-semibold text-gray-500 uppercase">Judul Tugas</label>
+                        <input type="text" name="title" placeholder="e.g. Pemberian Vitamin A" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-xs font-semibold text-gray-500 uppercase">Tipe Tugas</label>
+                        <select name="task_type" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                            <option value="HEALTH">Kesehatan</option>
+                            <option value="ROUTINE">Rutin</option>
+                            <option value="ARRIVAL">Kedatangan</option>
+                            <option value="GENERAL">Umum</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-xs font-semibold text-gray-500 uppercase">Offset Hari (H+)</label>
+                        <input type="number" name="due_days_offset" value="0" min="0" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition">Tambah SOP</button>
+                </div>
+            </form>
+
+            <div class="relative overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Event</th>
+                            <th scope="col" class="px-6 py-3">Judul Tugas</th>
+                            <th scope="col" class="px-6 py-3">Tipe</th>
+                            <th scope="col" class="px-6 py-3 text-center">Offset (Hari)</th>
+                            <th scope="col" class="px-6 py-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach($sops as $sop)
+                        <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ $sop->event_type }}</td>
+                            <td class="px-6 py-4">{{ $sop->title }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">{{ $sop->task_type }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">H+{{ $sop->due_days_offset }}</td>
+                            <td class="px-6 py-4 text-right">
+                                <form action="{{ route('masters.sop.destroy', $sop->id) }}" method="POST" class="inline">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:underline font-medium" onclick="return confirm('Hapus SOP ini?')">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                {{ $sops->links() }}
+            </div>
+        </div>
+
+        <!-- Farm Settings Section -->
+        <div class="hidden p-6 rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+            <h3 class="mb-6 text-xl font-bold text-gray-900 dark:text-white">Konfigurasi Parameter Peternakan</h3>
+            
+            <form action="{{ route('masters.settings.update') }}" method="POST">
+                @csrf
+                @foreach($settings as $group => $items)
+                    <div class="mb-8">
+                        <h4 class="mb-4 text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">{{ $group }}</h4>
+                        <div class="grid gap-6 mb-4 md:grid-cols-2">
+                            @foreach($items as $setting)
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ $setting->label }}</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" name="settings[{{ $setting->key }}]" value="{{ $setting->value }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                                        @if(str_contains($setting->key, 'days'))
+                                            <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600 whitespace-nowrap">Hari</span>
+                                        @elseif(str_contains($setting->key, 'cost'))
+                                            <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600 whitespace-nowrap">Rp</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+
+                <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-10 py-3 text-center transition shadow-lg">Simpan Perubahan</button>
+                </div>
+            </form>
         </div>
     </div>
 </x-app-layout>

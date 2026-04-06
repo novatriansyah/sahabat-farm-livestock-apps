@@ -29,6 +29,8 @@ class DatabaseSeeder extends Seeder
 
         // 2. Call SOP Seeder for Master Data (Breeds, Categories, Diseases, Inventory)
         $this->call(SopSeeder::class);
+        $this->call(MasterSopSeeder::class);
+        $this->call(MasterSettingSeeder::class);
 
         // 3. Call Real Time Farm Simulation
         $this->call(RealTimeFarmSeeder::class);

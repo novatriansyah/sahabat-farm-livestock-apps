@@ -178,13 +178,7 @@
                <span class="ms-3">Scan QR</span>
             </a>
          </li>
-         <!-- Only STAFF (Operator) needs pure feeding mode, but others can too if needed. Let's keep it inclusive or strict?
-              Requirement: "breeder and staff cannot manage user... breeder can go to dashboard..."
-              It implies Breeder is Managerial.
-              Let's allow everyone to Scan.
-              Let's allow everyone to Scan.
-         -->
-         @if(Auth::user()->role == 'STAF')
+         @if(Auth::user()->role == 'STAF' || Auth::user()->role == 'PEMILIK')
          <li>
             <a href="{{ route('operator.inventory.index') }}" class="relative flex items-center p-2 rounded-xl transition-all duration-200 {{ request()->routeIs('operator.inventory.*') ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-gray-900 dark:text-white hover:bg-gray-100/50 hover:pl-3 group' }}">
                @if(request()->routeIs('operator.inventory.*'))

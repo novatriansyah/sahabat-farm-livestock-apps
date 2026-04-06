@@ -86,7 +86,8 @@ class DashboardService
                 ->sum(DB::raw('price - (COALESCE(animals.purchase_price, 0) + exit_logs.final_hpp)'));
 
             // 4. Low Stock Alerts (Global Only)
-            $lowStockItems = (!$filterPartnerId) ? InventoryItem::where('current_stock', '<', 10)->get() : [];
+            $lowThreshold = (int) \App\Models\FarmSetting::get('low_stock_threshold', 10);
+            $lowStockItems = (!$filterPartnerId) ? InventoryItem::where('current_stock', '<', $lowThreshold)->get() : [];
 
             // 5. Conception Rate
             $successfulBreeding = BreedingEvent::where('status', 'BERHASIL')
@@ -114,10 +115,10 @@ class DashboardService
             $manualCosts = \App\Models\HppManualCost::where('month', Carbon::now()->format('Y-m'))->get();
 
             // Feed & Medicine Logs
-            $feedLogs = InventoryUsageLog::whereHas('item', fn($q) => $q->where('category', 'FEED'))
+            $feedLogs = InventoryUsageLog::whereHas('item', fn($q) => $q->where('category', 'Pakan'))
                 ->whereMonth('usage_date', Carbon::now()->month)
                 ->get();
-            $medicineLogs = InventoryUsageLog::whereHas('item', fn($q) => $q->whereIn('category', ['MEDICINE', 'VITAMIN', 'VACCINE']))
+            $medicineLogs = InventoryUsageLog::whereHas('item', fn($q) => $q->whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin']))
                 ->whereMonth('usage_date', Carbon::now()->month)
                 ->get();
 
@@ -142,9 +143,13 @@ class DashboardService
             if ($isFallback) {
                 // FALLBACK TO ESTIMATIONS
                 $targetCount = $filterPartnerId ? $activeAnimals : $allActiveAnimals;
-                $estFeedCost = $targetCount * 5000 * 30; // ~30 days projection
-                $estHealthCost = $targetCount * 10000;
-                $estOpsCost = $targetCount * 15000;
+                $estFeed = (float) \App\Models\FarmSetting::get('est_feed_cost_day', 5000);
+                $estHealth = (float) \App\Models\FarmSetting::get('est_health_cost_month', 10000);
+                $estOps = (float) \App\Models\FarmSetting::get('est_ops_cost_month', 15000);
+
+                $estFeedCost = $targetCount * $estFeed * 30; // ~30 days projection
+                $estHealthCost = $targetCount * $estHealth;
+                $estOpsCost = $targetCount * $estOps;
 
                 $expenseLabels = ['Pakan (Estimasi)', 'Kesehatan (Estimasi)', 'Operasional (Estimasi)'];
                 $expenseData = [$estFeedCost, $estHealthCost, $estOpsCost];
@@ -205,16 +210,19 @@ class DashboardService
                 ->count();
 
             // 9. Alerts
-            // Optimization: Add Index to birth_date and next_due_date in migration if possible
+            $sepDays = (int) \App\Models\FarmSetting::get('separation_age_days', 60);
+            $matSepDays = (int) \App\Models\FarmSetting::get('pregnancy_check_days', 60);
+            $weanDays = (int) \App\Models\FarmSetting::get('weaning_age_days', 35);
+
             $separationCandidates = Animal::where('is_active', true)
-                ->whereDate('birth_date', '<=', Carbon::now()->subDays(60))
-                ->whereHas('physStatus', function($q) { $q->where('name', 'Cempe Lahir'); })
+                ->whereDate('birth_date', '<=', Carbon::now()->subDays($sepDays))
+                ->whereHas('physStatus', function($q) { $q->where('name', 'like', '%Cempe%'); })
                 ->when($filterPartnerId, $scopePartner)
                 ->take(50)
                 ->get();
 
             $matingSeparationCandidates = BreedingEvent::where('status', 'MENUNGGU')
-                 ->whereDate('mating_date', '<=', Carbon::now()->subDays(60))
+                 ->whereDate('mating_date', '<=', Carbon::now()->subDays($matSepDays))
                  ->with(['dam', 'sire'])
                  ->when($filterPartnerId, function($q) use ($filterPartnerId) {
                      $q->whereHas('dam', fn($sq) => $sq->where('partner_id', $filterPartnerId));
@@ -231,8 +239,8 @@ class DashboardService
                 ->take(50)
                 ->get();
 
-            $weaningAlerts = Animal::where('current_phys_status_id', 1)
-                 ->whereDate('birth_date', '<=', Carbon::now()->subDays(35))
+            $weaningAlerts = Animal::whereHas('physStatus', function($q) { $q->where('is_lactating', false)->where('name', 'like', '%Cempe%'); })
+                 ->whereDate('birth_date', '<=', Carbon::now()->subDays($weanDays))
                  ->when($filterPartnerId, $scopePartner)
                  ->with(['category', 'location'])
                  ->take(50)
@@ -337,6 +345,15 @@ class DashboardService
                 $biomassDataKids[] = $stats->kid_biomass ?? 0;
             }
 
+            $pendingTasks = \App\Models\AnimalTask::where('status', 'PENDING')
+                ->whereDate('due_date', '<=', Carbon::now())
+                ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
+                    $q->whereHas('animal', fn($sq) => $sq->where('partner_id', $filterPartnerId));
+                })
+                ->with(['animal'])
+                ->orderBy('due_date', 'asc')
+                ->get();
+
             return compact(
                 'filterPartnerId',
                 'activeAnimals', 'populationByCage', 'avgAdg', 'avgHpp', 'totalStockValue',
@@ -344,7 +361,7 @@ class DashboardService
                 'feedUsage', 'medicineCost', 'deathCount', 'deathValue',
                 'liveMale', 'liveFemale', 'deadMale', 'deadFemale',
                 'separationCandidates', 'matingSeparationCandidates',
-                'vaccineAlerts', 'weaningAlerts',
+                'vaccineAlerts', 'weaningAlerts', 'pendingTasks',
                 // Chart Data
                 'mortalityTrendLabels', 'mortalityTrendData',
                 'financialLabels', 'financialRevenue', 'financialLoss',

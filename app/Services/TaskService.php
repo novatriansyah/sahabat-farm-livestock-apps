@@ -9,25 +9,39 @@ use Carbon\Carbon;
 class TaskService
 {
     /**
+     * Generate tasks based on an event type.
+     */
+    private function generateTasksForEvent(Animal $animal, string $eventType): void
+    {
+        $templates = \App\Models\MasterSop::where('event_type', $eventType)
+            ->where('is_active', true)
+            ->get();
+
+        foreach ($templates as $template) {
+            AnimalTask::create([
+                'animal_id' => $animal->id,
+                'title' => $template->title,
+                'type' => $template->task_type,
+                'status' => 'MENUNGGU',
+                'due_date' => Carbon::now()->addDays($template->due_days_offset),
+            ]);
+        }
+    }
+
+    /**
      * Generate tasks for a newly arrived animal (Purchase).
      */
     public function generateArrivalTasks(Animal $animal): void
     {
-        $tasks = [
-            ['title' => 'Berikan hijauan saja (tanpa konsentrat) selama 24 jam', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
-            ['title' => 'Berikan minuman Gula Merah + Asam Jawa', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
-            ['title' => 'Pengecekan Masuk Karantina', 'type' => 'ARRIVAL', 'due_date' => Carbon::now()],
-        ];
+        $this->generateTasksForEvent($animal, 'ARRIVAL');
+    }
 
-        foreach ($tasks as $task) {
-            AnimalTask::create([
-                'animal_id' => $animal->id,
-                'title' => $task['title'],
-                'type' => $task['type'],
-                'status' => 'MENUNGGU',
-                'due_date' => $task['due_date'],
-            ]);
-        }
+    /**
+     * Generate tasks for a newborn animal (Birth).
+     */
+    public function generateBirthTasks(Animal $animal): void
+    {
+        $this->generateTasksForEvent($animal, 'BIRTH');
     }
 
     /**
@@ -35,13 +49,6 @@ class TaskService
      */
     public function generateRoutineTasks(Animal $animal): void
     {
-        // Monthly Check
-        AnimalTask::create([
-            'animal_id' => $animal->id,
-            'title' => 'Pemeriksaan Kesehatan Rutin (Berat & Suhu)',
-            'type' => 'ROUTINE',
-            'status' => 'MENUNGGU',
-            'due_date' => Carbon::now()->endOfMonth(),
-        ]);
+        $this->generateTasksForEvent($animal, 'ROUTINE');
     }
 }

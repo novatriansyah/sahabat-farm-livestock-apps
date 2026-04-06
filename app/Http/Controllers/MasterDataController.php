@@ -17,11 +17,13 @@ class MasterDataController extends Controller
     {
         $breeds = MasterBreed::with('category')->paginate(10, ['*'], 'breeds_page');
         $locations = MasterLocation::paginate(10, ['*'], 'locations_page');
-        $diseases = MasterDisease::paginate(10, ['*'], 'diseases_page');
+        $diseases = MasterDisease::with('recommendedTreatments')->paginate(10, ['*'], 'diseases_page');
         $items = InventoryItem::paginate(10, ['*'], 'items_page');
         $categories = MasterCategory::paginate(10, ['*'], 'categories_page');
+        $sops = \App\Models\MasterSop::paginate(10, ['*'], 'sops_page');
+        $settings = \App\Models\FarmSetting::all()->groupBy('group');
 
-        return view('admin.masters.index', compact('breeds', 'locations', 'diseases', 'items', 'categories'));
+        return view('admin.masters.index', compact('breeds', 'locations', 'diseases', 'items', 'categories', 'sops', 'settings'));
     }
 
     // --- BREED ---
@@ -97,13 +99,26 @@ class MasterDataController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        MasterDisease::create($validated);
+        $disease = MasterDisease::create($validated);
+
+        if ($request->has('treatments')) {
+            $syncData = [];
+            foreach ($request->treatments as $itemId) {
+                $syncData[$itemId] = [
+                    'custom_dosage' => $request->custom_dosages[$itemId] ?? null
+                ];
+            }
+            $disease->recommendedTreatments()->sync($syncData);
+        }
+
         return back()->with('success', 'Penyakit berhasil ditambahkan.');
     }
 
     public function editDisease(MasterDisease $disease): View
     {
-        return view('admin.masters.edit-disease', compact('disease'));
+        $disease->load('recommendedTreatments');
+        $items = InventoryItem::whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin'])->get();
+        return view('admin.masters.edit-disease', compact('disease', 'items'));
     }
 
     public function updateDisease(Request $request, MasterDisease $disease): RedirectResponse
@@ -116,6 +131,19 @@ class MasterDataController extends Controller
         ]);
 
         $disease->update($validated);
+
+        if ($request->has('treatments')) {
+            $syncData = [];
+            foreach ($request->treatments as $itemId) {
+                $syncData[$itemId] = [
+                    'custom_dosage' => $request->custom_dosages[$itemId] ?? null
+                ];
+            }
+            $disease->recommendedTreatments()->sync($syncData);
+        } else {
+            $disease->recommendedTreatments()->detach();
+        }
+
         return redirect()->route('masters.index')->with('success', 'Penyakit berhasil diperbarui.');
     }
 
@@ -151,11 +179,55 @@ class MasterDataController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'unit' => 'required|string|max:10',
-            'category' => 'required|in:MEDICINE,VITAMIN,VACCINE,FEED',
+            'category' => 'required|in:Obat-Obatan,Vitamin,Vaksin,Pakan',
             'dosage_per_kg' => 'nullable|numeric',
         ]);
 
         InventoryItem::create($validated);
         return back()->with('success', 'Barang inventaris berhasil ditambahkan.');
+    }
+
+    // --- SOP ---
+    public function storeSop(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'event_type' => 'required|string',
+            'title' => 'required|string|max:255',
+            'task_type' => 'required|string',
+            'due_days_offset' => 'required|integer|min:0',
+        ]);
+
+        \App\Models\MasterSop::create($validated);
+        return back()->with('success', 'SOP Tugas berhasil ditambahkan.');
+    }
+
+    public function updateSop(Request $request, \App\Models\MasterSop $sop): RedirectResponse
+    {
+        $validated = $request->validate([
+            'event_type' => 'required|string',
+            'title' => 'required|string|max:255',
+            'task_type' => 'required|string',
+            'due_days_offset' => 'required|integer|min:0',
+            'is_active' => 'required|boolean',
+        ]);
+
+        $sop->update($validated);
+        return back()->with('success', 'SOP Tugas berhasil diperbarui.');
+    }
+
+    public function destroySop(\App\Models\MasterSop $sop): RedirectResponse
+    {
+        $sop->delete();
+        return back()->with('success', 'SOP Tugas berhasil dihapus.');
+    }
+
+    // --- SETTINGS ---
+    public function updateSettings(Request $request): RedirectResponse
+    {
+        foreach ($request->input('settings', []) as $key => $value) {
+            \App\Models\FarmSetting::where('key', $key)->update(['value' => $value]);
+        }
+
+        return back()->with('success', 'Pengaturan peternakan berhasil diperbarui.');
     }
 }

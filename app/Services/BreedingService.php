@@ -22,7 +22,7 @@ class BreedingService
 
         // Rule 1: Age
         $ageMonths = $animal->birth_date->diffInMonths(Carbon::now());
-        $minAge = $breed->min_age_mate_months ?? 8; // Default 8 months
+        $minAge = $breed->min_age_mate_months ?? (int) \App\Models\FarmSetting::get('min_age_mate_months_fallback', 8);
 
         if ($ageMonths < $minAge) {
             return [
@@ -37,7 +37,7 @@ class BreedingService
             return ['eligible' => false, 'reason' => 'Data timbangan belum ditemukan. Harap timbang terlebih dahulu.'];
         }
 
-        $minWeight = $breed->min_weight_mate ?? 30; // Default 30kg
+        $minWeight = $breed->min_weight_mate ?? (float) \App\Models\FarmSetting::get('min_weight_mate_fallback', 30);
         if ($latestWeight->weight_kg < $minWeight) {
             return [
                 'eligible' => false,
@@ -45,34 +45,29 @@ class BreedingService
             ];
         }
 
-        // Rule 3: Post-Birth Recovery (Nifas) - 40 Days
-        // Check last birth date (We need a way to track this. For now, check last BreedingEvent where status=SUCCESS/BIRTH?)
-        // Or check if we have a 'last_birth_date' column. We don't.
-        // But we can check if there are any offspring (animals where dam_id = this animal) born < 40 days ago.
-
+        // Rule 3: Post-Birth Recovery (Nifas)
+        $nifasPeriod = (int) \App\Models\FarmSetting::get('nifas_period_days', 40);
         $lastBirth = Animal::where('dam_id', $animal->id)
             ->orderByDesc('birth_date')
             ->first();
 
         if ($lastBirth) {
             $daysSinceBirth = $lastBirth->birth_date->diffInDays(Carbon::now());
-            if ($daysSinceBirth < 40) {
+            if ($daysSinceBirth < $nifasPeriod) {
                 return [
                     'eligible' => false,
-                    'reason' => "Indukan dalam masa pemulihan (nifas). Baru {$daysSinceBirth} hari sejak melahirkan."
+                    'reason' => "Indukan dalam masa pemulihan (nifas). Minimal {$nifasPeriod} hari (baru {$daysSinceBirth} hari)."
                 ];
             }
         }
 
-        // Rule 4: Health Status
-        // ID 6 = Bunting (Already Pregnant), ID 9 = Karantina (Sick/Compromised)
-        // Note: ID 7 (Menyusui) is now ALLOWED if it passes the 40-day nifas check in Rule 3.
-        $restrictedStatuses = [6, 9]; 
-        if (in_array($animal->current_phys_status_id, $restrictedStatuses)) {
-            $statusName = $animal->physStatus->name ?? 'Unknown';
+        // Rule 4: Health Status & Pregnancy
+        // Using new dynamic flags instead of hardcoded IDs
+        $status = $animal->physStatus;
+        if (!$status->is_breedable || $status->is_pregnant || $status->is_quarantine) {
             return [
                 'eligible' => false,
-                'reason' => "Status Hewan tidak memungkinkan: {$statusName}"
+                'reason' => "Status Hewan tidak memungkinkan: " . ($status->name ?? 'Unknown')
             ];
         }
 

@@ -1,5 +1,20 @@
 <x-app-layout>
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow dark:bg-gray-800" 
+         x-data="{ 
+            dams: {{ $dams->map(fn($d) => ['id' => $d->id, 'partner_id' => $d->partner_id])->toJson() }},
+            selectedDamId: '',
+            selectedPartnerId: '',
+            isPartnerLocked: false,
+            updatePartner() {
+                const dam = this.dams.find(d => d.id == this.selectedDamId);
+                if (dam && dam.partner_id) {
+                    this.selectedPartnerId = dam.partner_id;
+                    this.isPartnerLocked = true;
+                } else {
+                    this.isPartnerLocked = false;
+                }
+            }
+         }">
         <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Registrasi Kelahiran (Recording Birth)</h2>
         <form action="{{ route('birth.store') }}" method="POST">
             @csrf
@@ -10,7 +25,7 @@
                 <div class="grid gap-6 md:grid-cols-2">
                     <div>
                         <label for="dam_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Induk Betina (Dam)</label>
-                        <select id="dam_id" name="dam_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                        <select id="dam_id" name="dam_id" x-model="selectedDamId" @change="updatePartner()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                             <option value="">-- Pilih Induk --</option>
                             @foreach($dams as $dam)
                                 <option value="{{ $dam->id }}">{{ $dam->tag_id }} ({{ $dam->breed->name ?? '-' }})</option>
@@ -26,6 +41,27 @@
                             @endforeach
                         </select>
                     </div>
+                </div>
+            </div>
+
+            <!-- Partner/Ownership -->
+            <div class="mb-6 border-b pb-4">
+                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Kepemilikan (Ownership)</h3>
+                <div>
+                    <label for="partner_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mitra / Pemilik</label>
+                    <div class="relative">
+                        <select id="partner_id" name="partner_id" x-model="selectedPartnerId" :disabled="isPartnerLocked" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white disabled:bg-gray-200 dark:disabled:bg-gray-600">
+                            <option value="">Tidak Diketahui</option>
+                            @foreach($partners as $partner)
+                                <option value="{{ $partner->id }}">{{ $partner->name }}</option>
+                            @endforeach
+                        </select>
+                        <template x-if="isPartnerLocked">
+                            <input type="hidden" name="partner_id" :value="selectedPartnerId">
+                        </template>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500" x-show="isPartnerLocked">Otomatis mengikuti Mitra dari Induk Betina (Dam).</p>
+                    <p class="mt-1 text-xs text-gray-500" x-show="!isPartnerLocked">Pilih mitra jika indukan tidak terlacak atau biarkan kosong (Tidak Diketahui).</p>
                 </div>
             </div>
 

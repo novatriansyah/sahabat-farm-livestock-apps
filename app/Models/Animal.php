@@ -133,4 +133,9 @@ class Animal extends Model
     {
         return $this->hasMany(BreedingEvent::class, $this->gender === 'JANTAN' ? 'sire_id' : 'dam_id');
     }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(AnimalTask::class);
+    }
 }

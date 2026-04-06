@@ -59,7 +59,14 @@
             </div>
 
             <!-- Health Tab -->
-            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-900" id="health" role="tabpanel" aria-labelledby="health-tab">
+            <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-900" id="health" role="tabpanel" aria-labelledby="health-tab"
+                 x-data="{ 
+                    selectedDisease: '',
+                    diseases: {{ $diseases->mapWithKeys(fn($d) => [$d->id => ['name' => $d->name, 'symptoms' => $d->symptoms, 'description' => $d->description]])->toJson() }},
+                    get recommendation() {
+                        return this.selectedDisease ? this.diseases[this.selectedDisease] : null;
+                    }
+                 }">
                 <form action="{{ route('operator.health.store', $animal->id) }}" method="POST">
                     @csrf
                     <div class="mb-4">
@@ -74,7 +81,7 @@
                     <!-- Disease Selection -->
                     <div class="mb-4">
                         <label for="disease_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Diagnosa (Opsional)</label>
-                        <select id="disease_id" name="disease_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <select id="disease_id" name="disease_id" x-model="selectedDisease" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                             <option value="">-- Tidak Ada --</option>
                             @foreach($diseases as $disease)
                                 <option value="{{ $disease->id }}">{{ $disease->name }}</option>
@@ -82,9 +89,16 @@
                         </select>
                     </div>
 
+                    <!-- Recommendation UI -->
+                    <div x-show="recommendation" x-transition class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
+                        <h4 class="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase mb-1">Rekomendasi Diagnosa</h4>
+                        <p class="text-xs text-gray-700 dark:text-gray-300 mb-2"><span class="font-semibold">Gejala Umum:</span> <span x-text="recommendation ? recommendation.symptoms : ''"></span></p>
+                        <p class="text-xs text-gray-700 dark:text-gray-300"><span class="font-semibold">Penanganan:</span> <span x-text="recommendation ? recommendation.description : ''"></span></p>
+                    </div>
+
                     <div class="mb-4">
-                        <label for="symptoms" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Gejala / Catatan</label>
-                        <textarea id="symptoms" name="symptoms" rows="2" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
+                        <label for="symptoms" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Gejala / Catatan Lapangan</label>
+                        <textarea id="symptoms" name="symptoms" rows="2" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Apa yang terlihat di lapangan?"></textarea>
                     </div>
 
                     <hr class="my-4 border-gray-200 dark:border-gray-700">
