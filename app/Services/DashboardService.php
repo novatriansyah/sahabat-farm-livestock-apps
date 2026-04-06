@@ -163,16 +163,23 @@ class DashboardService
             }
 
             // Mortality Stats This Month
-            $deathCount = ExitLog::where('exit_type', 'MATI')
+            $deathCount = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
+                ->where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
-                ->when($filterPartnerId, $scopeAnimalRelation)
+                ->whereYear('exit_date', Carbon::now()->year)
+                ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
+                    $q->where('animals.partner_id', $filterPartnerId);
+                })
                 ->count();
 
             // Lost Asset Value
-            $deathValue = ExitLog::where('exit_type', 'MATI')
+            $deathValue = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
+                ->where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
-                ->when($filterPartnerId, $scopeAnimalRelation)
-                ->join('animals', 'exit_logs.animal_id', '=', 'animals.id')
+                ->whereYear('exit_date', Carbon::now()->year)
+                ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
+                    $q->where('animals.partner_id', $filterPartnerId);
+                })
                 ->sum(DB::raw('COALESCE(animals.purchase_price, 0) + exit_logs.final_hpp'));
 
             // 7. Breakdown by Sex (Live)
@@ -180,18 +187,23 @@ class DashboardService
             $liveFemale = Animal::where('is_active', true)->where('gender', 'BETINA')->when($filterPartnerId, $scopePartner)->count();
 
             // 8. Breakdown by Sex (Dead - This Month)
-            $deadMale = ExitLog::where('exit_type', 'MATI')
+            $deadMale = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
+                ->where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
-                ->whereHas('animal', function($q) use ($filterPartnerId) { 
-                    $q->where('gender', 'JANTAN');
-                    if ($filterPartnerId) $q->where('partner_id', $filterPartnerId);
+                ->whereYear('exit_date', Carbon::now()->year)
+                ->where('animals.gender', 'JANTAN')
+                ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
+                    $q->where('animals.partner_id', $filterPartnerId);
                 })
                 ->count();
-            $deadFemale = ExitLog::where('exit_type', 'MATI')
+
+            $deadFemale = ExitLog::join('animals', 'exit_logs.animal_id', '=', 'animals.id')
+                ->where('exit_type', 'MATI')
                 ->whereMonth('exit_date', Carbon::now()->month)
-                ->whereHas('animal', function($q) use ($filterPartnerId) { 
-                    $q->where('gender', 'BETINA');
-                    if ($filterPartnerId) $q->where('partner_id', $filterPartnerId);
+                ->whereYear('exit_date', Carbon::now()->year)
+                ->where('animals.gender', 'BETINA')
+                ->when($filterPartnerId, function ($q) use ($filterPartnerId) {
+                    $q->where('animals.partner_id', $filterPartnerId);
                 })
                 ->count();
 
