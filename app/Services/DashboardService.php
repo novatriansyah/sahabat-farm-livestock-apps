@@ -103,63 +103,68 @@ class DashboardService
             $totalCompleted = $successfulBreeding + $failedBreeding;
             $conceptionRate = $totalCompleted > 0 ? ($successfulBreeding / $totalCompleted) * 100 : 0;
 
-            // 6. Full Performance Stats
-            $feedUsage = 0;
-            $medicineCost = 0;
-            $totalFeedCost = 0;
-            $totalMedicineCost = 0;
+            // 6. Full Performance Stats (HYBRID FALLBACK LOGIC)
+            $allActiveAnimals = Animal::where('is_active', true)->count();
             
-            if (!$filterPartnerId) {
-                $feedLogs = InventoryUsageLog::whereHas('item', function($q) {
-                        $q->where('category', 'FEED');
-                    })
-                    ->whereMonth('usage_date', Carbon::now()->month)
-                    ->get();
+            // A. Calculate Global Real Costs
+            $feedUsage = 0;
+            $totalFeedCost = 0;
+            $medicineCost = 0;
+            $totalMedicineCost = 0;
+            $manualCosts = \App\Models\HppManualCost::where('month', Carbon::now()->format('Y-m'))->get();
 
-                 // Pre-fetch average prices
-                $avgPrices = DB::table('inventory_purchases')
-                    ->select('item_id', DB::raw('SUM(price_total) / SUM(qty) as avg_price'))
-                    ->groupBy('item_id')
-                    ->pluck('avg_price', 'item_id');
+            // Feed & Medicine Logs
+            $feedLogs = InventoryUsageLog::whereHas('item', fn($q) => $q->where('category', 'FEED'))
+                ->whereMonth('usage_date', Carbon::now()->month)
+                ->get();
+            $medicineLogs = InventoryUsageLog::whereHas('item', fn($q) => $q->whereIn('category', ['MEDICINE', 'VITAMIN', 'VACCINE']))
+                ->whereMonth('usage_date', Carbon::now()->month)
+                ->get();
 
-                foreach ($feedLogs as $log) {
-                    $price = $avgPrices[$log->item_id] ?? 0;
-                    $totalFeedCost += ($log->qty_used + $log->qty_wasted) * $price;
-                }
-                $feedUsage = $feedLogs->sum('qty_used');
+            // Pre-fetch average prices
+            $avgPrices = DB::table('inventory_purchases')
+                ->select('item_id', DB::raw('SUM(price_total) / SUM(qty) as avg_price'))
+                ->groupBy('item_id')
+                ->pluck('avg_price', 'item_id');
 
+            foreach ($feedLogs as $log) {
+                $price = $avgPrices[$log->item_id] ?? 0;
+                $totalFeedCost += ($log->qty_used + $log->qty_wasted) * $price;
+            }
+            foreach ($medicineLogs as $log) {
+                $price = $avgPrices[$log->item_id] ?? 0;
+                $totalMedicineCost += ($log->qty_used + $log->qty_wasted) * $price;
+            }
 
-                $medicineLogs = InventoryUsageLog::whereHas('item', function($q) {
-                        $q->whereIn('category', ['MEDICINE', 'VITAMIN', 'VACCINE']);
-                    })
-                    ->whereMonth('usage_date', Carbon::now()->month)
-                    ->with('item')
-                    ->get();
+            $totalRealExpenses = $totalFeedCost + $totalMedicineCost + $manualCosts->sum('amount');
+            $isFallback = ($totalRealExpenses == 0);
 
-                foreach ($medicineLogs as $log) {
-                    $avgPrice = $avgPrices[$log->item_id] ?? 0;
-                    $medicineCost += ($log->qty_used + $log->qty_wasted) * $avgPrice;
-                }
-                $totalMedicineCost = $medicineCost;
-
-                // Fetch actual Manual HPP Costs for this month
-                $manualCosts = \App\Models\HppManualCost::where('month', Carbon::now()->format('Y-m'))->get();
-                
-                $expenseLabels = ['Pakan (Feed)', 'Obat & Vitamin'];
-                $expenseData = [$totalFeedCost, $totalMedicineCost];
-
-                foreach($manualCosts as $mc) {
-                    $expenseLabels[] = $mc->name;
-                    $expenseData[] = (float) $mc->amount;
-                }
-            } else {
-                // ESTIMATION for Partner View since partners don't directly see farm-wide expenses usually
-                $estFeedCost = $activeAnimals * 5000 * 30;
-                $estHealthCost = $activeAnimals * 10000;
-                $estOpsCost = $activeAnimals * 15000;
+            if ($isFallback) {
+                // FALLBACK TO ESTIMATIONS
+                $targetCount = $filterPartnerId ? $activeAnimals : $allActiveAnimals;
+                $estFeedCost = $targetCount * 5000 * 30; // ~30 days projection
+                $estHealthCost = $targetCount * 10000;
+                $estOpsCost = $targetCount * 15000;
 
                 $expenseLabels = ['Pakan (Estimasi)', 'Kesehatan (Estimasi)', 'Operasional (Estimasi)'];
                 $expenseData = [$estFeedCost, $estHealthCost, $estOpsCost];
+                
+                $feedUsage = 0; // Usage cannot be estimated in kg easily
+                $medicineCost = $estHealthCost; 
+            } else {
+                // USE REAL DATA (Prorated for Partners)
+                $share = ($filterPartnerId && $allActiveAnimals > 0) ? ($activeAnimals / $allActiveAnimals) : 1;
+                
+                $expenseLabels = ['Pakan (Real)', 'Obat/Vaksin (Real)'];
+                $expenseData = [$totalFeedCost * $share, $totalMedicineCost * $share];
+
+                foreach($manualCosts as $mc) {
+                    $expenseLabels[] = $mc->name . ' (Real)';
+                    $expenseData[] = (float) $mc->amount * $share;
+                }
+                
+                $feedUsage = $feedLogs->sum('qty_used') * $share;
+                $medicineCost = $totalMedicineCost * $share;
             }
 
             // Mortality Stats All-Time

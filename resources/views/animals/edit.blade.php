@@ -43,6 +43,24 @@
                     </select>
                 </div>
                 <div>
+                    <label for="sire_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Pejantan (Ayah)</label>
+                    <select id="sire_id" name="sire_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Tidak Diketahui --</option>
+                        @foreach($sires as $sire)
+                            <option value="{{ $sire->id }}" {{ $animal->sire_id == $sire->id ? 'selected' : '' }}>{{ $sire->tag_id }} ({{ $sire->breed->name }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="dam_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Indukan (Ibu)</label>
+                    <select id="dam_id" name="dam_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        <option value="">-- Tidak Diketahui --</option>
+                        @foreach($dams as $dam)
+                            <option value="{{ $dam->id }}" {{ $animal->dam_id == $dam->id ? 'selected' : '' }}>{{ $dam->tag_id }} ({{ $dam->breed->name }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label for="birth_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal Lahir</label>
                     <input type="date" id="birth_date" name="birth_date" value="{{ old('birth_date', $animal->birth_date->format('Y-m-d')) }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
                 </div>
