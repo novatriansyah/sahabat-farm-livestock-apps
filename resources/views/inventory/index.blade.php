@@ -63,6 +63,15 @@
                             </select>
                         </div>
                         <div>
+                            <label for="location_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lokasi / Kandang (Opsional)</label>
+                            <select name="location_id" id="location_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                <option value="">Global / Seluruh Kandang</option>
+                                @foreach($locations as $lvl)
+                                    <option value="{{ $lvl->id }}">{{ $lvl->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
                             <label for="qty_used" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Jumlah Dipakai</label>
                             <input type="number" name="qty_used" id="qty_used" step="0.1" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
                         </div>

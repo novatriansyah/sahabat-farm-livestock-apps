@@ -52,6 +52,9 @@ class ExitController extends Controller
                 'exit_type' => $validated['exit_type'] === 'JUAL' ? 'JUAL' : 'MATI',
                 'price' => $validated['price'] ?? 0,
                 'final_hpp' => $finalHpp,
+                'customer_name' => $validated['customer_name'] ?? null,
+                'customer_contact' => $validated['customer_contact'] ?? null,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             // Update Animal Status

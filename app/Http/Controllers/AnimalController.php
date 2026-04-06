@@ -247,8 +247,10 @@ class AnimalController extends Controller
         $locations = MasterLocation::all();
         $statuses = MasterPhysStatus::all();
         $partners = MasterPartner::all();
+        $sires = Animal::where('gender', 'JANTAN')->where('is_active', true)->where('id', '!=', $animal->id)->get();
+        $dams = Animal::where('gender', 'BETINA')->where('is_active', true)->where('id', '!=', $animal->id)->get();
 
-        return view('animals.edit', compact('animal', 'categories', 'breeds', 'locations', 'statuses', 'partners'));
+        return view('animals.edit', compact('animal', 'categories', 'breeds', 'locations', 'statuses', 'partners', 'sires', 'dams'));
     }
 
     public function update(Request $request, Animal $animal): RedirectResponse
@@ -278,6 +280,16 @@ class AnimalController extends Controller
             'google_drive_link' => 'nullable|url',
             'photo' => 'nullable|array',
             'photo.*' => 'nullable|image|max:10240',
+            'sire_id' => [
+                'nullable',
+                'exists:animals,id',
+                Rule::notIn([$animal->id])
+            ],
+            'dam_id' => [
+                'nullable',
+                'exists:animals,id',
+                Rule::notIn([$animal->id])
+            ],
         ]);
 
         // Auto-assign category from breed
