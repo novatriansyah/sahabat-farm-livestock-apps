@@ -95,14 +95,18 @@
         <!-- Mortality -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="w-full">
-                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Kematian</h3>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Total Kematian</h3>
                 <span id="stat-death-count" class="text-xl font-bold leading-none text-red-600 sm:text-2xl dark:text-red-500">{{ $deathCount }} Ekor</span>
+                <p class="text-xs text-gray-500 mt-1">
+                    J: <span id="stat-dead-male">{{ $deadMale }}</span> | 
+                    B: <span id="stat-dead-female">{{ $deadFemale }}</span>
+                </p>
             </div>
         </div>
         <!-- Mortality Value -->
         <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
             <div class="w-full">
-                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Kerugian (Mati)</h3>
+                <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">Total Kerugian (Mati)</h3>
                 <span id="stat-death-value" class="text-xl font-bold leading-none text-red-600 sm:text-2xl dark:text-red-500">Rp {{ number_format($deathValue, 0, ',', '.') }}</span>
             </div>
         </div>

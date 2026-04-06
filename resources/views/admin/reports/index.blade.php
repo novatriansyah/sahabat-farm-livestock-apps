@@ -122,7 +122,7 @@
                             <td class="font-bold text-slate-900 dark:text-white">{{ $death->animal->tag_id }}</td>
                             <td>{{ $death->animal->gender == 'JANTAN' ? '♂ Jantan' : '♀ Betina' }}</td>
                             <td>{{ $death->animal->breed->name }}</td>
-                            <td class="text-center">{{ $death->animal->birth_date->diffInMonths($death->exit_date) }}</td>
+                            <td class="text-center">{{ number_format($death->animal->birth_date->floatDiffInMonths($death->exit_date), 1) }}</td>
                             <td class="text-right font-bold text-rose-600">Rp {{ number_format(($death->animal->purchase_price ?? 0) + $death->final_hpp, 0, ',', '.') }}</td>
                         </tr>
                         @endforeach
