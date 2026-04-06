@@ -23,7 +23,7 @@ class InventoryUsageController extends Controller
         // Check stock
         $item = InventoryItem::findOrFail($validated['item_id']);
         if ($item->current_stock < ($validated['qty_used'] + $validated['qty_wasted'])) {
-            return back()->withErrors(['qty_used' => 'Not enough stock.']);
+            return back()->withErrors(['qty_used' => 'Stok tidak mencukupi.']);
         }
 
         InventoryUsageLog::create($validated);

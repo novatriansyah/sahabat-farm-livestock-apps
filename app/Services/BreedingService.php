@@ -17,7 +17,7 @@ class BreedingService
 
         $breed = $animal->breed;
         if (!$breed) {
-            return ['eligible' => false, 'reason' => 'Breed unknown'];
+            return ['eligible' => false, 'reason' => 'Data Ras/Bangsa tidak ditemukan.'];
         }
 
         // Rule 1: Age
@@ -27,21 +27,21 @@ class BreedingService
         if ($ageMonths < $minAge) {
             return [
                 'eligible' => false,
-                'reason' => "Too young ({$ageMonths} months). Minimum is {$minAge} months."
+                'reason' => "Usia terlalu muda ({$ageMonths} bulan). Minimal adalah {$minAge} bulan."
             ];
         }
 
         // Rule 2: Weight (Latest Log)
         $latestWeight = $animal->weightLogs()->orderByDesc('weigh_date')->first();
         if (!$latestWeight) {
-            return ['eligible' => false, 'reason' => 'No weight record found.'];
+            return ['eligible' => false, 'reason' => 'Data timbangan belum ditemukan. Harap timbang terlebih dahulu.'];
         }
 
         $minWeight = $breed->min_weight_mate ?? 30; // Default 30kg
         if ($latestWeight->weight_kg < $minWeight) {
             return [
                 'eligible' => false,
-                'reason' => "Underweight ({$latestWeight->weight_kg} kg). Minimum is {$minWeight} kg."
+                'reason' => "Berat badan kurang ({$latestWeight->weight_kg} kg). Minimal adalah {$minWeight} kg."
             ];
         }
 

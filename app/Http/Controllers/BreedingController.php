@@ -25,7 +25,7 @@ class BreedingController extends Controller
     {
         // 1. Basic Checks
         if ($animal->gender !== 'BETINA') {
-            return back()->withErrors(['msg' => 'Only female animals can be bred.']);
+            return back()->withErrors(['msg' => 'Hanya hewan betina yang dapat dikawinkan.']);
         }
 
         // 2. Smart Validation
