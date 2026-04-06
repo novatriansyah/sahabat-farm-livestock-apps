@@ -49,8 +49,11 @@
          <!-- Koloni Kawin -->
          @if(in_array(Auth::user()->role, ['PEMILIK', 'PETERNAK', 'MITRA']))
          <li>
-            <a href="{{ route('mating-colonies.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <a href="{{ route('mating-colonies.index') }}" class="relative flex items-center p-2 rounded-xl transition-all duration-200 {{ request()->routeIs('mating-colonies.*') ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-gray-900 dark:text-white hover:bg-gray-100/50 hover:pl-3 group' }}">
+               @if(request()->routeIs('mating-colonies.*'))
+                  <div class="absolute left-0 w-1 h-6 bg-primary-600 rounded-r-full"></div>
+               @endif
+               <svg class="flex-shrink-0 w-5 h-5 {{ request()->routeIs('mating-colonies.*') ? 'text-primary-600' : 'text-gray-500' }} transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                   <path fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-15a6 6 0 1 1 0 12 6 6 0 0 1 0-12Z" clip-rule="evenodd"/>
                </svg>
                <span class="flex-1 ms-3 whitespace-nowrap">Koloni Kawin</span>
@@ -72,36 +75,36 @@
             </button>
             <ul x-show="open" class="py-2 space-y-2" id="dropdown-reports">
                 <li>
-                    <a href="{{ route('reports.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Kelahiran & Kematian</a>
+                    <a href="{{ route('reports.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.index') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Kelahiran & Kematian</a>
                 </li>
                 <li>
-                    <a href="{{ route('reports.sales') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Penjualan</a>
+                    <a href="{{ route('reports.sales') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.sales') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Penjualan</a>
                 </li>
                 <li>
-                    <a href="{{ route('reports.stock') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Stok & Populasi</a>
+                    <a href="{{ route('reports.stock') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.stock') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Stok & Populasi</a>
                 </li>
                 @if(Auth::user()->role !== 'MITRA')
                 <li>
-                    <a href="{{ route('reports.partners') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Laporan Mitra</a>
+                    <a href="{{ route('reports.partners') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.partners') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Laporan Mitra</a>
                 </li>
                 @endif
                 <li>
-                    <a href="{{ route('reports.operational') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Laporan Operasional</a>
+                    <a href="{{ route('reports.operational') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.operational') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Laporan Operasional</a>
                 </li>
                 <li>
-                    <a href="{{ route('reports.performance') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Performa (ADG)</a>
+                    <a href="{{ route('reports.performance') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.performance') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Performa (ADG)</a>
                 </li>
                 <li>
-                    <a href="{{ route('reports.reproduction') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Reproduksi</a>
+                    <a href="{{ route('reports.reproduction') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.reproduction') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Reproduksi</a>
                 </li>
                 <li>
-                    <a href="{{ route('reports.mating') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Laporan Koloni Kawin</a>
+                    <a href="{{ route('reports.mating') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.mating') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Laporan Koloni Kawin</a>
                 </li>
                 <li>
-                    <a href="{{ route('reports.nursing') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Laporan Induk Menyusui</a>
+                    <a href="{{ route('reports.nursing') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.nursing') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Laporan Induk Menyusui</a>
                 </li>
                 <li>
-                    <a href="{{ route('reports.audit') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Audit (Mortalitas)</a>
+                    <a href="{{ route('reports.audit') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.audit') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Audit (Mortalitas)</a>
                 </li>
             </ul>
         </li>
@@ -121,13 +124,13 @@
              </button>
              <ul x-show="open" class="py-2 space-y-2">
                  <li>
-                     <a href="{{ route('inventory.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Gudang & Pakan</a>
+                     <a href="{{ route('inventory.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('inventory.index') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Gudang & Pakan</a>
                  </li>
                  <li>
-                     <a href="{{ route('invoices.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Tagihan</a>
+                     <a href="{{ route('invoices.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('invoices.index') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Tagihan</a>
                  </li>
                  <li>
-                     <a href="{{ route('hpp-manual-costs.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Input Biaya HPP</a>
+                     <a href="{{ route('hpp-manual-costs.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('hpp-manual-costs.index') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Input Biaya HPP</a>
                  </li>
              </ul>
          </li>
@@ -147,16 +150,16 @@
              </button>
              <ul x-show="open" class="py-2 space-y-2">
                  <li>
-                     <a href="{{ route('masters.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Pengaturan Farm</a>
+                     <a href="{{ route('masters.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('masters.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Pengaturan Farm</a>
                  </li>
                  <li>
-                     <a href="{{ route('partners.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Mitra</a>
+                     <a href="{{ route('partners.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('partners.index') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Mitra</a>
                  </li>
                  <li>
-                     <a href="{{ route('users.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Manajemen User</a>
+                     <a href="{{ route('users.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('users.index') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Manajemen User</a>
                  </li>
                  <li>
-                     <a href="{{ route('settings.dashboard') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Pengaturan Tampilan</a>
+                     <a href="{{ route('settings.dashboard') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('settings.dashboard') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Pengaturan Tampilan</a>
                  </li>
              </ul>
          </li>
@@ -183,8 +186,11 @@
          -->
          @if(Auth::user()->role == 'STAF')
          <li>
-            <a href="{{ route('operator.inventory.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-               <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+            <a href="{{ route('operator.inventory.index') }}" class="relative flex items-center p-2 rounded-xl transition-all duration-200 {{ request()->routeIs('operator.inventory.*') ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-gray-900 dark:text-white hover:bg-gray-100/50 hover:pl-3 group' }}">
+               @if(request()->routeIs('operator.inventory.*'))
+                  <div class="absolute left-0 w-1 h-6 bg-primary-600 rounded-r-full"></div>
+               @endif
+               <svg class="w-5 h-5 {{ request()->routeIs('operator.inventory.*') ? 'text-primary-600' : 'text-gray-500' }} transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                   <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.166 16.003V16a1 1 0 0 0 .935.997h15.798a1 1 0 0 0 .935-.997V16l-.834-10.077ZM7 4a2 2 0 1 1 4 0v1H7V4Z"/>
                </svg>
                <span class="ms-3">Pakan / Penggunaan</span>
