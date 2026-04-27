@@ -22,4 +22,10 @@ class InventoryItem extends Model
     {
         return $this->hasMany(InventoryUsageLog::class, 'item_id');
     }
+    public function diseases()
+    {
+        return $this->belongsToMany(MasterDisease::class, 'disease_treatments')
+                    ->withPivot('custom_dosage')
+                    ->withTimestamps();
+    }
 }

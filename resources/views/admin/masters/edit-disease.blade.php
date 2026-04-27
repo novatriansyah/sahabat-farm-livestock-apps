@@ -26,7 +26,25 @@
                 </div>
                 <div class="md:col-span-2">
                     <label for="description" class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Deskripsi/Penyebab</label>
-                    <textarea id="description" name="description" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-red-500 focus:border-red-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">{{ old('description', $disease->description) }}</textarea>
+                    <textarea id="description" name="description" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-red-500 focus:border-red-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">{{ old('description', $disease->description) }}</textarea>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Rekomendasi Penanganan (Obat/Vitamin)</label>
+                    <div class="grid grid-cols-1 gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 max-h-80 overflow-y-auto">
+                        @foreach($items as $item)
+                            @php
+                                $mapped = $disease->recommendedTreatments->find($item->id);
+                            @endphp
+                            <div class="flex items-center justify-between p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition">
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="treatments[]" value="{{ $item->id }}" {{ $mapped ? 'checked' : '' }} class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{ $item->name }}</label>
+                                </div>
+                                <input type="text" name="custom_dosages[{{ $item->id }}]" value="{{ $mapped ? $mapped->pivot->custom_dosage : '' }}" placeholder="Dosis Khusus (Opsional)" class="bg-white border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-red-500 focus:border-red-500 block w-48 p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end gap-3">

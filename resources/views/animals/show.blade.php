@@ -40,9 +40,25 @@
                 </div>
 
                 <div class="space-y-2">
-                    <div class="flex justify-between">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Lokasi:</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $animal->location->name }}</span>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Lokasi:</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $animal->location->name }}</span>
+                        </div>
+                        @if(Auth::user()->role === 'PEMILIK')
+                        <form action="{{ route('operator.cage.move', $animal->id) }}" method="POST" class="flex gap-2">
+                            @csrf
+                            <select name="location_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-[10px] rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                                <option value="">Pindah...</option>
+                                @foreach($locations as $loc)
+                                    <option value="{{ $loc->id }}" {{ $animal->current_location_id == $loc->id ? 'disabled' : '' }}>{{ $loc->name }}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit" class="p-1 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                            </button>
+                        </form>
+                        @endif
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Umur:</span>
@@ -76,10 +92,10 @@
                             <button class="inline-block p-4 border-b-2 rounded-t-lg" id="health-tab" data-tabs-target="#health" type="button" role="tab" aria-controls="health" aria-selected="false">Riwayat Kesehatan</button>
                         </li>
                         <li class="mr-2" role="presentation">
-                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="tag-tab" data-tabs-target="#tag" type="button" role="tab" aria-controls="tag" aria-selected="false">Riwayat Tag</button>
+                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="sop-tab" data-tabs-target="#sop" type="button" role="tab" aria-controls="sop" aria-selected="false">Tugas SOP</button>
                         </li>
                         <li class="mr-2" role="presentation">
-                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="ownership-tab" data-tabs-target="#ownership" type="button" role="tab" aria-controls="ownership" aria-selected="false">Kepemilikan</button>
+                            <button class="inline-block p-4 border-b-2 rounded-t-lg" id="timeline-tab" data-tabs-target="#timeline" type="button" role="tab" aria-controls="timeline" aria-selected="false">Timeline</button>
                         </li>
                         <li class="mr-2" role="presentation">
                             <button class="inline-block p-4 border-b-2 rounded-t-lg" id="offspring-tab" data-tabs-target="#offspring" type="button" role="tab" aria-controls="offspring" aria-selected="false">Keturunan</button>
@@ -93,6 +109,21 @@
                     <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="weight" role="tabpanel" aria-labelledby="weight-tab">
                         <!-- Chart Container -->
                         <div class="mb-6 bg-white p-4 rounded-lg shadow-sm dark:bg-gray-700">
+                            @if(Auth::user()->role === 'PEMILIK')
+                                <div class="mb-6 pb-6 border-b border-gray-200 dark:border-gray-600">
+                                    <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Input Bobot Baru</h4>
+                                    <form action="{{ route('operator.weight.store', $animal->id) }}" method="POST" class="flex items-end gap-4">
+                                        @csrf
+                                        <div class="flex-1">
+                                            <label for="weight_kg" class="block mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">Bobot Saat Ini (kg)</label>
+                                            <input type="number" id="weight_kg" name="weight_kg" step="0.01" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                                        </div>
+                                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 dark:bg-primary-500 dark:hover:bg-primary-600 focus:outline-none dark:focus:ring-primary-800">
+                                            Simpan
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                             <canvas id="individualWeightChart" height="100"></canvas>
                         </div>
                         
@@ -115,7 +146,104 @@
                             </table>
                         </div>
                     </div>
-                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="health" role="tabpanel" aria-labelledby="health-tab">
+                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="health" role="tabpanel" aria-labelledby="health-tab"
+                         x-data="{ 
+                            diseases: {{ $diseases->map(function($d) {
+                                return [
+                                    'id' => $d->id,
+                                    'symptoms' => $d->symptoms,
+                                    'treatments' => $d->recommendedTreatments->map(function($t) {
+                                        return [
+                                            'name' => $t->name,
+                                            'dosage' => $t->pivot->custom_dosage ?: ($t->dosage_per_kg ? $t->dosage_per_kg . ' ' . $t->unit . '/kg' : '-')
+                                        ];
+                                    })
+                                ];
+                            })->toJson() }},
+                            selectedDisease: '',
+                            recommendation: { symptoms: '', treatments: [] },
+                            updateRecommendation() {
+                                const disease = this.diseases.find(d => d.id == this.selectedDisease);
+                                if (disease) {
+                                    this.recommendation = { symptoms: disease.symptoms, treatments: disease.treatments };
+                                } else {
+                                    this.recommendation = { symptoms: '', treatments: [] };
+                                }
+                            }
+                         }">
+                        @if(Auth::user()->role === 'PEMILIK')
+                        <div class="mb-6 pb-6 border-b border-gray-200 dark:border-gray-600 bg-white p-4 rounded-lg shadow-sm dark:bg-gray-700">
+                            <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Update Status Kesehatan</h4>
+                            <form action="{{ route('operator.health.store', $animal->id) }}" method="POST">
+                                @csrf
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">Status</label>
+                                        <select name="health_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                                            <option value="SEHAT" {{ $animal->health_status == 'SEHAT' ? 'selected' : '' }}>SEHAT</option>
+                                            <option value="SAKIT" {{ $animal->health_status == 'SAKIT' ? 'selected' : '' }}>SAKIT</option>
+                                            <option value="KARANTINA" {{ $animal->health_status == 'KARANTINA' ? 'selected' : '' }}>KARANTINA</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">Diagnosis Penyakit (Opsional)</label>
+                                        <select name="disease_id" x-model="selectedDisease" @change="updateRecommendation()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <option value="">Pilih Penyakit...</option>
+                                            @foreach($diseases as $disease)
+                                                <option value="{{ $disease->id }}">{{ $disease->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+ 
+                                <!-- Disease Recommendation Display -->
+                                <template x-if="recommendation.symptoms || recommendation.treatments.length > 0">
+                                    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl dark:bg-blue-900/20 dark:border-blue-800">
+                                        <template x-if="recommendation.symptoms">
+                                            <div class="mb-2">
+                                                <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Gejala Umum</span>
+                                                <p class="text-xs text-gray-700 dark:text-gray-300 italic" x-text="recommendation.symptoms"></p>
+                                            </div>
+                                        </template>
+                                        <template x-if="recommendation.treatments.length > 0">
+                                            <div>
+                                                <span class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">Rekomendasi Penanganan</span>
+                                                <ul class="list-disc list-inside mt-1">
+                                                    <template x-for="item in recommendation.treatments">
+                                                        <li class="text-xs text-gray-700 dark:text-gray-300">
+                                                            <span class="font-semibold" x-text="item.name"></span> 
+                                                            <span class="text-gray-500">(Dosis: <span x-text="item.dosage"></span>)</span>
+                                                        </li>
+                                                    </template>
+                                                </ul>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">Pemberian Obat (Opsional)</label>
+                                        <select name="medicine_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <option value="">Pilih Obat...</option>
+                                            @foreach($medicines as $med)
+                                                <option value="{{ $med->id }}">{{ $med->name }} (Stok: {{ $med->current_stock }} {{ $med->unit }})</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">Jumlah Obat (Dosis)</label>
+                                        <input type="number" name="medicine_qty" step="0.01" min="0" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">Catatan / Gejala</label>
+                                    <textarea name="symptoms" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Catatan tambahan..."></textarea>
+                                </div>
+                                <button type="submit" class="mt-4 w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-500 dark:hover:bg-primary-600 focus:outline-none dark:focus:ring-primary-800">Simpan Status Kesehatan</button>
+                            </form>
+                        </div>
+                        @endif
                         <div class="relative overflow-x-auto">
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
@@ -142,60 +270,91 @@
                         </div>
                     </div>
                     
-                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="tag" role="tabpanel" aria-labelledby="tag-tab">
+                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="sop" role="tabpanel" aria-labelledby="sop-tab">
                         <div class="relative overflow-x-auto">
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3">Tanggal Ganti</th>
-                                        <th scope="col" class="px-6 py-3">Tag Lama</th>
-                                        <th scope="col" class="px-6 py-3">Tag Baru</th>
+                                        <th scope="col" class="px-6 py-3">Jatuh Tempo</th>
+                                        <th scope="col" class="px-6 py-3">Tugas</th>
+                                        <th scope="col" class="px-6 py-3">Status</th>
+                                        <th scope="col" class="px-6 py-3">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($animal->earTagLogs()->orderByDesc('changed_at')->get() as $log)
+                                    @foreach($animal->tasks()->orderBy('due_date', 'asc')->get() as $task)
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                        <td class="px-6 py-4">{{ $log->changed_at->format('d M Y') }}</td>
-                                        <td class="px-6 py-4 text-red-500">{{ $log->old_tag_id }}</td>
-                                        <td class="px-6 py-4 text-green-500 font-bold">{{ $log->new_tag_id }}</td>
+                                        <td class="px-6 py-4">{{ $task->due_date->format('d M Y') }}</td>
+                                        <td class="px-6 py-4 font-medium">{{ $task->title }}</td>
+                                        <td class="px-6 py-4">
+                                            @if($task->status === 'COMPLETED')
+                                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Selesai</span>
+                                            @else
+                                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">Pending</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if($task->status !== 'COMPLETED' && in_array(Auth::user()->role, ['PEMILIK', 'STAF', 'PETERNAK']))
+                                                <form action="{{ route('tasks.complete', $task->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none dark:focus:ring-blue-800">Selesaikan</button>
+                                                </form>
+                                            @endif
+                                        </td>
                                     </tr>
                                     @endforeach
-                                    @if($animal->earTagLogs->isEmpty())
+                                    @if($animal->tasks->isEmpty())
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                        <td colspan="3" class="px-6 py-4 text-center">Belum ada riwayat pergantian tag</td>
+                                        <td colspan="4" class="px-6 py-4 text-center">Belum ada tugas SOP untuk hewan ini</td>
                                     </tr>
                                     @endif
                                 </tbody>
                             </table>
                         </div>
                     </div>
+                    
+                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="timeline" role="tabpanel" aria-labelledby="timeline-tab">
+                        <ol class="relative border-s border-gray-200 dark:border-gray-700 ms-3">                  
+                            @php
+                                $tagLogs = $animal->earTagLogs->map(fn($log) => [
+                                    'date' => $log->changed_at,
+                                    'type' => 'TAG',
+                                    'title' => 'Pergantian Ear Tag',
+                                    'desc' => "Ganti dari tag <b>{$log->old_tag_id}</b> ke <b>{$log->new_tag_id}</b>"
+                                ]);
+                                
+                                $ownershipLogs = $animal->ownershipLogs->map(fn($log) => [
+                                    'date' => $log->changed_at,
+                                    'type' => 'OWNER',
+                                    'title' => 'Perubahan Kepemilikan',
+                                    'desc' => "Berpindah dari <b>" . ($log->oldPartner->name ?? 'Internal SFI') . "</b> ke <b>" . ($log->newPartner->name ?? 'Internal SFI') . "</b>"
+                                ]);
+                                
+                                $combinedLogs = $tagLogs->concat($ownershipLogs)->sortByDesc('date');
+                            @endphp
 
-                    <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="ownership" role="tabpanel" aria-labelledby="ownership-tab">
-                        <div class="relative overflow-x-auto">
-                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3">Tanggal Ganti</th>
-                                        <th scope="col" class="px-6 py-3">Pemilik Lama</th>
-                                        <th scope="col" class="px-6 py-3">Pemilik Baru</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($animal->ownershipLogs()->orderByDesc('changed_at')->get() as $log)
-                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                        <td class="px-6 py-4">{{ $log->changed_at->format('d M Y') }}</td>
-                                        <td class="px-6 py-4">{{ $log->oldPartner->name ?? 'Internal SFI' }}</td>
-                                        <td class="px-6 py-4 font-bold">{{ $log->newPartner->name ?? 'Internal SFI' }}</td>
-                                    </tr>
-                                    @endforeach
-                                    @if($animal->ownershipLogs->isEmpty())
-                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                        <td colspan="3" class="px-6 py-4 text-center">Belum ada riwayat pergantian kepemilikan</td>
-                                    </tr>
+                            @forelse($combinedLogs as $log)
+                            <li class="mb-10 ms-6">            
+                                <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                                    @if($log['type'] === 'TAG')
+                                        <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                        </svg>
+                                    @else
+                                        <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z"/>
+                                        </svg>
                                     @endif
-                                </tbody>
-                            </table>
-                        </div>
+                                </span>
+                                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">{{ $log['title'] }}</h3>
+                                <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{{ $log['date']->format('d M Y') }}</time>
+                                <p class="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">{!! $log['desc'] !!}</p>
+                            </li>
+                            @empty
+                            <p class="text-gray-500 italic text-sm ms-2">Belum ada riwayat timeline (tag/kepemilikan) untuk hewan ini.</p>
+                            @endforelse
+                        </ol>
                     </div>
 
                     <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="offspring" role="tabpanel" aria-labelledby="offspring-tab">

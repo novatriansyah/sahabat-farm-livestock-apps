@@ -33,7 +33,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'unit' => 'required|string|max:10',
-            'category' => 'required|in:MEDICINE,VITAMIN,VACCINE,FEED',
+            'category' => 'required|in:Obat-Obatan,Vitamin,Vaksin,Pakan',
             'dosage_per_kg' => 'nullable|numeric',
         ]);
 

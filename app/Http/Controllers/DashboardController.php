@@ -105,6 +105,14 @@ class DashboardController extends Controller
                         'unit' => $item->unit
                      ];
                 }),
+                'pendingTasks' => $pendingTasks->map(function($task) {
+                    return [
+                        'id' => $task->id,
+                        'tag_id' => $task->animal->tag_id,
+                        'title' => $task->title,
+                        'due_date' => $task->due_date->format('d M')
+                    ];
+                }),
             ];
 
             return response()->json($ajaxData);

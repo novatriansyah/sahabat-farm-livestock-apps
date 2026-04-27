@@ -71,6 +71,7 @@ class ExitController extends Controller
                 $prefix = 'INV-' . now()->format('Ymd');
                 $invoiceNumber = $this->generateNextInvoiceNumber($prefix, '-');
                 
+                $dueDays = (int) \App\Models\FarmSetting::get('default_invoice_due_days', 7);
                 $invoice = \App\Models\Invoice::create([
                     'invoice_number' => $invoiceNumber,
                     'customer_name' => $validated['customer_name'] ?? 'Draft Customer',
@@ -78,7 +79,7 @@ class ExitController extends Controller
                     'status' => 'DRAFT',
                     'type' => 'KOMERSIAL',
                     'issued_date' => $validated['exit_date'],
-                    'due_date' => \Carbon\Carbon::parse($validated['exit_date'])->addDays(7),
+                    'due_date' => \Carbon\Carbon::parse($validated['exit_date'])->addDays($dueDays),
                     'subtotal' => $validated['price'],
                     'total_amount' => $validated['price'],
                     'notes' => 'Otomatis dibuat dari penjualan hewan ' . $animal->tag_id,

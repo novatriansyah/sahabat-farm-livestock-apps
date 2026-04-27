@@ -176,6 +176,40 @@
         </div>
     @endif
 
+    <!-- 5. SOP Tasks Widget -->
+    <div id="sop-tasks-container" class="mb-4 {{ $pendingTasks->isEmpty() ? 'hidden' : '' }}">
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
+            <h3 class="text-xl font-bold mb-4 dark:text-white flex items-center">
+                <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                Tugas SOP Hari Ini
+            </h3>
+            <div id="sop-tasks-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($pendingTasks as $task)
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl dark:bg-gray-700 dark:border-gray-600 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight">{{ $task->animal->tag_id }}</p>
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $task->title }}</h4>
+                            <p class="text-[10px] text-gray-500">Jatuh Tempo: {{ $task->due_date->format('d M') }}</p>
+                        </div>
+                        @if(in_array(Auth::user()->role, ['PEMILIK', 'STAF', 'PETERNAK']))
+                            <form action="{{ route('tasks.complete', $task->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg dark:bg-blue-900/30 dark:text-blue-400 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
     <!-- Charts & Tables -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <!-- 1. Population Demographics & Cage (Mixed Layout) -->
@@ -491,11 +525,57 @@
                     updateList('alert-mating', 'list-mating', data.matingSeparationCandidates, item => `Induk: ${item.dam_tag} + Pejantan: ${item.sire_tag} (Mulai: ${item.date})`);
                     updateList('alert-stock', 'list-stock', data.lowStockItems, item => `${item.name} (Sisa: ${item.stock} ${item.unit})`);
 
+                    // 4. Update SOP Tasks
+                    updateTasks(data.pendingTasks);
+
                 })
                 .catch(error => console.error('Error fetching dashboard data:', error));
         }
 
         // Helpers
+        function updateTasks(tasks) {
+            const container = document.getElementById('sop-tasks-container');
+            const list = document.getElementById('sop-tasks-list');
+            if (!container || !list) return;
+
+            if (tasks && tasks.length > 0) {
+                container.classList.remove('hidden');
+                list.innerHTML = '';
+                const userRole = "{{ Auth::user()->role }}";
+                const canComplete = ['PEMILIK', 'STAF', 'PETERNAK'].includes(userRole);
+
+                tasks.forEach(task => {
+                    let btnHtml = '';
+                    if (canComplete) {
+                        const url = "{{ route('tasks.complete', ':id') }}".replace(':id', task.id);
+                        btnHtml = `
+                            <form action="${url}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg dark:bg-blue-900/30 dark:text-blue-400 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                            </form>`;
+                    }
+
+                    const card = `
+                        <div class="p-3 bg-gray-50 border border-gray-200 rounded-xl dark:bg-gray-700 dark:border-gray-600 flex justify-between items-center">
+                            <div>
+                                <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight">${task.tag_id}</p>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">${task.title}</h4>
+                                <p class="text-[10px] text-gray-500">Jatuh Tempo: ${task.due_date}</p>
+                            </div>
+                            ${btnHtml}
+                        </div>`;
+                    list.insertAdjacentHTML('beforeend', card);
+                });
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
         function updateList(containerId, listId, items, formatCallback) {
             const container = document.getElementById(containerId);
             const list = document.getElementById(listId);

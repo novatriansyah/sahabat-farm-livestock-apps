@@ -19,10 +19,7 @@ class OperatorController extends Controller
 {
     public function show(Animal $animal): View
     {
-        $medicines = InventoryItem::where('category', 'MEDICINE')
-            ->orWhere('category', 'VITAMIN')
-            ->orWhere('category', 'VACCINE')
-            ->get();
+        $medicines = InventoryItem::whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin'])->get();
 
         $diseases = MasterDisease::all();
         $locations = MasterLocation::all();
@@ -42,7 +39,7 @@ class OperatorController extends Controller
             'weight_kg' => $validated['weight_kg'],
         ]);
 
-        return redirect()->route('operator.show', $animal->id)->with('success', 'Berat tercatat.');
+        return back()->with('success', 'Berat tercatat.');
     }
 
     public function storeHealth(Request $request, Animal $animal): RedirectResponse
@@ -99,7 +96,7 @@ class OperatorController extends Controller
             }
         }
 
-        return redirect()->route('operator.show', $animal->id)->with('success', 'Status kesehatan berhasil diperbarui.');
+        return back()->with('success', 'Status kesehatan berhasil diperbarui.');
     }
 
     public function moveCage(Request $request, Animal $animal): RedirectResponse
@@ -110,7 +107,7 @@ class OperatorController extends Controller
 
         $animal->update(['current_location_id' => $validated['location_id']]);
 
-        return redirect()->route('operator.show', $animal->id)->with('success', 'Kandang berhasil dipindahkan.');
+        return back()->with('success', 'Kandang berhasil dipindahkan.');
     }
 
     private function getItemPrice($itemId): float
