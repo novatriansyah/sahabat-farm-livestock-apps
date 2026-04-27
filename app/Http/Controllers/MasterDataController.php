@@ -90,22 +90,22 @@ class MasterDataController extends Controller
     }
 
     // --- DISEASE ---
-    public function storeDisease(Request $request): RedirectResponse
-    {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'nullable|string|max:255',
+            'name' => 'required|string|unique:master_diseases,name',
             'symptoms' => 'nullable|string',
             'description' => 'nullable|string',
+            'treatments' => 'nullable|array',
+            'treatments.*' => 'exists:inventory_items,id',
+            'custom_dosages' => 'nullable|array',
         ]);
 
         $disease = MasterDisease::create($validated);
 
         if ($request->has('treatments')) {
             $syncData = [];
-            foreach ($request->treatments as $itemId) {
+            foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => $request->custom_dosages[$itemId] ?? null
+                    'custom_dosage' => $validated['custom_dosages'][$itemId] ?? null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
@@ -124,19 +124,21 @@ class MasterDataController extends Controller
     public function updateDisease(Request $request, MasterDisease $disease): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'nullable|string|max:255',
+            'name' => 'required|string|unique:master_diseases,name,' . $disease->id,
             'symptoms' => 'nullable|string',
             'description' => 'nullable|string',
+            'treatments' => 'nullable|array',
+            'treatments.*' => 'exists:inventory_items,id',
+            'custom_dosages' => 'nullable|array',
         ]);
 
         $disease->update($validated);
 
         if ($request->has('treatments')) {
             $syncData = [];
-            foreach ($request->treatments as $itemId) {
+            foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => $request->custom_dosages[$itemId] ?? null
+                    'custom_dosage' => $validated['custom_dosages'][$itemId] ?? null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
@@ -144,7 +146,7 @@ class MasterDataController extends Controller
             $disease->recommendedTreatments()->detach();
         }
 
-        return redirect()->route('masters.index')->with('success', 'Penyakit berhasil diperbarui.');
+        return redirect()->route('admin.masters.index', ['tab' => 'diseases'])->with('success', 'Penyakit berhasil diperbarui.');
     }
 
     // --- CATEGORY ---
@@ -224,8 +226,19 @@ class MasterDataController extends Controller
     // --- SETTINGS ---
     public function updateSettings(Request $request): RedirectResponse
     {
+        $allowedKeys = [
+            'gestation_period_days', 'nifas_period_days', 'weaning_age_days',
+            'pregnancy_check_days', 'separation_age_days', 'kid_threshold_days',
+            'low_stock_threshold', 'default_invoice_due_days', 'min_age_mate_months_fallback',
+            'min_weight_mate_fallback', 'est_feed_cost_day', 'est_health_cost_month',
+            'est_ops_cost_month', 'vaccine_alert_days', 'mating_colony_days',
+            'adg_performance_threshold'
+        ];
+
         foreach ($request->input('settings', []) as $key => $value) {
-            \App\Models\FarmSetting::where('key', $key)->update(['value' => $value]);
+            if (in_array($key, $allowedKeys)) {
+                \App\Models\FarmSetting::where('key', $key)->update(['value' => $value]);
+            }
         }
 
         return back()->with('success', 'Pengaturan peternakan berhasil diperbarui.');

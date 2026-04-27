@@ -31,23 +31,19 @@ class AutoStatusTransitions extends Command
     {
         $this->info('Starting auto status transitions...');
 
-        $cempeLabel = 'Cempe';
-        $bakalanLabel = 'Bakalan (Jantan)';
-        $daraLabel = 'Dara (Betina)';
-        $menyusuiLabel = 'Menyusui';
-
-        $cempeId = MasterPhysStatus::where('name', $cempeLabel)->value('id');
-        $bakalanId = MasterPhysStatus::where('name', $bakalanLabel)->value('id');
-        $daraId = MasterPhysStatus::where('name', $daraLabel)->value('id');
-        $menyusuiId = MasterPhysStatus::where('name', $menyusuiLabel)->value('id');
+        $cempeId = \App\Models\FarmSetting::get('status_id_cempe');
+        $bakalanId = \App\Models\FarmSetting::get('status_id_bakalan');
+        $daraId = \App\Models\FarmSetting::get('status_id_dara');
+        $menyusuiId = \App\Models\FarmSetting::get('status_id_menyusui');
 
         if (!$cempeId || !$bakalanId || !$daraId) {
             $this->error('Required physical statuses not found in DB.');
             return;
         }
 
-        // 1. Disapih (Weaning) - Cempe > 60 days
-        $thresholdDate = Carbon::now()->subDays(60);
+        // 1. Disapih (Weaning)
+        $weanDays = (int) \App\Models\FarmSetting::get('weaning_age_days', 60);
+        $thresholdDate = Carbon::now()->subDays($weanDays);
         $weanableAnimals = Animal::where('current_phys_status_id', $cempeId)
             ->where('is_active', true)
             ->where('birth_date', '<=', $thresholdDate)
@@ -65,7 +61,8 @@ class AutoStatusTransitions extends Command
                 // If mother is currently "Menyusui", revert to "Dara" (Ready to Mate)
                 if ($animal->dam_id && $menyusuiId && $daraId) {
                     $dam = Animal::find($animal->dam_id);
-                    if ($dam && $dam->current_phys_status_id === $menyusuiId) {
+                    // check if dam is lactating
+                    if ($dam && $dam->physStatus->is_lactating) {
                         $dam->update(['current_phys_status_id' => $daraId]);
                         if ($dam->owner) {
                             $dam->owner->notify(new \App\Notifications\AnimalStatusNotification($dam, "Status berubah kembali ke Dara (Betina) setelah masa menyusui.", "success"));
@@ -77,8 +74,9 @@ class AutoStatusTransitions extends Command
 
         $this->info("Successfully weaned {$count} animals.");
 
-        // 2. Koloni Kawin > 60 days -> Selesai Kawin (READY)
-        $matingThreshold = Carbon::now()->subDays(60);
+        // 2. Koloni Kawin
+        $colDays = (int) \App\Models\FarmSetting::get('mating_colony_days', 60);
+        $matingThreshold = Carbon::now()->subDays($colDays);
         $matingMembers = \App\Models\MatingColonyMember::where('status', 'KAWIN')
             ->where('joined_date', '<=', $matingThreshold)
             ->get();

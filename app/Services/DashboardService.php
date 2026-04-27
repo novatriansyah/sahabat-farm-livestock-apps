@@ -230,9 +230,10 @@ class DashboardService
                  ->take(50)
                  ->get();
 
+            $vaxDays = (int) \App\Models\FarmSetting::get('vaccine_alert_days', 14);
             $vaccineAlerts = TreatmentLog::where('type', 'VACCINE')
                 ->whereNotNull('next_due_date')
-                ->whereBetween('next_due_date', [Carbon::now(), Carbon::now()->addDays(14)])
+                ->whereBetween('next_due_date', [Carbon::now(), Carbon::now()->addDays($vaxDays)])
                 ->when($filterPartnerId, $scopeAnimalRelation)
                 ->with('animal')
                 ->orderBy('next_due_date', 'asc')

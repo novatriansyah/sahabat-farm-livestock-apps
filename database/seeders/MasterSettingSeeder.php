@@ -29,6 +29,9 @@ class MasterSettingSeeder extends Seeder
             ['key' => 'est_feed_cost_day', 'value' => '5000', 'label' => 'Estimasi Biaya Pakan/Ekor/Hari', 'group' => 'FINANCIAL'],
             ['key' => 'est_health_cost_month', 'value' => '10000', 'label' => 'Estimasi Biaya Kesehatan/Ekor/Bulan', 'group' => 'FINANCIAL'],
             ['key' => 'est_ops_cost_month', 'value' => '15000', 'label' => 'Estimasi Biaya Operasional/Ekor/Bulan', 'group' => 'FINANCIAL'],
+            ['key' => 'vaccine_alert_days', 'value' => '14', 'label' => 'Ambang Batas Alert Vaksin (Hari)', 'group' => 'OPERATIONAL'],
+            ['key' => 'mating_colony_days', 'value' => '60', 'label' => 'Durasi Koloni Kawin (Hari)', 'group' => 'OPERATIONAL'],
+            ['key' => 'adg_performance_threshold', 'value' => '0.15', 'label' => 'Ambang Batas Performa ADG Bagus (Kg)', 'group' => 'OPERATIONAL'],
         ];
 
         foreach ($settings as $setting) {
@@ -43,5 +46,24 @@ class MasterSettingSeeder extends Seeder
         \App\Models\MasterPhysStatus::where('name', 'like', '%Karantina%')->update(['is_breedable' => false, 'is_quarantine' => true]);
         \App\Models\MasterPhysStatus::where('name', 'like', '%Sakit%')->update(['is_breedable' => false, 'is_quarantine' => true]);
         \App\Models\MasterPhysStatus::where('name', 'like', '%Menyusui%')->update(['is_lactating' => true]);
+
+        // Map Default Status IDs to Settings for robust referencing (Senior Feedback)
+        $statusMapping = [
+            'status_id_cempe' => \App\Models\MasterPhysStatus::where('name', 'like', '%Cempe%')->value('id'),
+            'status_id_bakalan' => \App\Models\MasterPhysStatus::where('name', 'like', '%Bakalan%')->value('id'),
+            'status_id_dara' => \App\Models\MasterPhysStatus::where('name', 'like', '%Dara%')->value('id'),
+            'status_id_jantan_siap' => \App\Models\MasterPhysStatus::where('name', 'like', '%Jantan siap%')->value('id'),
+            'status_id_betina_siap' => \App\Models\MasterPhysStatus::where('name', 'like', '%Betina siap%')->value('id'),
+            'status_id_menyusui' => \App\Models\MasterPhysStatus::where('is_lactating', true)->value('id'),
+        ];
+
+        foreach ($statusMapping as $key => $id) {
+            if ($id) {
+                \App\Models\FarmSetting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $id, 'label' => "ID Status $key", 'group' => 'SYSTEM']
+                );
+            }
+        }
     }
 }

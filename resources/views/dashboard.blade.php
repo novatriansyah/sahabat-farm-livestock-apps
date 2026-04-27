@@ -176,6 +176,7 @@
         </div>
     @endif
 
+
     <!-- 5. SOP Tasks Widget -->
     <div id="sop-tasks-container" class="mb-4 {{ $pendingTasks->isEmpty() ? 'hidden' : '' }}">
         <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 p-4 dark:bg-gray-800">
@@ -193,7 +194,7 @@
                             <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $task->title }}</h4>
                             <p class="text-[10px] text-gray-500">Jatuh Tempo: {{ $task->due_date->format('d M') }}</p>
                         </div>
-                        @if(in_array(Auth::user()->role, ['PEMILIK', 'STAF', 'PETERNAK']))
+                        @can('complete', $task)
                             <form action="{{ route('tasks.complete', $task->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
@@ -203,7 +204,7 @@
                                     </svg>
                                 </button>
                             </form>
-                        @endif
+                        @endcan
                     </div>
                 @endforeach
             </div>
@@ -525,9 +526,6 @@
                     updateList('alert-mating', 'list-mating', data.matingSeparationCandidates, item => `Induk: ${item.dam_tag} + Pejantan: ${item.sire_tag} (Mulai: ${item.date})`);
                     updateList('alert-stock', 'list-stock', data.lowStockItems, item => `${item.name} (Sisa: ${item.stock} ${item.unit})`);
 
-                    // 4. Update SOP Tasks
-                    updateTasks(data.pendingTasks);
-
                 })
                 .catch(error => console.error('Error fetching dashboard data:', error));
         }
@@ -541,12 +539,9 @@
             if (tasks && tasks.length > 0) {
                 container.classList.remove('hidden');
                 list.innerHTML = '';
-                const userRole = "{{ Auth::user()->role }}";
-                const canComplete = ['PEMILIK', 'STAF', 'PETERNAK'].includes(userRole);
-
                 tasks.forEach(task => {
                     let btnHtml = '';
-                    if (canComplete) {
+                    if (task.can_complete) {
                         const url = "{{ route('tasks.complete', ':id') }}".replace(':id', task.id);
                         btnHtml = `
                             <form action="${url}" method="POST">
