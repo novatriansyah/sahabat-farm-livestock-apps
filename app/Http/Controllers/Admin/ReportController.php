@@ -85,13 +85,11 @@ class ReportController extends Controller
 
         // Age Group Breakdown
         $animalsForAge = (clone $baseQuery)->get();
-        $byAgeGroup = [
         // Age Group Breakdown (Can be made dynamic in future if needed, but 4/12 are common)
         $byAgeGroup = [
             'Cempe (< 4 Bln)' => $animalsForAge->filter(fn($a) => $a->birth_date->diffInMonths(now()) < 4)->count(),
             'Dara (4-12 Bln)' => $animalsForAge->filter(fn($a) => $a->birth_date->diffInMonths(now()) >= 4 && $a->birth_date->diffInMonths(now()) < 12)->count(),
             'Dewasa (> 12 Bln)' => $animalsForAge->filter(fn($a) => $a->birth_date->diffInMonths(now()) >= 12)->count(),
-        ];
         ];
 
         $byBreed = (clone $baseQuery)->with('breed')->get()->groupBy(function($item) {

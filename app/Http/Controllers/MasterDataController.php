@@ -107,7 +107,7 @@ class MasterDataController extends Controller
             $syncData = [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => $validated['custom_dosages'][$itemId] ?? null
+                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
@@ -140,7 +140,7 @@ class MasterDataController extends Controller
             $syncData = [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => $validated['custom_dosages'][$itemId] ?? null
+                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);

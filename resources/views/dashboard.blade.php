@@ -525,6 +525,9 @@
                     updateList('alert-separation', 'list-separation', data.separationCandidates, item => `ID: ${item.tag_id} (Usia: ${item.age_months} bulan)`);
                     updateList('alert-mating', 'list-mating', data.matingSeparationCandidates, item => `Induk: ${item.dam_tag} + Pejantan: ${item.sire_tag} (Mulai: ${item.date})`);
                     updateList('alert-stock', 'list-stock', data.lowStockItems, item => `${item.name} (Sisa: ${item.stock} ${item.unit})`);
+                    
+                    // 4. Update SOP Tasks
+                    updateTasks(data.pendingTasks);
 
                 })
                 .catch(error => console.error('Error fetching dashboard data:', error));
