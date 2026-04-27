@@ -90,6 +90,8 @@ class MasterDataController extends Controller
     }
 
     // --- DISEASE ---
+    public function storeDisease(Request $request): RedirectResponse
+    {
         $validated = $request->validate([
             'name' => 'required|string|unique:master_diseases,name',
             'symptoms' => 'nullable|string',
@@ -105,7 +107,7 @@ class MasterDataController extends Controller
             $syncData = [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => $validated['custom_dosages'][$itemId] ?? null
+                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
@@ -138,7 +140,7 @@ class MasterDataController extends Controller
             $syncData = [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => $validated['custom_dosages'][$itemId] ?? null
+                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);

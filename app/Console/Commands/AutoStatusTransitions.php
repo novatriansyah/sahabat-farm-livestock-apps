@@ -36,8 +36,8 @@ class AutoStatusTransitions extends Command
         $daraId = \App\Models\FarmSetting::get('status_id_dara');
         $menyusuiId = \App\Models\FarmSetting::get('status_id_menyusui');
 
-        if (!$cempeId || !$bakalanId || !$daraId) {
-            $this->error('Required physical statuses not found in DB.');
+        if (!$cempeId || !$bakalanId || !$daraId || !$menyusuiId) {
+            $this->error('Required physical status IDs not found in settings.');
             return;
         }
 
