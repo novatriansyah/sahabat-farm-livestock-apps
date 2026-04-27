@@ -90,6 +90,8 @@ class MasterDataController extends Controller
     }
 
     // --- DISEASE ---
+    public function storeDisease(Request $request): RedirectResponse
+    {
         $validated = $request->validate([
             'name' => 'required|string|unique:master_diseases,name',
             'symptoms' => 'nullable|string',
