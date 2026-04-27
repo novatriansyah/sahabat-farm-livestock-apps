@@ -39,40 +39,37 @@ class UpdateAnimalCategory extends Command
         // 3-8 Months: Lepas Sapih (Weaned)
         // > 8 Months: Siap Kawin (Ready to Mate) / Dara
 
-        $cempe = MasterPhysStatus::where('name', 'Cempe')->first();
-        $bakalan = MasterPhysStatus::where('name', 'Bakalan (Jantan)')->first();
-        $dara = MasterPhysStatus::where('name', 'Dara (Betina)')->first();
-        $jantanSiap = MasterPhysStatus::where('name', 'Jantan siap kawin')->first();
-        $betinaSiap = MasterPhysStatus::where('name', 'Betina siap kawin')->first();
+        $cempeId = \App\Models\FarmSetting::get('status_id_cempe');
+        $bakalanId = \App\Models\FarmSetting::get('status_id_bakalan');
+        $daraId = \App\Models\FarmSetting::get('status_id_dara');
+        $jantanSiapId = \App\Models\FarmSetting::get('status_id_jantan_siap');
+        $betinaSiapId = \App\Models\FarmSetting::get('status_id_betina_siap');
 
-        if (!$cempe || !$bakalan || !$dara || !$jantanSiap || !$betinaSiap) {
-            $this->error('Required Master Physical Statuses not found. Please verify migration.');
+        if (!$cempeId || !$bakalanId || !$daraId || !$jantanSiapId || !$betinaSiapId) {
+            $this->error('Required Master Physical Status IDs not found in settings.');
             return;
         }
 
         $animals = Animal::where('is_active', true)->get();
+        $readyAge = (int) \App\Models\FarmSetting::get('min_age_mate_months_fallback', 8);
 
         foreach ($animals as $animal) {
             // Safety Check: Do not auto-update Sick or Quarantine animals
-            // Note: SICK, QUARANTINE, ISOLATION might be in health_status Enum or PhysStatus.
-            // PhysStatus 'Karantina' exists.
-            $currentStatusName = $animal->physStatus->name ?? '';
-            if (in_array($currentStatusName, ['SAKIT', 'Karantina', 'KARANTINA'])) {
+            if ($animal->physStatus->is_quarantine) {
                 continue;
             }
 
             $ageMonths = $animal->birth_date->diffInMonths(Carbon::now());
-
             $newStatusId = null;
 
             if ($ageMonths < 3) {
-                $newStatusId = $cempe->id;
-            } elseif ($ageMonths >= 3 && $ageMonths < 8) {
-                $newStatusId = ($animal->gender === 'JANTAN') ? $bakalan->id : $dara->id;
-            } elseif ($ageMonths >= 8) {
+                $newStatusId = $cempeId;
+            } elseif ($ageMonths >= 3 && $ageMonths < $readyAge) {
+                $newStatusId = ($animal->gender === 'JANTAN') ? $bakalanId : $daraId;
+            } elseif ($ageMonths >= $readyAge) {
                 // Only update to Ready if not currently Pregnant or Lactating
-                if (!in_array($currentStatusName, ['Bunting', 'Menyusui'])) {
-                    $newStatusId = ($animal->gender === 'JANTAN') ? $jantanSiap->id : $betinaSiap->id;
+                if (!$animal->physStatus->is_pregnant && !$animal->physStatus->is_lactating) {
+                    $newStatusId = ($animal->gender === 'JANTAN') ? $jantanSiapId : $betinaSiapId;
                 }
             }
 

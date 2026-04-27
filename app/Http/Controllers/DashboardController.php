@@ -110,7 +110,8 @@ class DashboardController extends Controller
                         'id' => $task->id,
                         'tag_id' => $task->animal->tag_id,
                         'title' => $task->title,
-                        'due_date' => $task->due_date->format('d M')
+                        'due_date' => $task->due_date->format('d M'),
+                        'can_complete' => \Illuminate\Support\Facades\Auth::user()->can('complete', $task)
                     ];
                 }),
             ];
