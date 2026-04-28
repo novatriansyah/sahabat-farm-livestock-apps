@@ -107,9 +107,10 @@ class MasterDataController extends Controller
 
         if ($request->has('treatments')) {
             $syncData = [];
+            $customDosages = $validated['custom_dosages'] ?? [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
+                    'custom_dosage' => $customDosages[$itemId] ?? null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
@@ -140,9 +141,10 @@ class MasterDataController extends Controller
 
         if ($request->has('treatments')) {
             $syncData = [];
+            $customDosages = $validated['custom_dosages'] ?? [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
+                    'custom_dosage' => $customDosages[$itemId] ?? null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
