@@ -290,7 +290,7 @@
                     <div class="md:col-span-2">
                         <label class="block mb-2 text-xs font-semibold text-gray-500 uppercase">Rekomendasi Penanganan (Obat/Vitamin)</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
-                            @foreach($medicines as $item)
+                            @forelse($medicines as $item)
                                 <div class="flex items-center justify-between p-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
                                     <div class="flex items-center">
                                         <input type="checkbox" name="treatments[]" value="{{ $item->id }}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
@@ -298,7 +298,11 @@
                                     </div>
                                     <input type="text" name="custom_dosages[{{ $item->id }}]" placeholder="Dosis Khusus (Opsional)" class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                 </div>
-                            @endforeach
+                            @empty
+                                <div class="col-span-2 text-center py-4 text-gray-500 italic text-sm">
+                                    Belum ada data Obat/Vitamin di Inventori.
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>

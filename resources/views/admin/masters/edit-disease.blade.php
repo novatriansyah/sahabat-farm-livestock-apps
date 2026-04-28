@@ -32,7 +32,7 @@
                 <div class="md:col-span-2">
                     <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Rekomendasi Penanganan (Obat/Vitamin)</label>
                     <div class="grid grid-cols-1 gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 max-h-80 overflow-y-auto">
-                        @foreach($items as $item)
+                        @forelse($items as $item)
                             @php
                                 $mapped = $disease->recommendedTreatments->find($item->id);
                             @endphp
@@ -43,7 +43,11 @@
                                 </div>
                                 <input type="text" name="custom_dosages[{{ $item->id }}]" value="{{ $mapped ? $mapped->pivot->custom_dosage : '' }}" placeholder="Dosis Khusus (Opsional)" class="bg-white border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-red-500 focus:border-red-500 block w-48 p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="text-center py-4 text-gray-500 italic text-sm">
+                                Belum ada data Obat/Vitamin di Inventori.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
