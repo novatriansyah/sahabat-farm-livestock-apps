@@ -38,6 +38,7 @@
         </div>
     </div>
 
+    @push('modals')
     <!-- Usage Modal -->
     <div id="usage-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-md max-h-full">
@@ -57,7 +58,7 @@
                         <div>
                             <label for="item_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Barang</label>
                             <select name="item_id" id="item_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
-                                @foreach($items as $item)
+                                @foreach($allItems as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }} (Stok: {{ $item->current_stock }} {{ $item->unit }})</option>
                                 @endforeach
                             </select>
@@ -109,7 +110,7 @@
                         <div>
                             <label for="p_item_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Barang</label>
                             <select name="item_id" id="p_item_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
-                                @foreach($items as $item)
+                                @foreach($allItems as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @endforeach
                             </select>
@@ -132,4 +133,5 @@
             </div>
         </div>
     </div>
+    @endpush
 </x-app-layout>

@@ -12,8 +12,9 @@ class InventoryController extends Controller
     public function index(): View
     {
         $items = InventoryItem::paginate(10);
+        $allItems = InventoryItem::orderBy('name')->get();
         $locations = \App\Models\MasterLocation::all();
-        return view('inventory.index', compact('items', 'locations'));
+        return view('inventory.index', compact('items', 'locations', 'allItems'));
     }
 
     public function show(InventoryItem $inventory): View // Route param is usually 'inventory' for resource
