@@ -22,8 +22,10 @@ class MasterDataController extends Controller
         $categories = MasterCategory::paginate(10, ['*'], 'categories_page');
         $sops = \App\Models\MasterSop::paginate(10, ['*'], 'sops_page');
         $settings = \App\Models\FarmSetting::all()->groupBy('group');
+        
+        $medicines = InventoryItem::whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin'])->get();
 
-        return view('admin.masters.index', compact('breeds', 'locations', 'diseases', 'items', 'categories', 'sops', 'settings'));
+        return view('admin.masters.index', compact('breeds', 'locations', 'diseases', 'items', 'categories', 'sops', 'settings', 'medicines'));
     }
 
     // --- BREED ---
@@ -105,9 +107,10 @@ class MasterDataController extends Controller
 
         if ($request->has('treatments')) {
             $syncData = [];
+            $customDosages = $validated['custom_dosages'] ?? [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
+                    'custom_dosage' => $customDosages[$itemId] ?? null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
@@ -138,9 +141,10 @@ class MasterDataController extends Controller
 
         if ($request->has('treatments')) {
             $syncData = [];
+            $customDosages = $validated['custom_dosages'] ?? [];
             foreach ($validated['treatments'] as $itemId) {
                 $syncData[$itemId] = [
-                    'custom_dosage' => isset($validated['custom_dosages']) ? ($validated['custom_dosages'][$itemId] ?? null) : null
+                    'custom_dosage' => $customDosages[$itemId] ?? null
                 ];
             }
             $disease->recommendedTreatments()->sync($syncData);
