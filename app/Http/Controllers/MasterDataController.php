@@ -22,8 +22,10 @@ class MasterDataController extends Controller
         $categories = MasterCategory::paginate(10, ['*'], 'categories_page');
         $sops = \App\Models\MasterSop::paginate(10, ['*'], 'sops_page');
         $settings = \App\Models\FarmSetting::all()->groupBy('group');
+        
+        $medicines = InventoryItem::whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin'])->get();
 
-        return view('admin.masters.index', compact('breeds', 'locations', 'diseases', 'items', 'categories', 'sops', 'settings'));
+        return view('admin.masters.index', compact('breeds', 'locations', 'diseases', 'items', 'categories', 'sops', 'settings', 'medicines'));
     }
 
     // --- BREED ---

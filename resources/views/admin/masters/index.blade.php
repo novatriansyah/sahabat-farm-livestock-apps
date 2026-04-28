@@ -290,7 +290,7 @@
                     <div class="md:col-span-2">
                         <label class="block mb-2 text-xs font-semibold text-gray-500 uppercase">Rekomendasi Penanganan (Obat/Vitamin)</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
-                            @foreach($items->whereIn('category', ['Obat-Obatan', 'Vitamin', 'Vaksin']) as $item)
+                            @foreach($medicines as $item)
                                 <div class="flex items-center justify-between p-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
                                     <div class="flex items-center">
                                         <input type="checkbox" name="treatments[]" value="{{ $item->id }}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
