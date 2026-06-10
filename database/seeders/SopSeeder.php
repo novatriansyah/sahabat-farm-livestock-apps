@@ -64,7 +64,7 @@ class SopSeeder extends Seeder
             // Feed
             ['name' => 'Gula Merah', 'unit' => 'kg', 'category' => 'Pakan', 'current_stock' => 10],
             ['name' => 'Asam Jawa', 'unit' => 'kg', 'category' => 'Pakan', 'current_stock' => 5],
-            ['name' => 'Konsentrat Sahabat Farm', 'unit' => 'sak', 'category' => 'Pakan', 'current_stock' => 100],
+            ['name' => 'Konsentrat Sahabat Farm Indonesia', 'unit' => 'sak', 'category' => 'Pakan', 'current_stock' => 100],
         ];
 
         foreach ($items as $item) {

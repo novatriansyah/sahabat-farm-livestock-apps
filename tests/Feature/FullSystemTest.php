@@ -96,7 +96,7 @@ class FullSystemTest extends TestCase
             'mating_date' => $matingDate->format('Y-m-d'),
         ]);
 
-        $response->assertRedirect(route('animals.index'));
+        $response->assertRedirect(route('animals.show', $dam->id));
 
         // Verify Event
         $event = BreedingEvent::where('dam_id', $dam->id)->first();

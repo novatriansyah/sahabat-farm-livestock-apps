@@ -32,7 +32,7 @@
             <div class="space-y-8 animate-fade-in-up" style="animation-delay: 0.2s">
                 <h2 class="text-3xl font-bold dark:text-white">Kendali Finansial Total</h2>
                 <p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Jangan menebak-nebak laba Anda. Sahabat Farm membantu Anda menghitung HPP (Harga Pokok Penjualan) secara otomatis berdasarkan riwayat pakan dan perawatan.
+                    Jangan menebak-nebak laba Anda. Sahabat Farm Indonesia membantu Anda menghitung HPP (Harga Pokok Penjualan) secara otomatis berdasarkan riwayat pakan dan perawatan.
                 </p>
                 <ul class="space-y-4">
                     <li class="flex items-start gap-3">

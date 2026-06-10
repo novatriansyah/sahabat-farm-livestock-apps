@@ -45,7 +45,7 @@
         <div class="bg-white border text-black border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 p-8 print-container">
             <!-- Logo for Print/View -->
             <div class="mb-8 text-center hidden print:block">
-                <img src="{{ asset('img/logo.png') }}" class="h-24 mx-auto mb-2" alt="Sahabat Farm Logo">
+                <img src="{{ asset('img/logo.png') }}" class="h-24 mx-auto mb-2" alt="Sahabat Farm Indonesia Logo">
                 <h1 class="text-2xl font-bold uppercase">Sahabat Farm Indonesia</h1>
                 <p class="text-sm">Jalan Raya Peternakan No. 1, Bogor, Jawa Barat</p>
                 <p class="text-sm">Email: contact@sahabatfarm.id | HP: 0812-3456-7890</p>
@@ -203,7 +203,7 @@
                      <div class="text-sm text-gray-500 max-w-md">
                         <p class="font-bold mb-1">Catatan :</p>
                         <p>Pembayaran dapat ditransfer ke:</p>
-                        <p class="font-bold">BCA : 515-015-7171 a.n Sahabat Farm</p>
+                        <p class="font-bold">BCA : 515-015-7171 a.n Sahabat Farm Indonesia</p>
                         <p class="mt-2 text-xs">Terima kasih atas kepercayaan Anda.</p>
                     </div>
                 </div>

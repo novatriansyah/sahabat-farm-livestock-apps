@@ -75,7 +75,7 @@ class ExitController extends Controller
                 $invoice = \App\Models\Invoice::create([
                     'invoice_number' => $invoiceNumber,
                     'customer_name' => $validated['customer_name'] ?? 'Draft Customer',
-                    'customer_contact' => $validated['customer_contact'],
+                    'customer_contact' => $validated['customer_contact'] ?? null,
                     'status' => 'DRAFT',
                     'type' => 'KOMERSIAL',
                     'issued_date' => $validated['exit_date'],

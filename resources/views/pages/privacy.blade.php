@@ -25,7 +25,7 @@
                 </p>
                 <ul class="list-disc pl-6 space-y-2 text-slate-600 dark:text-slate-400">
                     <li>Menyediakan informasi analitik yang akurat bagi peternakan Anda.</li>
-                    <li>Meningkatkan fungsionalitas dan pengalaman pengguna aplikasi Sahabat Farm.</li>
+                    <li>Meningkatkan fungsionalitas dan pengalaman pengguna aplikasi Sahabat Farm Indonesia.</li>
                     <li>Mengirimkan notifikasi penting terkait kesehatan ternak atau pembaruan sistem.</li>
                     <li>Keperluan audit internal dan kepatuhan hukum yang berlaku.</li>
                 </ul>
@@ -34,7 +34,7 @@
             <section>
                 <h2 class="text-2xl font-bold dark:text-white mb-4">Keamanan Data</h2>
                 <p class="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Sahabat Farm menggunakan enkripsi berstandar industri untuk melindungi data Anda saat transit dan saat disimpan. Kami tidak akan pernah menjual data pribadi atau data peternakan Anda kepada pihak ketiga tanpa izin eksplisit dari Anda.
+                    Sahabat Farm Indonesia menggunakan enkripsi berstandar industri untuk melindungi data Anda saat transit dan saat disimpan. Kami tidak akan pernah menjual data pribadi atau data peternakan Anda kepada pihak ketiga tanpa izin eksplisit dari Anda.
                 </p>
             </section>
 

@@ -32,6 +32,15 @@ class MasterSettingSeeder extends Seeder
             ['key' => 'vaccine_alert_days', 'value' => '14', 'label' => 'Ambang Batas Alert Vaksin (Hari)', 'group' => 'OPERATIONAL'],
             ['key' => 'mating_colony_days', 'value' => '60', 'label' => 'Durasi Koloni Kawin (Hari)', 'group' => 'OPERATIONAL'],
             ['key' => 'adg_performance_threshold', 'value' => '0.15', 'label' => 'Ambang Batas Performa ADG Bagus (Kg)', 'group' => 'OPERATIONAL'],
+            ['key' => 'available_necklace_colors', 'value' => 'Merah, Biru, Hijau, Kuning, Hitam, Putih', 'label' => 'Daftar Warna Kalung (pisahkan dengan koma)', 'group' => 'OPERATIONAL'],
+            ['key' => 'available_ear_tag_colors', 'value' => 'Merah, Biru, Hijau, Kuning, Hitam, Orange, Orange Persegi, Hijau Persegi, Kuning Orange', 'label' => 'Daftar Warna Ear Tag (pisahkan dengan koma)', 'group' => 'OPERATIONAL'],
+            ['key' => 'eartag_map_dorper_f1', 'value' => 'Kuning', 'label' => 'Warna Ear Tag Dorper F1', 'group' => 'OPERATIONAL'],
+            ['key' => 'eartag_map_dorper_f2', 'value' => 'Orange', 'label' => 'Warna Ear Tag Dorper F2', 'group' => 'OPERATIONAL'],
+            ['key' => 'eartag_map_dorper_f3', 'value' => 'Kuning Orange', 'label' => 'Warna Ear Tag Dorper F3', 'group' => 'OPERATIONAL'],
+            ['key' => 'eartag_map_dorper_f4', 'value' => 'Orange Persegi', 'label' => 'Warna Ear Tag Dorper F4', 'group' => 'OPERATIONAL'],
+            ['key' => 'eartag_map_dorper_f5', 'value' => 'Hijau Persegi', 'label' => 'Warna Ear Tag Dorper F5', 'group' => 'OPERATIONAL'],
+            ['key' => 'eartag_map_dorper_f6', 'value' => 'Kuning Orange', 'label' => 'Warna Ear Tag Dorper F6', 'group' => 'OPERATIONAL'],
+            ['key' => 'eartag_map_default', 'value' => 'Hijau', 'label' => 'Warna Ear Tag Default (Ras Lain)', 'group' => 'OPERATIONAL'],
         ];
 
         foreach ($settings as $setting) {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', config('app.name', 'Sahabat Farm')) - Manajemen Peternakan Modern</title>
+    <title>@yield('title', config('app.name', 'Sahabat Farm Indonesia')) - Manajemen Peternakan Modern</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -30,9 +30,9 @@
                 <div class="flex justify-between items-center h-12">
                     <!-- Logo -->
                     <a href="/" class="flex-shrink-0 flex items-center gap-2 sm:gap-3 group">
-                        <img src="{{ asset('img/logo.png') }}" class="h-8 w-8 sm:h-10 sm:w-10 object-contain transition-transform duration-300 group-hover:scale-110" alt="Sahabat Farm Logo" />
+                        <img src="{{ asset('img/logo.png') }}" class="h-8 w-8 sm:h-10 sm:w-10 object-contain transition-transform duration-300 group-hover:scale-110" alt="Sahabat Farm Indonesia Logo" />
                         <span class="font-extrabold text-lg sm:text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">
-                            Sahabat Farm
+                            Sahabat Farm Indonesia
                         </span>
                     </a>
 
@@ -114,8 +114,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20 bg-white dark:bg-slate-800 p-12 sm:p-20 rounded-[3rem] sm:rounded-[4rem] border border-slate-200 dark:border-slate-700/50 shadow-sm relative overflow-hidden transition-all hover:shadow-xl group">
                     <div class="lg:col-span-2">
                         <div class="flex items-center gap-4 mb-8">
-                            <img src="{{ asset('img/logo.png') }}" class="h-10 w-10 object-contain" alt="Sahabat Farm Logo" />
-                            <span class="font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">Sahabat Farm</span>
+                            <img src="{{ asset('img/logo.png') }}" class="h-10 w-10 object-contain" alt="Sahabat Farm Indonesia Logo" />
+                            <span class="font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">Sahabat Farm Indonesia</span>
                         </div>
                         <p class="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-sm mb-10 leading-relaxed">
                             Membangun ekosistem peternakan yang berkelanjutan dan modern melalui inovasi teknologi yang merakyat.

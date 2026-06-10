@@ -76,30 +76,28 @@ class AnimalObserver
 
         $generation = $animal->generation ? strtoupper($animal->generation) : '';
 
-        // Logic from Requirements:
-        // F1 Dorper: Kuning
-        // F2 Dorper: Orange
-        // F3 Dorper: Kuning Orange
-        // F4 Dorper: Orange Persegi
-        // F5 Dorper: Hijau Persegi
-        // F6 Dorper: Kuning Orange
-        // other jenis domba: Hijau
-
         // Check if Breed is Dorper
         if (str_contains($breedName, 'dorper')) {
+            $key = 'eartag_map_dorper_' . strtolower($generation);
+            $mappedColor = \App\Models\FarmSetting::get($key);
+            if ($mappedColor) {
+                return $mappedColor;
+            }
+
+            // Fallback to hardcoded mapping if settings are not seeded (e.g. in test environments)
             return match ($generation) {
                 'F1' => 'Kuning',
                 'F2' => 'Orange',
                 'F3' => 'Kuning Orange',
                 'F4' => 'Orange Persegi',
                 'F5' => 'Hijau Persegi',
-                'F6' => 'Kuning Orange', // Following prompt literally
-                default => 'Kuning', // Fallback for Dorper
+                'F6' => 'Kuning Orange',
+                default => 'Kuning',
             };
         }
 
         // Other breeds
-        return 'Hijau';
+        return \App\Models\FarmSetting::get('eartag_map_default', 'Hijau');
     }
 
     private function clearDashboardCache(Animal $animal): void
