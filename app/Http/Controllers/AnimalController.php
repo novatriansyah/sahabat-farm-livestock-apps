@@ -130,16 +130,7 @@ class AnimalController extends Controller
     public function store(Request $request, TaskService $taskService): RedirectResponse
     {
         $validated = $request->validate([
-            'tag_id' => [
-                'required',
-                Rule::unique('animals')->where(function ($query) use ($request) {
-                    if ($request->generation) {
-                        return $query->where('generation', $request->generation);
-                    } else {
-                        return $query->whereNull('generation');
-                    }
-                })
-            ],
+            'tag_id' => 'required|unique:animals,tag_id',
             'partner_id' => 'nullable|exists:master_partners,id',
             'breed_id' => 'required|exists:master_breeds,id',
             'current_location_id' => 'required|exists:master_locations,id',
@@ -151,6 +142,7 @@ class AnimalController extends Controller
             'purchase_price' => 'nullable|required_if:acquisition_type,BELI|numeric|min:0',
             'initial_weight' => 'required|numeric|min:0.1',
             'necklace_color' => 'nullable|string',
+            'ear_tag_color' => 'nullable|string',
             'health_status' => 'nullable|in:SEHAT,SAKIT,KARANTINA,MATI,TERJUAL',
             'generation' => 'nullable|string',
             'google_drive_link' => 'nullable|url',
@@ -272,13 +264,7 @@ class AnimalController extends Controller
         $validated = $request->validate([
             'tag_id' => [
                 'required',
-                Rule::unique('animals')->where(function ($query) use ($request) {
-                    if ($request->generation) {
-                        return $query->where('generation', $request->generation);
-                    } else {
-                        return $query->whereNull('generation');
-                    }
-                })->ignore($animal->id)
+                Rule::unique('animals')->ignore($animal->id)
             ],
             'partner_id' => 'nullable|exists:master_partners,id',
             'breed_id' => 'required|exists:master_breeds,id',
@@ -289,6 +275,7 @@ class AnimalController extends Controller
             'entry_date' => 'nullable|date',
             'health_status' => 'required|in:SEHAT,SAKIT,KARANTINA,MATI,TERJUAL',
             'necklace_color' => 'nullable|string',
+            'ear_tag_color' => 'nullable|string',
             'generation' => 'nullable|string',
             'google_drive_link' => 'nullable|url',
             'photo' => 'nullable|array',
