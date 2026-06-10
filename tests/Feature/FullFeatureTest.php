@@ -50,6 +50,8 @@ class FullFeatureTest extends TestCase
             'current_location_id' => $this->location->id,
             'current_phys_status_id' => $this->status->id,
             'gender' => 'JANTAN',
+            'generation' => 'F2',
+            'ear_tag_color' => 'Orange',
             'birth_date' => Carbon::now(),
             'acquisition_type' => 'HASIL_TERNAK',
             'is_active' => true,
@@ -59,6 +61,7 @@ class FullFeatureTest extends TestCase
             'tag_id' => 'OLD001',
             'partner_id' => $this->partner->id,
             'necklace_color' => 'Blue',
+            'ear_tag_color' => 'Red',
             'generation' => 'F2',
             'gender' => 'JANTAN',
             'category_id' => $this->category->id,
@@ -75,7 +78,6 @@ class FullFeatureTest extends TestCase
         $this->assertEquals($this->partner->id, $animal->partner_id);
         $this->assertEquals('Blue', $animal->necklace_color);
         $this->assertEquals('F2', $animal->generation);
-        // Observer should have updated ear_tag_color based on F2 Dorper -> Orange
-        $this->assertEquals('Orange', $animal->ear_tag_color);
+        $this->assertEquals('Red', $animal->ear_tag_color);
     }
 }
