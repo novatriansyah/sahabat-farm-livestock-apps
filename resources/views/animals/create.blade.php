@@ -84,23 +84,18 @@
                     <label for="necklace_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Kalung</label>
                     <select id="necklace_color" name="necklace_color" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         <option value="">-- Tanpa Kalung --</option>
-                        <option value="Merah">Merah</option>
-                        <option value="Biru">Biru</option>
-                        <option value="Hijau">Hijau</option>
-                        <option value="Kuning">Kuning</option>
-                        <option value="Hitam">Hitam</option>
-                        <option value="Putih">Putih</option>
+                        @foreach($necklaceColors as $color)
+                            <option value="{{ $color }}">{{ $color }}</option>
+                        @endforeach
                     </select>
                 </div>
                  <div>
                     <label for="ear_tag_color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Warna Ear Tag</label>
                     <select id="ear_tag_color" name="ear_tag_color" onchange="updateTagColor()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         <option value="">-- Standar --</option>
-                        <option value="Merah">Merah</option>
-                        <option value="Biru">Biru</option>
-                        <option value="Hijau">Hijau</option>
-                        <option value="Kuning">Kuning</option>
-                        <option value="Hitam">Hitam</option>
+                        @foreach($earTagColors as $color)
+                            <option value="{{ $color }}">{{ $color }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>
@@ -140,6 +135,10 @@
                 'Hijau': '#dcfce7',
                 'Kuning': '#fef9c3',
                 'Hitam': '#e5e7eb',
+                'Orange': '#ffedd5',
+                'Orange Persegi': '#ffedd5',
+                'Hijau Persegi': '#dcfce7',
+                'Kuning Orange': '#ffedd5',
             };
             if(color && colorMap[color]) {
                 tagInput.style.backgroundColor = colorMap[color];

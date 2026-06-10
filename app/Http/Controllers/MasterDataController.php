@@ -238,7 +238,10 @@ class MasterDataController extends Controller
             'low_stock_threshold', 'default_invoice_due_days', 'min_age_mate_months_fallback',
             'min_weight_mate_fallback', 'est_feed_cost_day', 'est_health_cost_month',
             'est_ops_cost_month', 'vaccine_alert_days', 'mating_colony_days',
-            'adg_performance_threshold'
+            'adg_performance_threshold', 'available_necklace_colors', 'available_ear_tag_colors',
+            'eartag_map_dorper_f1', 'eartag_map_dorper_f2', 'eartag_map_dorper_f3',
+            'eartag_map_dorper_f4', 'eartag_map_dorper_f5', 'eartag_map_dorper_f6',
+            'eartag_map_default'
         ];
 
         foreach ($request->input('settings', []) as $key => $value) {

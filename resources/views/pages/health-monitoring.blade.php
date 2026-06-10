@@ -32,7 +32,7 @@
             <div class="space-y-8 animate-fade-in-up" style="animation-delay: 0.2s">
                 <h2 class="text-3xl font-bold dark:text-white">Keamanan Biologis Terjamin</h2>
                 <p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Kesehatan adalah aset utama dalam peternakan. Sahabat Farm menyediakan modul khusus untuk mencatat dan menganalisis kondisi kesehatan setiap hewan secara berkala.
+                    Kesehatan adalah aset utama dalam peternakan. Sahabat Farm Indonesia menyediakan modul khusus untuk mencatat dan menganalisis kondisi kesehatan setiap hewan secara berkala.
                 </p>
                 <ul class="space-y-4">
                     <li class="flex items-start gap-3">

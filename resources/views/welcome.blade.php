@@ -186,7 +186,7 @@
                     Siap Membawa <br/> <span class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-2xl">Revolusi Digital</span> <br/> ke Kandang Anda?
                 </h2>
                 <p class="text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Sahabat Farm lahir dari semangat untuk membantu peternak lokal bersaing di era digital. Kami mengombinasikan kearifan lokal peternakan dengan teknologi cloud terbaru untuk hasil maksimal.
+                    Sahabat Farm Indonesia lahir dari semangat untuk membantu peternak lokal bersaing di era digital. Kami mengombinasikan kearifan lokal peternakan dengan teknologi cloud terbaru untuk hasil maksimal.
                 </p>
                 <div class="space-y-6">
                     @foreach([
@@ -207,7 +207,7 @@
             <div class="flex-1 relative">
                 <div class="absolute -inset-10 bg-emerald-500/10 dark:bg-emerald-500/5 blur-[100px] rounded-full"></div>
                 <div class="relative rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-slate-800 transform rotate-2">
-                    <img src="{{ asset('img/logo.png') }}" class="w-full h-auto bg-white p-20 opacity-90" alt="About Sahabat Farm" />
+                    <img src="{{ asset('img/logo.png') }}" class="w-full h-auto bg-white p-20 opacity-90" alt="About Sahabat Farm Indonesia" />
                 </div>
             </div>
         </div>
@@ -231,7 +231,7 @@
                     @endfor
                 </div>
                 <p class="text-lg italic text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-medium">
-                    "Setelah menggunakan Sahabat Farm, saya bisa memantau pertumbuhan kambing hanya dari handphone. Sangat membantu untuk efisiensi pakan!"
+                    "Setelah menggunakan Sahabat Farm Indonesia, saya bisa memantau pertumbuhan kambing hanya dari handphone. Sangat membantu untuk efisiensi pakan!"
                 </p>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-emerald-100"></div>

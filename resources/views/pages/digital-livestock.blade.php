@@ -18,7 +18,7 @@
             <div class="space-y-8 animate-fade-in-up" style="animation-delay: 0.2s">
                 <h2 class="text-3xl font-bold dark:text-white">Mengapa Digitalisasi?</h2>
                 <p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Dalam metode konvensional, riwayat ternak seringkali hilang atau tidak tercatat dengan baik. Dengan sistem digital Sahabat Farm, setiap ternak memiliki "KTP Digital" yang mencatat segalanya mulai dari lahir hingga panen.
+                    Dalam metode konvensional, riwayat ternak seringkali hilang atau tidak tercatat dengan baik. Dengan sistem digital Sahabat Farm Indonesia, setiap ternak memiliki "KTP Digital" yang mencatat segalanya mulai dari lahir hingga panen.
                 </p>
                 <ul class="space-y-4">
                     <li class="flex items-start gap-3">

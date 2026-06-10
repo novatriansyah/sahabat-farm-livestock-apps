@@ -121,7 +121,10 @@ class AnimalController extends Controller
         $statuses = MasterPhysStatus::all();
         $partners = MasterPartner::all();
 
-        return view('animals.create', compact('categories', 'breeds', 'locations', 'statuses', 'partners'));
+        $necklaceColors = array_filter(array_map('trim', explode(',', \App\Models\FarmSetting::get('available_necklace_colors', 'Merah,Biru,Hijau,Kuning,Hitam,Putih'))));
+        $earTagColors = array_filter(array_map('trim', explode(',', \App\Models\FarmSetting::get('available_ear_tag_colors', 'Merah,Biru,Hijau,Kuning,Hitam,Orange,Orange Persegi,Hijau Persegi,Kuning Orange'))));
+
+        return view('animals.create', compact('categories', 'breeds', 'locations', 'statuses', 'partners', 'necklaceColors', 'earTagColors'));
     }
 
     public function store(Request $request, TaskService $taskService): RedirectResponse
@@ -257,7 +260,10 @@ class AnimalController extends Controller
         $sires = Animal::where('gender', 'JANTAN')->where('is_active', true)->where('id', '!=', $animal->id)->get();
         $dams = Animal::where('gender', 'BETINA')->where('is_active', true)->where('id', '!=', $animal->id)->get();
 
-        return view('animals.edit', compact('animal', 'categories', 'breeds', 'locations', 'statuses', 'partners', 'sires', 'dams'));
+        $necklaceColors = array_filter(array_map('trim', explode(',', \App\Models\FarmSetting::get('available_necklace_colors', 'Merah,Biru,Hijau,Kuning,Hitam,Putih'))));
+        $earTagColors = array_filter(array_map('trim', explode(',', \App\Models\FarmSetting::get('available_ear_tag_colors', 'Merah,Biru,Hijau,Kuning,Hitam,Orange,Orange Persegi,Hijau Persegi,Kuning Orange'))));
+
+        return view('animals.edit', compact('animal', 'categories', 'breeds', 'locations', 'statuses', 'partners', 'sires', 'dams', 'necklaceColors', 'earTagColors'));
     }
 
     public function update(Request $request, Animal $animal): RedirectResponse

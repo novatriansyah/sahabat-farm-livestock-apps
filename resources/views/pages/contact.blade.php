@@ -51,7 +51,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Pesan</label>
-                            <textarea rows="4" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Halo Tim Sahabat Farm..."></textarea>
+                            <textarea rows="4" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Halo Tim Sahabat Farm Indonesia..."></textarea>
                         </div>
                         <button type="submit" class="w-full py-5 bg-slate-900 dark:bg-emerald-600 text-white font-black text-xl rounded-2xl hover:shadow-xl transition-all active:scale-95">Kirim Pesan</button>
                     </form>

@@ -34,7 +34,9 @@ class BirthController extends Controller
         $cempeStatus = MasterPhysStatus::where('name', 'Cempe')->first();
         $allStatuses = MasterPhysStatus::all();
 
-        return view('animals.birth.create', compact('dams', 'sires', 'categories', 'breeds', 'locations', 'cempeStatus', 'allStatuses', 'partners'));
+        $necklaceColors = array_filter(array_map('trim', explode(',', \App\Models\FarmSetting::get('available_necklace_colors', 'Merah,Biru,Hijau,Kuning,Hitam,Putih'))));
+
+        return view('animals.birth.create', compact('dams', 'sires', 'categories', 'breeds', 'locations', 'cempeStatus', 'allStatuses', 'partners', 'necklaceColors'));
     }
 
     public function store(Request $request, \App\Services\TaskService $taskService): RedirectResponse

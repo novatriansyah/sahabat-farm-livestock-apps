@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title }} - Sahabat Farm</title>
+    <title>{{ $title }} - Sahabat Farm Indonesia</title>
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -256,7 +256,7 @@
 
             <footer class="mt-20 pt-10 border-t border-slate-100 flex justify-between items-end no-break">
                 <div class="text-[8pt] text-slate-400 font-medium italic">
-                    Dihasilkan secara otomatis oleh sistem Sahabat Farm pada {{ date('d/m/Y H:i') }}
+                    Dihasilkan secara otomatis oleh sistem Sahabat Farm Indonesia pada {{ date('d/m/Y H:i') }}
                 </div>
                 <div class="text-center w-64 pb-2">
                     <p class="text-[8pt] font-black text-slate-400 uppercase tracking-[0.3em] mb-20">Otorisasi Manajemen</p>

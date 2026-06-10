@@ -14,14 +14,14 @@
             <section>
                 <h2 class="text-2xl font-bold dark:text-white mb-4">1. Penerimaan Ketentuan</h2>
                 <p class="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Dengan mengakses atau menggunakan platform Sahabat Farm, Anda dianggap telah membaca, memahami, dan menyetujui untuk terikat oleh Syarat dan Ketentuan ini. Jika Anda tidak setuju dengan bagian apapun dari ketentuan ini, Anda dilarang menggunakan layanan kami.
+                    Dengan mengakses atau menggunakan platform Sahabat Farm Indonesia, Anda dianggap telah membaca, memahami, dan menyetujui untuk terikat oleh Syarat dan Ketentuan ini. Jika Anda tidak setuju dengan bagian apapun dari ketentuan ini, Anda dilarang menggunakan layanan kami.
                 </p>
             </section>
 
             <section>
                 <h2 class="text-2xl font-bold dark:text-white mb-4">2. Layanan Platform</h2>
                 <p class="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Sahabat Farm menyediakan sistem manajemen peternakan berbasis cloud. Kami berhak untuk mengubah, menangguhkan, atau menghentikan aspek apa pun dari layanan kapan saja tanpa pemberitahuan sebelumnya.
+                    Sahabat Farm Indonesia menyediakan sistem manajemen peternakan berbasis cloud. Kami berhak untuk mengubah, menangguhkan, atau menghentikan aspek apa pun dari layanan kapan saja tanpa pemberitahuan sebelumnya.
                 </p>
             </section>
 
@@ -35,13 +35,13 @@
             <section>
                 <h2 class="text-2xl font-bold dark:text-white mb-4">4. Penggunaan yang Diizinkan</h2>
                 <p class="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Anda setuju untuk menggunakan Sahabat Farm hanya untuk tujuan yang sah dan sesuai dengan hukum yang berlaku di Republik Indonesia. Anda tidak diperbolehkan menggunakan sistem ini untuk menyimpan data palsu atau melakukan penipuan.
+                    Anda setuju untuk menggunakan Sahabat Farm Indonesia hanya untuk tujuan yang sah dan sesuai dengan hukum yang berlaku di Republik Indonesia. Anda tidak diperbolehkan menggunakan sistem ini untuk menyimpan data palsu atau melakukan penipuan.
                 </p>
             </section>
 
             <section class="p-8 rounded-3xl bg-slate-100 dark:bg-slate-800 border-l-4 border-emerald-500">
                 <p class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-2">Penting:</p>
-                <p class="text-slate-600 dark:text-slate-400 italic">"Sahabat Farm tidak bertanggung jawab atas kerugian finansial atau kematian hewan yang disebabkan oleh kesalahan input data atau kegagalan infrastruktur internet pengguna."</p>
+                <p class="text-slate-600 dark:text-slate-400 italic">"Sahabat Farm Indonesia tidak bertanggung jawab atas kerugian finansial atau kematian hewan yang disebabkan oleh kesalahan input data atau kegagalan infrastruktur internet pengguna."</p>
             </section>
         </div>
     </div>

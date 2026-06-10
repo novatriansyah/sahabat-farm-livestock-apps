@@ -7,7 +7,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
             <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white mb-8 leading-tight animate-fade-in-up">
-                Tentang <span class="text-emerald-500">Sahabat Farm</span>
+                Tentang <span class="text-emerald-500">Sahabat Farm Indonesia</span>
             </h1>
             <p class="text-lg sm:text-2xl text-slate-600 dark:text-slate-400 font-medium animate-fade-in-up" style="animation-delay: 0.1s">
                 Membangun masa depan peternakan Indonesia yang modern, efisien, dan berkelanjutan.
@@ -18,7 +18,7 @@
             <div class="space-y-8 animate-fade-in-up" style="animation-delay: 0.2s">
                 <h2 class="text-3xl font-bold dark:text-white">Visi & Misi Kami</h2>
                 <p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Sahabat Farm didirikan oleh sekelompok ahli peternakan dan teknologi yang memiliki satu mimpi: mendigitalisasi sektor peternakan agar peternak lokal dapat bersaing secara global.
+                    Sahabat Farm Indonesia didirikan oleh sekelompok ahli peternakan dan teknologi yang memiliki satu mimpi: mendigitalisasi sektor peternakan agar peternak lokal dapat bersaing secara global.
                 </p>
                 <div class="p-8 rounded-3xl bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700">
                     <h3 class="text-xl font-bold mb-4 text-emerald-600">Visi Kami</h3>
