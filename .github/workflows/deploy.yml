@@ -44,7 +44,7 @@ jobs:
 
       - name: Deploy with rsync
         run: |
-          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no" \
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT || vars.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no" \
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='.env' \
@@ -61,12 +61,12 @@ jobs:
             --exclude='phpunit.xml' \
             --exclude='.phpunit.result.cache' \
             --delete \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+            ./ ${{ secrets.SSH_USER || vars.SSH_USER }}@${{ secrets.SSH_HOST || vars.SSH_HOST }}:${{ secrets.DEPLOY_PATH || vars.DEPLOY_PATH }}
 
       - name: Post-deployment commands
         run: |
-          ssh -p ${{ secrets.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ secrets.DEPLOY_PATH }}
+          ssh -p ${{ secrets.SSH_PORT || vars.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER || vars.SSH_USER }}@${{ secrets.SSH_HOST || vars.SSH_HOST }} << 'EOF'
+            cd ${{ secrets.DEPLOY_PATH || vars.DEPLOY_PATH }}
 
             # Ensure correct storage symlink is present
             if [ ! -L public/storage ]; then
