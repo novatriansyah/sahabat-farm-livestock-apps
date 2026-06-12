@@ -138,7 +138,7 @@
 
          <!-- Admin Group (Dropdown - Owner Only) -->
          @if(Auth::user()->role === 'PEMILIK')
-         <li x-data="{ open: {{ (request()->routeIs('users.*') || request()->routeIs('partners.*') || request()->routeIs('masters.*') || request()->routeIs('settings.dashboard')) ? 'true' : 'false' }} }">
+         <li x-data="{ open: {{ (request()->routeIs('users.*') || request()->routeIs('partners.*') || request()->routeIs('masters.*') || request()->routeIs('settings.dashboard') || request()->routeIs('admin.site-content.*')) ? 'true' : 'false' }} }">
              <button @click="open = !open" type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1-3 3 3 3 0 0 1 3-3Zm0 13a7 7 0 0 1-5-6.623c.277-.37.587-.714.923-1.018a7.032 7.032 0 0 1 8.154 0c.336.304.646.648.923 1.018A7 7 0 0 1 10 18Z"/>
@@ -160,6 +160,12 @@
                  </li>
                  <li>
                      <a href="{{ route('settings.dashboard') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('settings.dashboard') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Pengaturan Tampilan</a>
+                 </li>
+                 <li>
+                     <a href="{{ route('admin.site-content.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('admin.site-content.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Konten Website</a>
+                 </li>
+                 <li>
+                     <a href="{{ route('admin.articles.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('admin.articles.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Artikel</a>
                  </li>
              </ul>
          </li>

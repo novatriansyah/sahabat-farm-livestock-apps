@@ -148,6 +148,9 @@ class AnimalController extends Controller
             'google_drive_link' => 'nullable|url',
             'photo' => 'nullable|array',
             'photo.*' => 'nullable|image|max:10240', // 10MB Max per file
+            'is_for_sale' => 'boolean',
+            'sale_price' => 'required_if:is_for_sale,true|nullable|numeric|min:0',
+            'sale_description' => 'required_if:is_for_sale,true|nullable|string|max:1000',
         ]);
 
         // Auto-assign owner_id to current user (System User)
@@ -159,6 +162,12 @@ class AnimalController extends Controller
 
         if (isset($validated['purchase_price']) && $validated['acquisition_type'] !== 'BELI') {
             $validated['purchase_price'] = 0;
+        }
+
+        $validated['is_for_sale'] = (bool)($validated['is_for_sale'] ?? false);
+        if (!$validated['is_for_sale']) {
+            $validated['sale_price'] = null;
+            $validated['sale_description'] = null;
         }
 
         // Set entry_date logic
@@ -290,11 +299,20 @@ class AnimalController extends Controller
                 'exists:animals,id',
                 Rule::notIn([$animal->id])
             ],
+            'is_for_sale' => 'boolean',
+            'sale_price' => 'required_if:is_for_sale,true|nullable|numeric|min:0',
+            'sale_description' => 'required_if:is_for_sale,true|nullable|string|max:1000',
         ]);
 
         // Auto-assign category from breed
         $breed = MasterBreed::find($validated['breed_id']);
         $validated['category_id'] = $breed ? $breed->category_id : null;
+
+        $validated['is_for_sale'] = (bool)($validated['is_for_sale'] ?? false);
+        if (!$validated['is_for_sale']) {
+            $validated['sale_price'] = null;
+            $validated['sale_description'] = null;
+        }
 
         $oldTagId = $animal->tag_id;
         $oldPartnerId = $animal->partner_id;

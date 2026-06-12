@@ -51,6 +51,36 @@ The Sahabat Farm Indonesia Livestock Application is a comprehensive web-based he
 * **Sales Registration**: Exit of type `JUAL` registers a sale.
 * **Automatic Invoice generation**: Generates a draft invoice inside the database containing sold animal details, subtotal, and customer info, automatically reducing active herd numbers.
 
+### 2.7 Site Content Management (CMS)
+* **Structured Editing**: All landing page text content is editable by the Owner (`PEMILIK`) through an admin interface at `/admin/site-content`. The page layout, design structure, and visual components remain locked — only text and numeric values are modifiable.
+* **Editable Sections**:
+  * **Hero**: Badge text, headline, headline accent, subheadline.
+  * **Stats Bar**: 4 pairs of statistic number + label (e.g. "500+" / "Peternak Terdaftar").
+  * **Features Header**: Section title and subtitle.
+  * **Feature Cards**: Title and description for each of the 6 feature cards. Icons and route links remain fixed in code as they map to actual application features.
+  * **About Section**: Heading, paragraph, and 4 checklist items.
+  * **Testimonials**: 3 testimonial slots, each with quote, author name, and role.
+  * **CTA Section**: Headline and subheadline.
+  * **Footer**: Tagline text.
+* **Storage**: Content is stored as key-value pairs in the existing `farm_settings` table with group `SITE_CONTENT`. Complex sections (stats, features, testimonials) are stored as JSON blobs in the `value` column.
+* **Fallback Behavior**: If no database value exists for a given key, the original hardcoded text is used as a default. This ensures the landing page always renders correctly even with an empty database.
+
+### 2.8 Livestock Catalogue
+* **Purpose**: A public-facing catalogue page at `/katalog` where potential buyers can browse available livestock. No payment processing — all inquiries are routed through WhatsApp.
+* **Catalogue Flag**: Animals are listed in the catalogue by toggling `is_for_sale = true` on the animal record via the edit form. When enabled, `sale_price` (asking price in Rupiah) and `sale_description` (marketing text) become **mandatory** fields.
+* **Public Data Exposure**: The catalogue only displays safe, non-sensitive fields:
+  * ✅ Displayed: Photos, breed, category, gender, age, latest weight, asking price, description.
+  * ❌ Hidden: Tag ID, HPP costs, partner/ownership info, purchase price, location, health records.
+* **Filters**: Visitors can filter by breed and search by description text.
+* **WhatsApp Inquiry**: Each catalogue card has a "Hubungi via WhatsApp" button that opens `wa.me/{global_number}` with a pre-filled inquiry message referencing the animal's breed.
+* **Lifecycle Integration**: When an animal is sold via the Exit module (`JUAL`), it is marked `is_active = false`, which automatically removes it from the catalogue — no manual cleanup needed.
+* **Asking Price vs. Sale Price**: The `sale_price` on the animal record is the listed *asking price* for display only. The actual transaction price is captured separately in `ExitLog.price` during the sale process and feeds into invoicing and profit calculations. These are intentionally separate fields to avoid data conflicts.
+
+### 2.9 WhatsApp Integration
+* **Global Number**: A single WhatsApp number is configured via the CMS admin page, stored as `whatsapp_number` in `farm_settings`.
+* **Floating Button**: A fixed-position WhatsApp button appears on all guest-facing pages (bottom-right corner) with a pulse animation. Only rendered when a WhatsApp number is configured.
+* **Contact Page Replacement**: The previous form-based contact page (`/hubungi-kami`) is replaced with a direct redirect to the WhatsApp number. Footer links are updated accordingly.
+
 ---
 
 ## 3. Dynamic Visual Configurations (Settings)
@@ -63,7 +93,37 @@ Rather than hardcoding colors and generation rules, the system handles visual pa
 
 ---
 
-## 4. Suggestions for Future Improvements
+## 4. Extended Frontend Enhancements & Media CMS
+
+### 4.1 Navigation Routing Refinement
+* **Desktop & Mobile Navbar Redirect**: The navbar menu link "Tentang" is routed directly to the dedicated "Tentang Kami" page (`/tentang-kami`) instead of performing an anchor scroll to `#about` on the landing page.
+
+### 4.2 Tentang Kami (About Us) Page CMS & Image Fallbacks
+* **Content Source**: The dedicated "Tentang Kami" page is driven dynamically via the CMS database using the `site_about_us` configuration.
+* **4-Image Aspect Grid**: The grid displaying team or aspect photos on `/tentang-kami` is configured through the CMS.
+* **Fallback Asset Mapping**: For both the landing page's About section image and the four About Us page aspect grid images, the system defaults to the preconfigured `img/logo.png` logo asset if no dynamic file is uploaded. This ensures that empty CMS image fields never break layouts.
+
+### 4.3 Hero Showcase (Tabbed Carousel Showcase)
+* **Visual Presentation**: The landing page's static dashboard preview image is replaced with an interactive Tabbed Showcase component.
+* **Media Formats**: Supports uploading high-quality screenshots and autoplaying, looping, muted WebM or MP4 video files representing actual software walk-throughs.
+* **Interactive Controls**: Users can manually click through tabs (e.g., Dashboard, Breeding Tracker, ADG Analytics) to view features, or let them slide automatically via Alpine.js auto-rotation.
+
+### 4.4 Article Management & Public Blog
+* **Purpose**: A public blog system (`/artikel`) where users can read farm insights, livestock tips, and updates. Helps with SEO and community building.
+* **Administration (CRUD)**:
+  * **Role Restriction**: Only the Owner (`PEMILIK`) can create, edit, delete, or publish articles.
+  * **Rich Text Editing**: Integrated with a clean Quill.js editor to allow bolding, list formats, and inline media insertion.
+  * **Embedded Media**: Admins can embed photos or YouTube videos directly into the body content. Uploaded media is compressed and served via public storage.
+  * **Draft & Publish states**: Articles have an `is_published` flag, allowing them to remain as drafts until ready.
+* **Database Fields**: Title, slug (auto-generated from title for clean URLs like `/artikel/tips-ternak`), thumbnail image, body content (HTML), video URL, draft/publish boolean, and publication date.
+* **Public Interface**:
+  * **Blog Index**: A responsive card grid at `/artikel` showing thumbnails, titles, publication dates, and truncated summaries.
+  * **Blog Detail Page**: A dedicated page at `/artikel/{slug}` to read the full HTML content and view embedded media.
+  * **Landing Page Integration**: An "Artikel Terkini" (Latest Articles) section at the bottom of the landing page displaying the 3 most recently published articles.
+
+---
+
+## 5. Suggestions for Future Improvements
 1. **Bluetooth/RFID Integration**: Allow Bluetooth scale/RFID scanning on mobile phones to log weight and profiles instantly.
 2. **Dashboard Customization Checklist**: Add an options editor in settings allowing each user to checklist exactly which widgets (finance, feeding, reports) should show on their homepage.
 3. **Advanced Breeding Warning**: Highlight potential inbreeding risks by comparing Sire and Dam pedigree charts before establishing a colony.

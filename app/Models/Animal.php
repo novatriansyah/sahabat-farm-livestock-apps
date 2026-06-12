@@ -17,12 +17,19 @@ class Animal extends Model
         'birth_date' => 'date',
         'entry_date' => 'date',
         'is_active' => 'boolean',
+        'is_for_sale' => 'boolean',
         'current_hpp' => 'decimal:2',
         'purchase_price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
         'accumulated_feed_cost' => 'decimal:2',
         'accumulated_medicine_cost' => 'decimal:2',
         'daily_adg' => 'float',
     ];
+
+    public function scopeForSale($query)
+    {
+        return $query->where('is_for_sale', true)->where('is_active', true);
+    }
 
     public function getFullBreedAttribute()
     {
