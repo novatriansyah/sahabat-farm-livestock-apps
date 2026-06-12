@@ -39,8 +39,10 @@
                     <!-- Desktop Menu -->
                     <div class="hidden md:flex items-center space-x-10">
                         <a href="{{ url('/#features') }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-400 transition-colors">Fitur</a>
-                        <a href="{{ url('/#about') }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-400 transition-colors">Tentang</a>
+                        <a href="{{ route('pages.catalogue') }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-400 transition-colors">Katalog</a>
+                        <a href="{{ route('pages.about-us') }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-400 transition-colors">Tentang</a>
                         <a href="{{ url('/#testimonials') }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-400 transition-colors">Ulasan</a>
+                        <a href="{{ route('pages.articles.index') }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-400 transition-colors">Artikel</a>
                         
                         <div class="flex items-center gap-4 ml-6 pl-6 border-l border-slate-200 dark:border-slate-700">
                             @auth
@@ -84,8 +86,10 @@
             >
                 <div class="px-4 py-8 space-y-3">
                     <a href="{{ url('/#features') }}" @click="mobileMenuOpen = false" class="block px-4 py-4 text-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-2xl">Fitur</a>
-                    <a href="{{ url('/#about') }}" @click="mobileMenuOpen = false" class="block px-4 py-4 text-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-2xl">Tentang</a>
+                    <a href="{{ route('pages.catalogue') }}" @click="mobileMenuOpen = false" class="block px-4 py-4 text-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-2xl">Katalog</a>
+                    <a href="{{ route('pages.about-us') }}" @click="mobileMenuOpen = false" class="block px-4 py-4 text-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-2xl">Tentang</a>
                     <a href="{{ url('/#testimonials') }}" @click="mobileMenuOpen = false" class="block px-4 py-4 text-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-2xl">Ulasan</a>
+                    <a href="{{ route('pages.articles.index') }}" @click="mobileMenuOpen = false" class="block px-4 py-4 text-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-2xl">Artikel</a>
                     <div class="py-4 px-4"><div class="h-px bg-slate-100 dark:bg-slate-700"></div></div>
                     @auth
                         <a href="{{ url('/dashboard') }}" class="block px-4 py-5 text-center text-lg font-extrabold text-white bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-500/30">
@@ -118,7 +122,7 @@
                             <span class="font-black text-2xl sm:text-3xl text-slate-900 dark:text-white tracking-tight">Sahabat Farm Indonesia</span>
                         </div>
                         <p class="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-sm mb-10 leading-relaxed">
-                            Membangun ekosistem peternakan yang berkelanjutan dan modern melalui inovasi teknologi yang merakyat.
+                            {{ \App\Models\FarmSetting::get('site_footer_tagline', 'Membangun ekosistem peternakan yang berkelanjutan dan modern melalui inovasi teknologi yang merakyat.') }}
                         </p>
                     </div>
                     
@@ -138,7 +142,8 @@
                             <li><a href="{{ route('pages.about-us') }}" class="hover:text-emerald-500 transition-colors">Tentang Kami</a></li>
                             <li><a href="{{ route('pages.terms') }}" class="hover:text-emerald-500 transition-colors">Syarat & Ketentuan</a></li>
                             <li><a href="{{ route('pages.privacy') }}" class="hover:text-emerald-500 transition-colors">Kebijakan Privasi</a></li>
-                            <li><a href="{{ route('pages.contact') }}" class="hover:text-emerald-500 transition-colors">Hubungi Kami</a></li>
+                            @php $waFooter = \App\Models\FarmSetting::get('whatsapp_number'); @endphp
+                            <li><a href="{{ $waFooter ? 'https://wa.me/' . $waFooter : route('pages.contact') }}" {{ $waFooter ? 'target=_blank' : '' }} class="hover:text-emerald-500 transition-colors">Hubungi Kami</a></li>
                         </ul>
                     </div>
                 </div>
@@ -163,6 +168,16 @@
         </style>
 
         @stack('scripts')
+
+        {{-- Floating WhatsApp Button --}}
+        @php $waFloat = \App\Models\FarmSetting::get('whatsapp_number'); @endphp
+        @if($waFloat)
+        <a href="https://wa.me/{{ $waFloat }}" target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 sm:w-16 sm:h-16 bg-green-500 hover:bg-green-600 rounded-full shadow-2xl shadow-green-500/30 flex items-center justify-center transition-all duration-300 hover:scale-110 group" title="Chat via WhatsApp">
+            <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.612.616l4.584-1.453A11.949 11.949 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.239 0-4.308-.726-5.993-1.957l-.42-.307-2.724.864.894-2.657-.336-.434A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+            <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full animate-ping opacity-75"></span>
+            <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full"></span>
+        </a>
+        @endif
     </div>
 </body>
 </html>

@@ -3,6 +3,52 @@
 @section('title', 'Manajemen Peternakan Modern')
 
 @section('content')
+@php
+    $hero = \App\Models\FarmSetting::getJson('site_hero', [
+        'badge' => 'The Future of Livestock Management',
+        'headline' => 'Kelola Peternakan',
+        'headline_accent' => 'Jauh Lebih Cerdas',
+        'subheadline' => 'Modernisasi operasional peternakan Anda dengan platform data-driven terlengkap. Mulai dari pemantauan kesehatan hingga analitik finansial.',
+    ]);
+
+    $stats = \App\Models\FarmSetting::getJson('site_stats', [
+        ['number' => '500+', 'label' => 'Peternak Terdaftar'],
+        ['number' => '10K+', 'label' => 'Ternak Dikelola'],
+        ['number' => '25+', 'label' => 'Kota Wilayah Kerja'],
+        ['number' => '99%', 'label' => 'Akurasi Data'],
+    ]);
+
+    $featuresHeader = \App\Models\FarmSetting::getJson('site_features_header', [
+        'title' => 'Powerfull fitur untuk mengelola bisnis Anda',
+        'subtitle' => 'Didesain dari nol untuk kebutuhan spesifik peternak di Indonesia.',
+    ]);
+
+    $cmsFeatures = \App\Models\FarmSetting::getJson('site_features', []);
+
+    $about = \App\Models\FarmSetting::getJson('site_about', [
+        'heading' => 'Siap Membawa Revolusi Digital ke Kandang Anda?',
+        'paragraph' => 'Sahabat Farm Indonesia lahir dari semangat untuk membantu peternak lokal bersaing di era digital. Kami mengombinasikan kearifan lokal peternakan dengan teknologi cloud terbaru untuk hasil maksimal.',
+        'image' => '',
+        'checklist' => [
+            'Terintegrasi dengan sistem IoT (Dalam Pengembangan)',
+            'Data tersimpan aman di infrastruktur cloud terpercaya',
+            'Tim support ahli yang siap membantu implementasi',
+            'User interface ramah pengguna, bahkan untuk pemula',
+        ],
+    ]);
+
+    $testimonials = \App\Models\FarmSetting::getJson('site_testimonials', [
+        ['quote' => 'Setelah menggunakan Sahabat Farm Indonesia, saya bisa memantau pertumbuhan kambing hanya dari handphone. Sangat membantu untuk efisiensi pakan!', 'name' => 'Mitra Peternak 1', 'role' => 'Owner Farm Maju Jaya'],
+        ['quote' => 'Setelah menggunakan Sahabat Farm Indonesia, saya bisa memantau pertumbuhan kambing hanya dari handphone. Sangat membantu untuk efisiensi pakan!', 'name' => 'Mitra Peternak 2', 'role' => 'Owner Farm Maju Jaya'],
+        ['quote' => 'Setelah menggunakan Sahabat Farm Indonesia, saya bisa memantau pertumbuhan kambing hanya dari handphone. Sangat membantu untuk efisiensi pakan!', 'name' => 'Mitra Peternak 3', 'role' => 'Owner Farm Maju Jaya'],
+    ]);
+
+    $cta = \App\Models\FarmSetting::getJson('site_cta', [
+        'headline' => 'Mulai Transformasi Peternakan Anda Hari Ini',
+        'subheadline' => 'Bergabunglah dengan ratusan peternak lainnya yang telah mendigitalisasi bisnis mereka. Gratis konsultasi awal!',
+    ]);
+@endphp
+
 <!-- Hero Section -->
 <main class="relative pt-32 pb-20 md:pt-56 md:pb-40 overflow-hidden">
     <!-- Animated Background -->
@@ -10,7 +56,7 @@
         <div class="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] rounded-full bg-emerald-400/10 dark:bg-emerald-500/5 blur-[120px] animate-pulse" style="animation-duration: 8s"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[80%] h-[80%] rounded-full bg-teal-400/10 dark:bg-teal-500/5 blur-[120px] animate-pulse" style="animation-duration: 10s"></div>
         <!-- Grid pattern -->
-        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wIDIwaDQwTTIwIDB2NDAiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wIDIwaDQwTTIwIDB2NDAiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjwvc3ZnPg==')] [mask-image:radial-gradient(ellipse_at_center,black,transparent)]"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wIDIwaHQwTTIwIDB2NDAiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wIDIwaHQwTTIwIDB2NDAiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjwvc3ZnPg==')] [mask-image:radial-gradient(ellipse_at_center,black,transparent)]"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
@@ -20,16 +66,16 @@
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            The Future of Livestock Management
+            {{ $hero['badge'] ?? 'The Future of Livestock Management' }}
         </div>
         
         <h1 class="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight mb-8 animate-fade-in-up leading-[1.1] max-w-5xl" style="animation-duration: 0.7s;">
-            Kelola Peternakan <br class="hidden sm:block" />
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600">Jauh Lebih Cerdas</span>
+            {!! nl2br(e($hero['headline'] ?? 'Kelola Peternakan')) !!} <br class="hidden sm:block" />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600">{{ $hero['headline_accent'] ?? 'Jauh Lebih Cerdas' }}</span>
         </h1>
         
         <p class="text-base sm:text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-14 px-4 animate-fade-in-up leading-relaxed" style="animation-duration: 0.9s;">
-            Modernisasi operasional peternakan Anda dengan platform data-driven terlengkap. Mulai dari pemantauan kesehatan hingga analitik finansial.
+            {{ $hero['subheadline'] ?? 'Modernisasi operasional peternakan Anda dengan platform data-driven terlengkap. Mulai dari pemantauan kesehatan hingga analitik finansial.' }}
         </p>
         
         <div class="flex flex-col sm:flex-row gap-5 justify-center w-full px-4 animate-fade-in-up" style="animation-duration: 1.1s;">
@@ -53,14 +99,56 @@
         </div>
         
         <!-- Real Admin Dashboard Screenshot Preview -->
-        <div class="mt-24 sm:mt-32 w-full max-w-6xl mx-auto relative px-2 sm:px-0 animate-fade-in-up" style="animation-duration: 1.3s;">
+        @php
+            $showcase = \App\Models\FarmSetting::getJson('site_hero_showcase', [
+                ['tab_title' => 'Dasbor Utama', 'media_type' => 'IMAGE', 'path' => 'img/dashboard_preview.png'],
+                ['tab_title' => 'Breeding Cycle', 'media_type' => 'IMAGE', 'path' => 'img/dashboard_preview.png'],
+                ['tab_title' => 'Video Walkthrough', 'media_type' => 'VIDEO', 'path' => '']
+            ]);
+        @endphp
+        <div class="mt-24 sm:mt-32 w-full max-w-6xl mx-auto relative px-2 sm:px-0 animate-fade-in-up" 
+             style="animation-duration: 1.3s;"
+             x-data="{ activeTab: 0 }">
             <div class="absolute -inset-1 sm:-inset-4 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 rounded-[2.5rem] sm:rounded-[4rem] blur-3xl opacity-30 dark:opacity-40"></div>
+            
+            <!-- Tab Controls -->
+            <div class="relative z-10 flex flex-wrap justify-center gap-2 mb-8">
+                @foreach ($showcase as $index => $item)
+                    <button type="button" 
+                            @click="activeTab = {{ $index }}" 
+                            :class="activeTab === {{ $index }} ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'bg-white/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+                            class="px-5 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 active:scale-95">
+                        {{ $item['tab_title'] ?? 'Tab ' . ($index + 1) }}
+                    </button>
+                @endforeach
+            </div>
+
+            <!-- Media Container -->
             <div class="relative bg-white dark:bg-slate-800 rounded-[2rem] sm:rounded-[3.5rem] p-1.5 sm:p-3.5 shadow-2xl border border-slate-200 dark:border-slate-700 transition-transform duration-700 hover:scale-[1.01]">
-                <div class="bg-slate-100 dark:bg-slate-900 rounded-[1.2rem] sm:rounded-[2.8rem] overflow-hidden border border-slate-200/50 dark:border-slate-800 shadow-inner">
-                    <img src="{{ asset('img/dashboard_preview.png') }}" alt="Admin Dashboard Live Preview" class="w-full h-auto object-cover opacity-95 group-hover:opacity-100 transition-opacity" />
+                <div class="bg-slate-100 dark:bg-slate-900 rounded-[1.2rem] sm:rounded-[2.8rem] overflow-hidden border border-slate-200/50 dark:border-slate-800 shadow-inner relative aspect-video flex items-center justify-center">
                     
-                    <!-- Overlay to prevent direct interaction with sample image and add depth -->
-                    <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/10 dark:from-slate-900/40 pointer-events-none"></div>
+                    @foreach ($showcase as $index => $item)
+                        <div x-show="activeTab === {{ $index }}" 
+                             x-cloak
+                             class="absolute inset-0 w-full h-full">
+                            
+                            @if (($item['media_type'] ?? 'IMAGE') === 'VIDEO' && !empty($item['path']))
+                                <video class="w-full h-full object-cover" autoplay muted loop playsinline controls>
+                                    <source src="{{ Storage::url($item['path']) }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            @else
+                                @php
+                                    $imagePath = !empty($item['path']) 
+                                        ? (Str::startsWith($item['path'], 'img/') ? asset($item['path']) : Storage::url($item['path'])) 
+                                        : asset('img/dashboard_preview.png');
+                                @endphp
+                                <img src="{{ $imagePath }}" alt="{{ $item['tab_title'] ?? 'Preview' }}" class="w-full h-full object-cover opacity-95" />
+                                <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/10 dark:from-slate-900/40 pointer-events-none"></div>
+                            @endif
+                        </div>
+                    @endforeach
+
                 </div>
             </div>
             
@@ -79,22 +167,12 @@
 <section class="py-20 bg-emerald-600">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            @foreach ($stats as $stat)
             <div class="flex flex-col gap-2">
-                <span class="text-4xl sm:text-5xl font-black text-white">500+</span>
-                <span class="text-emerald-100 font-bold uppercase tracking-wider text-xs">Peternak Terdaftar</span>
+                <span class="text-4xl sm:text-5xl font-black text-white">{{ $stat['number'] ?? '' }}</span>
+                <span class="text-emerald-100 font-bold uppercase tracking-wider text-xs">{{ $stat['label'] ?? '' }}</span>
             </div>
-            <div class="flex flex-col gap-2">
-                <span class="text-4xl sm:text-5xl font-black text-white">10K+</span>
-                <span class="text-emerald-100 font-bold uppercase tracking-wider text-xs">Ternak Dikelola</span>
-            </div>
-            <div class="flex flex-col gap-2">
-                <span class="text-4xl sm:text-5xl font-black text-white">25+</span>
-                <span class="text-emerald-100 font-bold uppercase tracking-wider text-xs">Kota Wilayah Kerja</span>
-            </div>
-            <div class="flex flex-col gap-2">
-                <span class="text-4xl sm:text-5xl font-black text-white">99%</span>
-                <span class="text-emerald-100 font-bold uppercase tracking-wider text-xs">Akurasi Data</span>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -107,10 +185,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center max-w-3xl mx-auto mb-20 sm:mb-32">
             <h2 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white mb-8 leading-tight">
-                Powerfull fitur untuk <br class="hidden sm:block" /> mengelola bisnis Anda
+                {!! nl2br(e($featuresHeader['title'] ?? 'Powerfull fitur untuk mengelola bisnis Anda')) !!}
             </h2>
             <p class="text-lg sm:text-2xl text-slate-600 dark:text-slate-400 font-medium">
-                Didesain dari nol untuk kebutuhan spesifik peternak di Indonesia.
+                {{ $featuresHeader['subtitle'] ?? 'Didesain dari nol untuk kebutuhan spesikan peternak di Indonesia.' }}
             </p>
         </div>
 
@@ -118,43 +196,43 @@
             @php
             $features = [
                 [
-                    'title' => 'Profil Hewan Digital',
-                    'desc' => 'Setiap ekor ternak memiliki kartu identitas digital lengkap dengan silsilah, vaksinasi, dan riwayat mutasi.',
+                    'title' => $cmsFeatures[0]['title'] ?? 'Profil Hewan Digital',
+                    'desc' => $cmsFeatures[0]['desc'] ?? 'Setiap ekor ternak memiliki kartu identitas digital lengkap dengan silsilah, vaksinasi, dan riwayat mutasi.',
                     'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
                     'link' => route('pages.digital-livestock'),
                     'color' => 'emerald'
                 ],
                 [
-                    'title' => 'Smart Breeding Tracking',
-                    'desc' => 'Jangan pernah melewatkan masa subur. Sistem kami secara otomatis menghitung masa kebuntingan dan hari perkiraan lahir.',
+                    'title' => $cmsFeatures[1]['title'] ?? 'Smart Breeding Tracking',
+                    'desc' => $cmsFeatures[1]['desc'] ?? 'Jangan pernah melewatkan masa subur. Sistem kami secara otomatis menghitung masa kebuntingan dan hari perkiraan lahir.',
                     'icon' => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
                     'link' => '#',
                     'color' => 'amber'
                 ],
                 [
-                    'title' => 'Laporan Akuntansi Otomatis',
-                    'desc' => 'Hasilkan laporan laba rugi, HPP, dan valuasi stok pakan secara instan tanpa perlu keahlian akuntansi mendalam.',
+                    'title' => $cmsFeatures[2]['title'] ?? 'Laporan Akuntansi Otomatis',
+                    'desc' => $cmsFeatures[2]['desc'] ?? 'Hasilkan laporan laba rugi, HPP, dan valuasi stok pakan secara instan tanpa perlu keahlian akuntansi mendalam.',
                     'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
                     'link' => route('pages.sales-tracking'),
                     'color' => 'blue'
                 ],
                 [
-                    'title' => 'Scan QR Inovatif',
-                    'desc' => 'Akses cepat data hewan hanya dengan scan QR Code. Mendukung upload dari galeri dan integrasi kamera mobile.',
+                    'title' => $cmsFeatures[3]['title'] ?? 'Scan QR Inovatif',
+                    'desc' => $cmsFeatures[3]['desc'] ?? 'Akses cepat data hewan hanya dengan scan QR Code. Mendukung upload dari galeri dan integrasi kamera mobile.',
                     'icon' => 'M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z',
                     'link' => '#',
                     'color' => 'teal'
                 ],
                 [
-                    'title' => 'Manajemen Pakan & Stok',
-                    'desc' => 'Kelola gudang pakan dengan sistem First-In-First-Out (FIFO) dan pantau sisa stok secara real-time.',
+                    'title' => $cmsFeatures[4]['title'] ?? 'Manajemen Pakan & Stok',
+                    'desc' => $cmsFeatures[4]['desc'] ?? 'Kelola gudang pakan dengan sistem First-In-First-Out (FIFO) dan pantau sisa stok secara real-time.',
                     'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
                     'link' => route('pages.feed-management'),
                     'color' => 'indigo'
                 ],
                 [
-                    'title' => 'Health Monitoring',
-                    'desc' => 'Catat riwayat penyakit, pemberian vitamin, dan jadwal vaksinasi untuk menjaga kesehatan seluruh koloni.',
+                    'title' => $cmsFeatures[5]['title'] ?? 'Health Monitoring',
+                    'desc' => $cmsFeatures[5]['desc'] ?? 'Catat riwayat penyakit, pemberian vitamin, dan jadwal vaksinasi untuk menjaga kesehatan seluruh koloni.',
                     'icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
                     'link' => route('pages.health-monitoring'),
                     'color' => 'rose'
@@ -183,18 +261,13 @@
         <div class="flex flex-col lg:flex-row items-center gap-20">
             <div class="flex-1 space-y-10">
                 <h2 class="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white leading-tight">
-                    Siap Membawa <br/> <span class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-2xl">Revolusi Digital</span> <br/> ke Kandang Anda?
+                    {!! nl2br(e($about['heading'] ?? 'Siap Membawa Revolusi Digital ke Kandang Anda?')) !!}
                 </h2>
                 <p class="text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                    Sahabat Farm Indonesia lahir dari semangat untuk membantu peternak lokal bersaing di era digital. Kami mengombinasikan kearifan lokal peternakan dengan teknologi cloud terbaru untuk hasil maksimal.
+                    {{ $about['paragraph'] ?? 'Sahabat Farm Indonesia lahir dari semangat untuk membantu peternak lokal bersaing di era digital. Kami mengombinasikan kearifan lokal peternakan dengan teknologi cloud terbaru untuk hasil maksimal.' }}
                 </p>
                 <div class="space-y-6">
-                    @foreach([
-                        'Terintegrasi dengan sistem IoT (Dalam Pengembangan)',
-                        'Data tersimpan aman di infrastruktur cloud terpercaya',
-                        'Tim support ahli yang siap membantu implementasi',
-                        'User interface ramah pengguna, bahkan untuk pemula'
-                    ] as $item)
+                    @foreach(($about['checklist'] ?? []) as $item)
                     <div class="flex items-center gap-4">
                         <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -207,7 +280,10 @@
             <div class="flex-1 relative">
                 <div class="absolute -inset-10 bg-emerald-500/10 dark:bg-emerald-500/5 blur-[100px] rounded-full"></div>
                 <div class="relative rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-slate-800 transform rotate-2">
-                    <img src="{{ asset('img/logo.png') }}" class="w-full h-auto bg-white p-20 opacity-90" alt="About Sahabat Farm Indonesia" />
+                    @php
+                        $aboutImage = !empty($about['image']) ? Storage::url($about['image']) : asset('img/logo.png');
+                    @endphp
+                    <img src="{{ $aboutImage }}" class="w-full h-auto bg-white p-20 opacity-90" alt="About Sahabat Farm Indonesia" />
                 </div>
             </div>
         </div>
@@ -223,7 +299,7 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            @for ($i = 0; $i < 3; $i++)
+            @foreach ($testimonials as $t)
             <div class="p-10 rounded-[2.5rem] bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700">
                 <div class="flex gap-1 text-amber-500 mb-6">
                     @for ($j = 0; $j < 5; $j++)
@@ -231,27 +307,70 @@
                     @endfor
                 </div>
                 <p class="text-lg italic text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-medium">
-                    "Setelah menggunakan Sahabat Farm Indonesia, saya bisa memantau pertumbuhan kambing hanya dari handphone. Sangat membantu untuk efisiensi pakan!"
+                    "{{ $t['quote'] ?? '' }}"
                 </p>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-emerald-100"></div>
                     <div>
-                        <h4 class="font-bold">Mitra Peternak {{ $i + 1 }}</h4>
-                        <span class="text-sm text-slate-500">Owner Farm Maju Jaya</span>
+                        <h4 class="font-bold">{{ $t['name'] ?? '' }}</h4>
+                        <span class="text-sm text-slate-500">{{ $t['role'] ?? '' }}</span>
                     </div>
                 </div>
             </div>
-            @endfor
+            @endforeach
         </div>
     </div>
 </section>
+
+<!-- Latest Articles Section -->
+@php
+    $latestArticles = \App\Models\Article::where('is_published', true)->latest()->take(3)->get();
+@endphp
+@if($latestArticles->count() > 0)
+<section class="py-24 sm:py-32 bg-slate-50 dark:bg-slate-800/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-5xl font-black mb-4">Artikel Terkini</h2>
+            <p class="text-lg text-slate-500 font-medium">Tips, kabar terbaru, dan insight menarik dari kami.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            @foreach ($latestArticles as $article)
+            <div class="group rounded-3xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+                <!-- Thumbnail -->
+                <div class="aspect-video relative overflow-hidden bg-slate-100">
+                    <img src="{{ $article->thumbnail ? Storage::url($article->thumbnail) : asset('img/logo.png') }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ $article->title }}">
+                </div>
+                
+                <!-- Card Body -->
+                <div class="p-6 flex flex-col flex-grow">
+                    <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">
+                        {{ $article->published_at ? $article->published_at->format('d M Y') : $article->created_at->format('d M Y') }}
+                    </span>
+                    <h3 class="text-xl font-bold mb-3 dark:text-white line-clamp-2 hover:text-emerald-500 transition-colors">
+                        <a href="{{ route('pages.articles.show', $article->slug) }}">{{ $article->title }}</a>
+                    </h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-3 leading-relaxed flex-grow">
+                        {{ $article->summary }}
+                    </p>
+                    <a href="{{ route('pages.articles.show', $article->slug) }}" class="inline-flex items-center text-sm font-bold text-emerald-600 hover:text-emerald-500">
+                        Baca Selengkapnya
+                        <svg class="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- CTA Section -->
 <section class="py-24 sm:py-40 relative overflow-hidden">
     <div class="absolute inset-0 bg-slate-900 rounded-[4rem] mx-4 sm:mx-8"></div>
     <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        <h2 class="text-4xl sm:text-6xl font-black text-white mb-10 leading-tight">Mulai Transformasi <br/> Peternakan Anda Hari Ini</h2>
-        <p class="text-xl text-slate-400 mb-14 max-w-2xl mx-auto leading-relaxed">Bergabunglah dengan ratusan peternak lainnya yang telah mendigitalisasi bisnis mereka. Gratis konsultasi awal!</p>
+        <h2 class="text-4xl sm:text-6xl font-black text-white mb-10 leading-tight">{!! nl2br(e($cta['headline'] ?? 'Mulai Transformasi Peternakan Anda Hari Ini')) !!}</h2>
+        <p class="text-xl text-slate-400 mb-14 max-w-2xl mx-auto leading-relaxed">{{ $cta['subheadline'] ?? 'Bergabunglah dengan ratusan peternak lainnya yang telah mendigitalisasi bisnis mereka. Gratis konsultasi awal!' }}</p>
         <div class="flex flex-col sm:flex-row gap-6 justify-center">
             <a href="{{ route('login') }}" class="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl rounded-2xl transition-all hover:-translate-y-1">Mulai Sekarang</a>
             @if (Route::has('register'))

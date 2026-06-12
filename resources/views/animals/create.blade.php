@@ -120,6 +120,26 @@
                     <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="photo" name="photo[]" type="file" multiple>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG (Maks. 10MB per file. Foto akan dikompresi otomatis).</p>
                 </div>
+                
+                <!-- Katalog Section -->
+                <div class="md:col-span-2 p-4 border rounded-lg bg-emerald-50/50 dark:bg-emerald-900/10" 
+                     x-data="{ forSale: {{ old('is_for_sale', 0) ? 'true' : 'false' }} }">
+                    <label class="flex items-center gap-3 cursor-pointer mb-4">
+                        <input type="hidden" name="is_for_sale" value="0">
+                        <input type="checkbox" name="is_for_sale" value="1" x-model="forSale" class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 dark:focus:ring-emerald-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">Tampilkan di Katalog Publik</span>
+                    </label>
+                    <div x-show="forSale" x-cloak class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label for="sale_price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Harga Jual (Rp) <span class="text-red-500">*</span></label>
+                            <input type="number" id="sale_price" name="sale_price" :required="forSale" value="{{ old('sale_price') }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="sale_description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deskripsi Katalog <span class="text-red-500">*</span></label>
+                            <textarea id="sale_description" name="sale_description" :required="forSale" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">{{ old('sale_description') }}</textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
             <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Simpan</button>
         </form>

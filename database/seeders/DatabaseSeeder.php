@@ -34,5 +34,6 @@ class DatabaseSeeder extends Seeder
 
         // 3. Call Real Time Farm Simulation
         $this->call(RealTimeFarmSeeder::class);
+        $this->call(ArticleSeeder::class);
     }
 }

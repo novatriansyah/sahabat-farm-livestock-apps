@@ -3,14 +3,34 @@
 @section('title', 'Tentang Kami')
 
 @section('content')
+@php
+    $aboutUs = \App\Models\FarmSetting::getJson('site_about_us', [
+        'heading' => 'Tentang Sahabat Farm Indonesia',
+        'subheading' => 'Membangun masa depan peternakan Indonesia yang modern, efisien, dan berkelanjutan.',
+        'vision_title' => 'Visi Kami',
+        'vision_text' => 'Menjadi platform manajemen peternakan nomor satu di Asia Tenggara yang memberdayakan peternak kecil hingga skala industri.',
+        'mission_title' => 'Misi Kami',
+        'mission_checklist' => [
+            'Menyediakan teknologi yang mudah digunakan oleh seluruh lapisan peternak.',
+            'Meningkatkan akurasi data untuk mengoptimalkan profitabilitas peternak.',
+            'Memfasilitasi ekosistem peternakan yang transparan dan akuntabel.'
+        ],
+        'images' => [
+            'team_1' => '',
+            'team_2' => '',
+            'team_3' => '',
+            'team_4' => ''
+        ]
+    ]);
+@endphp
 <div class="relative pt-32 pb-20 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
             <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white mb-8 leading-tight animate-fade-in-up">
-                Tentang <span class="text-emerald-500">Sahabat Farm Indonesia</span>
+                {!! nl2br(e($aboutUs['heading'] ?? 'Tentang Sahabat Farm Indonesia')) !!}
             </h1>
             <p class="text-lg sm:text-2xl text-slate-600 dark:text-slate-400 font-medium animate-fade-in-up" style="animation-delay: 0.1s">
-                Membangun masa depan peternakan Indonesia yang modern, efisien, dan berkelanjutan.
+                {{ $aboutUs['subheading'] ?? 'Membangun masa depan peternakan Indonesia yang modern, efisien, dan berkelanjutan.' }}
             </p>
         </div>
 
@@ -21,30 +41,30 @@
                     Sahabat Farm Indonesia didirikan oleh sekelompok ahli peternakan dan teknologi yang memiliki satu mimpi: mendigitalisasi sektor peternakan agar peternak lokal dapat bersaing secara global.
                 </p>
                 <div class="p-8 rounded-3xl bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700">
-                    <h3 class="text-xl font-bold mb-4 text-emerald-600">Visi Kami</h3>
-                    <p class="text-slate-600 dark:text-slate-300">Menjadi platform manajemen peternakan nomor satu di Asia Tenggara yang memberdayakan peternak kecil hingga skala industri.</p>
+                    <h3 class="text-xl font-bold mb-4 text-emerald-600">{{ $aboutUs['vision_title'] ?? 'Visi Kami' }}</h3>
+                    <p class="text-slate-600 dark:text-slate-300">{{ $aboutUs['vision_text'] ?? 'Menjadi platform manajemen peternakan nomor satu di Asia Tenggara yang memberdayakan peternak kecil hingga skala industri.' }}</p>
                 </div>
                 <div class="p-8 rounded-3xl bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700">
-                    <h3 class="text-xl font-bold mb-4 text-emerald-600">Misi Kami</h3>
+                    <h3 class="text-xl font-bold mb-4 text-emerald-600">{{ $aboutUs['mission_title'] ?? 'Misi Kami' }}</h3>
                     <ul class="space-y-2 text-slate-600 dark:text-slate-300">
-                        <li>• Menyediakan teknologi yang mudah digunakan oleh seluruh lapisan peternak.</li>
-                        <li>• Meningkatkan akurasi data untuk mengoptimalkan profitabilitas peternak.</li>
-                        <li>• Memfasilitasi ekosistem peternakan yang transparan dan akuntabel.</li>
+                        @foreach(($aboutUs['mission_checklist'] ?? []) as $item)
+                            <li>• {{ $item }}</li>
+                        @endforeach
                     </ul>
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in-up" style="animation-delay: 0.3s">
                 <div class="aspect-square rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-slate-700 transform rotate-3">
-                     <img src="{{ asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-emerald-50" alt="Team 1" />
+                     <img src="{{ !empty($aboutUs['images']['team_1']) ? Storage::url($aboutUs['images']['team_1']) : asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-emerald-50" alt="Team 1" />
                 </div>
                 <div class="aspect-square rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-slate-700 transform -rotate-3 mt-10">
-                     <img src="{{ asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-teal-50" alt="Team 2" />
+                     <img src="{{ !empty($aboutUs['images']['team_2']) ? Storage::url($aboutUs['images']['team_2']) : asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-teal-50" alt="Team 2" />
                 </div>
                 <div class="aspect-square rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-slate-700 transform -rotate-2">
-                     <img src="{{ asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-blue-50" alt="Team 3" />
+                     <img src="{{ !empty($aboutUs['images']['team_3']) ? Storage::url($aboutUs['images']['team_3']) : asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-blue-50" alt="Team 3" />
                 </div>
                 <div class="aspect-square rounded-3xl overflow-hidden shadow-lg border-4 border-white dark:border-slate-700 transform rotate-2 mt-4">
-                     <img src="{{ asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-slate-50" alt="Team 4" />
+                     <img src="{{ !empty($aboutUs['images']['team_4']) ? Storage::url($aboutUs['images']['team_4']) : asset('img/logo.png') }}" class="w-full h-full object-cover p-10 bg-slate-50" alt="Team 4" />
                 </div>
             </div>
         </div>

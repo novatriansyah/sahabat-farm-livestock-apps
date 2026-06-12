@@ -17,8 +17,10 @@ use App\Http\Controllers\ScanController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PartnerDashboardController;
+use App\Http\Controllers\SiteContentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -37,7 +39,13 @@ Route::name('pages.')->group(function () {
     Route::view('tentang-kami', 'pages.about-us')->name('about-us');
     Route::view('syarat-ketentuan', 'pages.terms')->name('terms');
     Route::view('kebijakan-privasi', 'pages.privacy')->name('privacy');
-    Route::view('hubungi-kami', 'pages.contact')->name('contact');
+    Route::get('hubungi-kami', function () {
+        $number = \App\Models\FarmSetting::get('whatsapp_number', '');
+        return $number ? redirect("https://wa.me/{$number}") : redirect('/');
+    })->name('contact');
+    Route::get('katalog', [CatalogueController::class, 'index'])->name('catalogue');
+    Route::get('artikel', [\App\Http\Controllers\PublicArticleController::class, 'index'])->name('articles.index');
+    Route::get('artikel/{slug}', [\App\Http\Controllers\PublicArticleController::class, 'show'])->name('articles.show');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -78,6 +86,14 @@ Route::middleware(['auth'])->group(function () {
 
             // Farm Settings
             Route::post('masters/settings', [MasterDataController::class , 'updateSettings'])->name('masters.settings.update');
+
+            // Site Content CMS
+            Route::get('admin/site-content', [SiteContentController::class, 'index'])->name('admin.site-content.index');
+            Route::post('admin/site-content', [SiteContentController::class, 'update'])->name('admin.site-content.update');
+
+            // Articles CRUD
+            Route::resource('admin/articles', \App\Http\Controllers\Admin\ArticleController::class)->names('admin.articles');
+            Route::post('admin/articles/upload-media', [\App\Http\Controllers\Admin\ArticleController::class, 'uploadMedia'])->name('admin.articles.upload-media');
 
             // User Management (Full Resource)
             Route::resource('users', UserController::class);
