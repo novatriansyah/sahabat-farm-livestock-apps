@@ -23,16 +23,20 @@ The Sahabat Farm Indonesia Livestock Application is a comprehensive web-based he
 * **Auto-inheritance**:
   * **Mitra (Partner)**: Inherited from the Dam's partner.
   * **Breed**: Auto-detected from the Sire's breed or Dam's breed if Sire is not specified.
-  * **Generation**: Automatically calculated based on parents (e.g. F2 Sire + F1 Dam = F3 offspring). F6 offspring transition automatically to `PUREBREED`.
+  * **Generation**: Automatically calculated based on parents (e.g. max(Sire, Dam) + 1). Offspring of F6 parents and above transition automatically to `PURE`.
 * **Dam Updates**: Dam's physical status transitions automatically to *Menyusui* (Lactating) upon offspring creation.
 
 ### 2.3 Colony Mating & Breeding Cycles
 * **Mating Colonies**: Group multiple breeding females (Dam) with one breeding male (Sire) in a colony pen.
 * **Auto-Transitions & Alerts**:
-  * **Mating Period**: Spans 60 days. After 60 days, animals are returned to standard status.
-  * **Pregnancy Check (Cek Kebuntingan)**: Initiated 60 days after mating start. If confirmed pregnant, the Dam's status transitions to *Bunting* (Pregnant).
-  * **Weaning Alert (Sapih)**: Offspring are automatically marked for weaning 35 days post-birth.
-  * **Post-partum Recovery (Nifas)**: Indukan recover for 40 days post-birth, transitioning back to *Siap Kawin* (Ready to Mate) after recovery.
+  * **Mating Period / Separation**: Spans 60 days (configurable via settings). After 60 days, a warning alert triggers to separate the Sire ("Waktunya Pisah Pejantan!"). Active colony member statuses are updated via scheduled tasks or manual ending of the mating colony (e.g., returning dams to `SIAP` status).
+  * **Pregnancy Check (Cek Kebuntingan)**: Prompted 60 days after mating start. The pregnancy status change to *Bunting* (Pregnant) is updated manually by the user upon confirmation (e.g., via ultrasound or physical checks).
+  * **Weaning Alert & Auto-Transition (Sapih)**: 
+    * At **35 days** post-birth, a notification alert is sent to users notifying them that the offspring is approaching weaning age ("Siap Sapih").
+    * At **60 days** post-birth (configurable via `weaning_age_days` setting), the scheduled task (`animal:auto-status`) automatically transitions offspring from `Cempe` status to `Bakalan` (if male) or `Dara` (if female).
+    * If the Dam's physical status was *Menyusui* (Lactating), she is automatically reverted back to `Dara` (Ready to Mate) when her offspring are weaned.
+  * **Post-partum Recovery (Nifas)**: Indukan have a configured post-partum recovery period (defaults to 40 days, configurable via `nifas_period_days`). This is strictly enforced as an eligibility validation check in the system, preventing users from recording a mating event for the Dam before her recovery period has elapsed.
+
 
 ### 2.4 Weight & ADG Performance Tracking
 * **Weight Logs**: Historic weight checks logged per animal.
