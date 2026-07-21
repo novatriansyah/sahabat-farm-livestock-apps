@@ -38,11 +38,13 @@ jobs:
       - name: Create .env for testing
         run: |
           cp .env.example .env
-          php artisan key:generate
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=sfi_testing/' .env
 
       - name: Install Composer Dependencies
         run: composer install --no-interaction
+
+      - name: Generate app key
+        run: php artisan key:generate
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
