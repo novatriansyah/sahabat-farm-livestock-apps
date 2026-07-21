@@ -95,6 +95,21 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('admin/articles', \App\Http\Controllers\Admin\ArticleController::class)->names('admin.articles');
             Route::post('admin/articles/upload-media', [\App\Http\Controllers\Admin\ArticleController::class, 'uploadMedia'])->name('admin.articles.upload-media');
 
+            // Export & Backup
+            Route::prefix('admin/export')->name('admin.export.')->group(function () {
+                Route::get('/animals', [\App\Http\Controllers\ExportController::class, 'animals'])->name('animals');
+                Route::get('/animals/template', [\App\Http\Controllers\ExportController::class, 'template'])->name('animals.template');
+                Route::get('/full-backup', [\App\Http\Controllers\ExportController::class, 'fullBackup'])->name('full-backup');
+                Route::post('/reconcile', [\App\Http\Controllers\ExportController::class, 'reconcile'])->name('reconcile');
+                Route::get('/reconciliation', [\App\Http\Controllers\ExportController::class, 'index'])->name('reconciliation.index');
+                Route::get('/reconciliation/{batch}', [\App\Http\Controllers\ExportController::class, 'show'])->name('reconciliation.show');
+            });
+
+            // Report Exports (multi-format)
+            Route::prefix('admin/reports/export')->name('admin.reports.export.')->group(function () {
+                Route::get('/{reportType}/{format}', [\App\Http\Controllers\ReportExportController::class, 'export'])->name('download');
+            });
+
             // User Management (Full Resource)
             Route::resource('users', UserController::class);
 

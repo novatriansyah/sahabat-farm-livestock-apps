@@ -4,14 +4,67 @@ on:
   push:
     branches:
       - master
+      - development
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}
+  SHARED_DIR: ${{ secrets.DEPLOY_PATH }}/shared
 
 jobs:
-  deploy:
+  test:
+    if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: sfi_testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, mysql, zip, gd, bcmath, pdo_mysql
+          coverage: none
+
+      - name: Create .env for testing
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=sfi_testing/' .env
+
+      - name: Install Composer Dependencies
+        run: composer install --no-interaction
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & Build NPM Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run migrations
+        run: php artisan migrate
+
+      - name: Run Tests
+        run: php artisan test
+
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,8 +77,7 @@ jobs:
           coverage: none
 
       - name: Install Composer Dependencies
-        run: |
-          composer install --no-dev --optimize-autoloader --no-interaction
+        run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -44,44 +96,47 @@ jobs:
 
       - name: Deploy with rsync
         run: |
+          RELEASE_DIR="${DEPLOY_DIR}/releases/$(date +%Y%m%d%H%M%S)"
+
+          # Create release directory
+          ssh -p ${{ secrets.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "mkdir -p ${RELEASE_DIR} ${SHARED_DIR}"
+
+          # Rsync code to release directory (exclude storage and env)
           rsync -avz -e "ssh -p ${{ secrets.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no" \
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='.env' \
             --exclude='node_modules/' \
             --exclude='public/storage' \
-            --exclude='storage/app/' \
-            --exclude='storage/logs/' \
-            --exclude='storage/framework/cache/' \
-            --exclude='storage/framework/sessions/' \
-            --exclude='storage/framework/views/' \
+            --exclude='storage/' \
             --exclude='.idea/' \
             --exclude='.vscode/' \
             --exclude='tests/' \
             --exclude='phpunit.xml' \
             --exclude='.phpunit.result.cache' \
             --delete \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${RELEASE_DIR}
 
-      - name: Post-deployment commands
+          # Symlink shared storage and .env into release
+          ssh -p ${{ secrets.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${RELEASE_DIR} && \
+             ln -sfn ${SHARED_DIR}/.env .env && \
+             rm -rf storage && \
+             ln -sfn ${SHARED_DIR}/storage storage && \
+             if [ ! -L public/storage ]; then php artisan storage:link --force; fi && \
+             php artisan migrate --force && \
+             php artisan config:cache && \
+             php artisan route:cache && \
+             php artisan view:cache && \
+             php artisan event:cache && \
+             chmod -R 775 storage bootstrap/cache && \
+             ln -sfn ${RELEASE_DIR} ${DEPLOY_DIR}/current"
+
+      - name: Cleanup old releases (keep last 5)
         run: |
-          ssh -p ${{ secrets.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ secrets.DEPLOY_PATH }}
-
-            # Ensure correct storage symlink is present
-            if [ ! -L public/storage ]; then
-              php artisan storage:link --force
-            fi
-            
-            # Run migrations
-            php artisan migrate --force
-            
-            # Cache optimization
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan event:cache
-            
-            # Permissions
-            chmod -R 775 storage bootstrap/cache
-          EOF
+          ssh -p ${{ secrets.SSH_PORT || '65002' }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${DEPLOY_DIR}/releases && ls -t | tail -n +6 | xargs -r rm -rf"
