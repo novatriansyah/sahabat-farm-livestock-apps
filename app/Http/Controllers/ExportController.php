@@ -54,4 +54,13 @@ class ExportController extends Controller
         $request->validate(['file' => 'required|file|mimes:xlsx']);
         return redirect()->back()->with('info', 'Fitur rekonsiliasi akan tersedia di Task 1.3');
     }
+
+    public function applyReconciliation(Request $request)
+    {
+        $request->validate(['file' => 'required|file|mimes:xlsx,txt,csv']);
+        $service = new \App\Services\ReconciliationService();
+        $importedRows = collect([]); // placeholder
+        $diffs = $service->compare($importedRows);
+        return view('admin.export.reconcile-diff', compact('diffs'));
+    }
 }

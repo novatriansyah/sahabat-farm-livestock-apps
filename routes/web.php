@@ -101,6 +101,12 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/animals/template', [\App\Http\Controllers\ExportController::class, 'template'])->name('animals.template');
                 Route::get('/full-backup', [\App\Http\Controllers\ExportController::class, 'fullBackup'])->name('full-backup');
                 Route::post('/reconcile', [\App\Http\Controllers\ExportController::class, 'reconcile'])->name('reconcile');
+                Route::post('/apply-reconciliation', [\App\Http\Controllers\ExportController::class, 'applyReconciliation'])->name('apply-reconciliation');
+            });
+
+            // Report Exports (multi-format)
+            Route::prefix('admin/reports/export')->name('admin.reports.export.')->group(function () {
+                Route::get('/{reportType}/{format}', [\App\Http\Controllers\ReportExportController::class, 'export'])->name('download');
             });
 
             // User Management (Full Resource)
