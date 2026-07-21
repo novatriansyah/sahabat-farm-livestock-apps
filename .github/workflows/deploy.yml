@@ -77,7 +77,10 @@ jobs:
           coverage: none
 
       - name: Install Composer Dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+      - name: Post-install scripts
+        run: php artisan package:discover --ansi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
