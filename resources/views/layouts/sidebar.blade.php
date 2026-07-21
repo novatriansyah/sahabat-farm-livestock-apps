@@ -164,10 +164,13 @@
                  <li>
                      <a href="{{ route('admin.site-content.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('admin.site-content.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Konten Website</a>
                  </li>
-                 <li>
-                     <a href="{{ route('admin.articles.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('admin.articles.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Artikel</a>
-                 </li>
-             </ul>
+                  <li>
+                      <a href="{{ route('admin.articles.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('admin.articles.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Artikel</a>
+                  </li>
+                  <li>
+                      <a href="{{ route('admin.export.animals') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('admin.export.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Export & Rekonsiliasi</a>
+                  </li>
+              </ul>
          </li>
          @endif
 

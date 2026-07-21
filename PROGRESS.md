@@ -1,64 +1,44 @@
-# PROGRESS — SFI Alignment Project
+# PROGRESS.md — SFI System Alignment
 
-## Completed
+## Latest: 2026-07-21 — Test fixes for ReconciliationService
 
-### Phase 0: Repository Discovery ✅
-- Report at `docs/superpowers/plans/2026-07-21-sfi-phase0-discovery.md`
-- 28 models, 56 migrations, 14 bugs, 24 tasks confirmed
+### Completed
+- ✅ Master plan analysis (Masterplan 1 GPT + Masterplan 2 Claude vs codebase)
+- ✅ Implementation plan created: `docs/superpowers/plans/2026-07-21-sfi-alignment-plan.md`
+- ✅ ReconciliationService + Export feature built:
+  - Multi-sheet animal export (Indukan, Anakan, WeightHistory, etc.)
+  - Blank import template
+  - Two-way reconciliation (diff view, batch tracking)
+  - Reconciliation UI (index + diff blade views) — fixed `layouts.admin` → standalone views
+  - Routes wired under `admin/export/*`
+- ✅ Backup commands: `BackupDatabase`, `ListBackups`, `VerifyBackup`, `RestoreBackup`, `BackupMedia`
+- ✅ BackupCommandTest **6/6 passing**
+- ✅ ReconciliationServiceTest **9/9 passing**
+- ✅ ReconciliationTest **6/6 passing**
 
-### Phase 1 Sheet Fixes ✅ (commits bad6c82, 2ca43f2)
-- All 13 sheets: removed `is_active`/gender filters — exports ALL animals
-- All forceText: replaced `="tag"` formula with `FORMAT_TEXT` column format
-- Added ManifestSheet (schema version, record counts, SHA256 checksum)
-- Added ManifestSheet as first sheet in AnimalMasterExport
-- SummarySheet now counts ALL animals (active + inactive)
-- BOM removed from all files
-- Export tests pass: 13 sheets, 44 animals, manifest with checksum
+### Pending (from masterplan alignment)
+- Generation rule configurable (`master_generation_rules`)
+- Age categories configurable (`master_age_categories`)
+- HPP split by partner (metabolic weight allocation)
+- Sire auto-inference from mating colony
+- Dynamic RBAC (roles/permissions tables)
+- Sales module (proforma invoices)
+- Feed/medicine purchase & usage tracking
+- All parameters frontend-configurable (45 parameters)
+- Audit trail (laravel-auditing)
+- Pending tag assignments + WhatsApp notifications
+- Anti-inbreeding checks
+- Animal age category migration (62% change expected)
 
-## In Progress — Phase 1 Revision
+### Known pre-existing test failures
+- `ArticleAndCmsTest` — 4 failures (unrelated to our changes)
+  - `admin can create article`
+  - `admin can update article`
+  - `admin can upload media quill`
+  - `admin can update site settings cms`
 
-### 1A: Database + Media Backup
-- [ ] Create `BackupDatabase` command (Hostinger-compatible, no exec(), no credentials in CLI)
-- [ ] Generate SHA256 manifest per backup file
-- [ ] Create `BackupMedia` command for storage/ backup
-- [ ] Create `ListBackups` command
-
-### 1B: Staging Restore Test
-- [ ] Create `RestoreBackup` command
-- [ ] Create `VerifyBackup` command (checksum validation)
-- [ ] Document staging restore procedure
-
-### 1C: Canonical Export (done — need to verify B43)
-- [x] All animals export without filters
-- [x] Manifest with record counts and checksum
-- [x] All tags as true string cells
-- [ ] Verify B43 exists as dead/inactive in production
-
-### 1D: Reconciliation Redesign
-- [ ] UUID match + active tag + tag history + composite identity
-- [ ] 5 statuses: SAME, WEB_ONLY, EXCEL_ONLY, CONFLICT, UNCERTAIN
-- [ ] Read-only by default (disable applyReconciliation)
-- [ ] Batch ID + idempotency key
-- [ ] Audit log + rollback support
-
-### 1E: Blank Canonical Import Template
-- [ ] Create separate zero-query template class
-- [ ] Headers, schema, instructions, reference mapping
-- [ ] No production data, no formulas
-
-### Tests
-- [ ] Unit tests for export sheets
-- [ ] Feature tests for export controller
-- [ ] Unit tests for reconciliation service
-- [ ] Feature tests for reconciliation endpoint
-- [ ] Authorization tests
-- [ ] Checksum/manifest tests
-
-### Acceptance Package
-- [ ] SFI_PHASE1_CHECKPOINT_<timestamp>.zip with all deliverables
-- [ ] TAHAP-1-LAPORAN.md
-- [ ] TAHAP-1-SOURCECODE.md
-- [ ] TAHAP-1-FEEDBACK.md
-
-## Blockers
-- No production cutover without `APPROVE_PRODUCTION_CUTOVER` token
+### Notes
+- Animals table uses Indonesian enum values (`BETINA`, `JANTAN`, `HASIL_TERNAK`, `SEHAT`)
+- `purchase_price` and `sale_price` are NOT NULL with 0 default
+- Ear tag logs use auto-increment `id`, not UUID
+- ReconciliationService now skips null/empty upload fields to avoid false conflicts

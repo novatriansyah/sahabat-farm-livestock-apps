@@ -19,7 +19,7 @@ class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
 
     public function headings(): array
     {
-        return ['tag_id', 'partner_name', 'start_date', 'end_date', 'is_current', 'notes'];
+        return ['tag_id', 'partner_name', 'changed_at', 'end_date', 'is_current', 'notes'];
     }
 
     public function map($log): array
@@ -27,7 +27,7 @@ class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
         return [
             $log->animal?->tag_id,
             $log->partner?->name,
-            $log->start_date?->format('Y-m-d') ?: '',
+            $log->changed_at?->format('Y-m-d') ?: '',
             $log->end_date?->format('Y-m-d') ?: '',
             $log->is_current ? 'Ya' : 'Tidak',
             $log->notes,
@@ -39,7 +39,7 @@ class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
         return AnimalOwnershipLog::query()
             ->with(['animal', 'partner'])
             ->orderBy('animal_id')
-            ->orderBy('start_date');
+            ->orderBy('changed_at');
     }
 
     public function columnFormats(): array

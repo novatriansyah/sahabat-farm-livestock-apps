@@ -21,7 +21,7 @@ class HppHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping
     {
         return [
             'id', 'animal_id', 'tag_id', 'cost_type', 'amount',
-            'description', 'input_date', 'created_at',
+            'description', 'month', 'created_at',
         ];
     }
 
@@ -34,7 +34,7 @@ class HppHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping
             $cost->cost_type,
             $cost->amount,
             $cost->description,
-            $cost->input_date?->format('Y-m-d') ?: '',
+            $cost->month,
             $cost->created_at?->format('Y-m-d H:i:s'),
         ];
     }
@@ -43,9 +43,9 @@ class HppHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping
     {
         return HppManualCost::query()
             ->with('animal')
-            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('input_date', '>=', $d))
-            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('input_date', '<=', $d))
-            ->orderBy('input_date');
+            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('created_at', '>=', $d))
+            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('created_at', '<=', $d))
+            ->orderBy('created_at');
     }
 
     public function columnFormats(): array

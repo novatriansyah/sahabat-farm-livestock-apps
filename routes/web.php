@@ -101,7 +101,8 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/animals/template', [\App\Http\Controllers\ExportController::class, 'template'])->name('animals.template');
                 Route::get('/full-backup', [\App\Http\Controllers\ExportController::class, 'fullBackup'])->name('full-backup');
                 Route::post('/reconcile', [\App\Http\Controllers\ExportController::class, 'reconcile'])->name('reconcile');
-                Route::post('/apply-reconciliation', [\App\Http\Controllers\ExportController::class, 'applyReconciliation'])->name('apply-reconciliation');
+                Route::get('/reconciliation', [\App\Http\Controllers\ExportController::class, 'index'])->name('reconciliation.index');
+                Route::get('/reconciliation/{batch}', [\App\Http\Controllers\ExportController::class, 'show'])->name('reconciliation.show');
             });
 
             // Report Exports (multi-format)

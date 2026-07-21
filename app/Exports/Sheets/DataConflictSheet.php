@@ -21,7 +21,7 @@ class DataConflictSheet implements FromQuery, WithTitle, WithHeadings, WithMappi
     {
         return [
             'tag_id', 'issue_type', 'description', 'field', 'current_value',
-            'expected_value', 'severity', 'needs_review',
+            'expected_value', 'severity',
         ];
     }
 
@@ -37,19 +37,6 @@ class DataConflictSheet implements FromQuery, WithTitle, WithHeadings, WithMappi
                 '',
                 'Diharapkan terisi',
                 'HIGH',
-                'Ya',
-            ];
-        }
-        if ($animal->needs_review) {
-            $issues[] = [
-                $animal->tag_id,
-                'NEEDS_REVIEW',
-                $animal->notes ?? 'Menunggu verifikasi',
-                'needs_review',
-                'Ya',
-                'Tidak',
-                'MEDIUM',
-                'Ya',
             ];
         }
         return $issues;
@@ -58,10 +45,8 @@ class DataConflictSheet implements FromQuery, WithTitle, WithHeadings, WithMappi
     public function query()
     {
         return Animal::query()
-            ->where(function ($q) {
-                $q->whereNull('sire_id')->whereNotNull('dam_id')
-                  ->orWhere('needs_review', true);
-            })
+            ->whereNull('sire_id')
+            ->whereNotNull('dam_id')
             ->orderBy('tag_id');
     }
 

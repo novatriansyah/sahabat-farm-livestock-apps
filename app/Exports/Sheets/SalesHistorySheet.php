@@ -20,7 +20,7 @@ class SalesHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMappi
     public function headings(): array
     {
         return [
-            'invoice_number', 'customer_name', 'customer_phone', 'issue_date',
+            'invoice_number', 'customer_name', 'customer_phone', 'issued_date',
             'tag_id', 'animal_breed', 'unit_price', 'line_total',
             'subtotal', 'discount', 'tax', 'total',
             'dp_amount', 'status', 'notes',
@@ -37,7 +37,7 @@ class SalesHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMappi
                 $invoice->invoice_number,
                 $invoice->customer_name,
                 $invoice->customer_phone,
-                $invoice->issue_date?->format('Y-m-d') ?: '',
+                $invoice->issued_date?->format('Y-m-d') ?: '',
                 $item->animal?->tag_id,
                 $item->animal?->breed?->name,
                 $item->unit_price,
@@ -59,10 +59,10 @@ class SalesHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMappi
     {
         return Invoice::query()
             ->with(['items.animal.breed'])
-            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('issue_date', '>=', $d))
-            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('issue_date', '<=', $d))
+            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('issued_date', '>=', $d))
+            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('issued_date', '<=', $d))
             ->when($this->filters['status'] ?? null, fn($q, $s) => $q->where('status', $s))
-            ->orderBy('issue_date');
+            ->orderBy('issued_date');
     }
 
     public function columnFormats(): array

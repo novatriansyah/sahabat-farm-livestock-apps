@@ -34,4 +34,14 @@ class AnimalOwnershipLog extends Model
     {
         return $this->belongsTo(User::class, 'recorded_by');
     }
+
+    public function getPartnerAttribute()
+    {
+        return $this->newPartner ?? $this->oldPartner;
+    }
+
+    public function getIsCurrentAttribute()
+    {
+        return $this->end_date === null;
+    }
 }
