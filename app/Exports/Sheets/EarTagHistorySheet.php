@@ -13,6 +13,8 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
 class EarTagHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting
 {
+    public function __construct(private array $filters = []) {}
+
     public function title(): string { return 'RIWAYAT EARTAG'; }
 
     public function headings(): array
@@ -23,7 +25,7 @@ class EarTagHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapp
     public function map($log): array
     {
         return [
-            $this->forceText($log->animal?->tag_id),
+            $log->animal?->tag_id,
             $log->old_tag_id,
             $log->new_tag_id,
             $log->reason,
@@ -43,11 +45,10 @@ class EarTagHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapp
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT];
-    }
-
-    private function forceText($value): string
-    {
-        return "=\"{$value}\"";
+        return [
+            'A' => NumberFormat::FORMAT_TEXT,   // tag_id
+            'B' => NumberFormat::FORMAT_TEXT,   // old_tag_id
+            'C' => NumberFormat::FORMAT_TEXT,   // new_tag_id
+        ];
     }
 }

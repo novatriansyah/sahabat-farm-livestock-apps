@@ -14,15 +14,21 @@ use App\Exports\Sheets\BirthEventSheet;
 use App\Exports\Sheets\SalesHistorySheet;
 use App\Exports\Sheets\DataConflictSheet;
 use App\Exports\Sheets\SummarySheet;
+use App\Exports\Sheets\ManifestSheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class AnimalMasterExport implements WithMultipleSheets
 {
-    public function __construct(private array $filters = []) {}
+    public function __construct(
+        private array $filters = [],
+        private string $commitHash = '',
+        private string $environment = 'local',
+    ) {}
 
     public function sheets(): array
     {
         return [
+            'MANIFEST'         => new ManifestSheet('1.0.0', $this->commitHash, $this->environment),
             'INDUKAN'          => new IndukanSheet($this->filters),
             'ANAKAN'           => new AnakanSheet($this->filters),
             'RIWAYAT BOBOT'    => new WeightHistorySheet($this->filters),

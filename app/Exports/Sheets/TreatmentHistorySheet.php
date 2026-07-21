@@ -19,41 +19,42 @@ class TreatmentHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
 
     public function headings(): array
     {
-        return ['tag_id', 'treatment_date', 'treatment_type', 'diagnosis', 'medicine', 'dosage', 'withdrawal_days', 'veterinarian', 'cost', 'notes', 'created_at'];
+        return [
+            'id', 'animal_id', 'tag_id', 'treatment_date', 'type',
+            'disease_name', 'notes', 'next_due_date',
+            'created_at', 'updated_at',
+        ];
     }
 
     public function map($log): array
     {
         return [
-            $this->forceText($log->animal?->tag_id),
+            $log->id,
+            $log->animal_id,
+            $log->animal?->tag_id,
             $log->treatment_date?->format('Y-m-d') ?: '',
-            $log->treatment_type,
-            $log->diagnosis,
-            $log->medicine,
-            $log->dosage,
-            $log->withdrawal_days,
-            $log->veterinarian,
-            $log->cost,
+            $log->type,
+            $log->disease?->name,
             $log->notes,
+            $log->next_due_date?->format('Y-m-d') ?: '',
             $log->created_at?->format('Y-m-d H:i:s'),
+            $log->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 
     public function query()
     {
         return TreatmentLog::query()
-            ->with('animal')
-            ->orderBy('animal_id')
+            ->with(['animal', 'disease'])
+            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('treatment_date', '>=', $d))
+            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('treatment_date', '<=', $d))
             ->orderBy('treatment_date');
     }
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT];
-    }
-
-    private function forceText($value): string
-    {
-        return "=\"{$value}\"";
+        return [
+            'C' => NumberFormat::FORMAT_TEXT,   // tag_id
+        ];
     }
 }

@@ -19,17 +19,22 @@ class MatingColonySheet implements FromQuery, WithTitle, WithHeadings, WithMappi
 
     public function headings(): array
     {
-        return ['colony_name', 'sire_tag_id', 'start_date', 'end_date', 'member_tags', 'notes'];
+        return [
+            'colony_id', 'sire_tag_id', 'sire_name', 'start_date', 'end_date',
+            'status', 'member_count', 'notes',
+        ];
     }
 
     public function map($colony): array
     {
         return [
-            $colony->name,
+            $colony->id,
             $colony->sire?->tag_id,
+            $colony->sire?->tag_id . ' - ' . ($colony->sire?->breed?->name ?? ''),
             $colony->start_date?->format('Y-m-d') ?: '',
             $colony->end_date?->format('Y-m-d') ?: '',
-            $colony->members?->pluck('animal.tag_id')->implode(', '),
+            $colony->status,
+            $colony->members?->count() ?? 0,
             $colony->notes,
         ];
     }
@@ -37,17 +42,14 @@ class MatingColonySheet implements FromQuery, WithTitle, WithHeadings, WithMappi
     public function query()
     {
         return MatingColony::query()
-            ->with(['sire', 'members.animal'])
+            ->with(['sire.breed', 'members'])
             ->orderBy('start_date');
     }
 
     public function columnFormats(): array
     {
-        return ['B' => NumberFormat::FORMAT_TEXT];
-    }
-
-    private function forceText($value): string
-    {
-        return "=\"{$value}\"";
+        return [
+            'B' => NumberFormat::FORMAT_TEXT,   // sire_tag_id
+        ];
     }
 }

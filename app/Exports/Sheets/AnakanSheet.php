@@ -81,9 +81,6 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
     public function query()
     {
         return Animal::query()
-            ->where('gender', 'JANTAN')
-            ->where('is_active', true)
-            ->whereNotNull('dam_id')
             ->with(['sire', 'dam', 'breed', 'physStatus', 'location', 'partner', 'photos', 'videos'])
             ->when($this->filters['partner_id'] ?? null, fn($q, $id) => $q->where('partner_id', $id))
             ->when($this->filters['location_id'] ?? null, fn($q, $id) => $q->where('current_location_id', $id))
@@ -92,11 +89,17 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT];
+        return [
+            'A' => NumberFormat::FORMAT_TEXT,   // tag_id
+            'B' => NumberFormat::FORMAT_TEXT,   // legacy_tag_number
+            'C' => NumberFormat::FORMAT_TEXT,   // old_tag_id
+            'D' => NumberFormat::FORMAT_TEXT,   // dam_tag_id
+            'E' => NumberFormat::FORMAT_TEXT,   // sire_tag_id
+        ];
     }
 
     private function forceText($value): string
     {
-        return "=\"{$value}\"";
+        return (string) $value;
     }
 }

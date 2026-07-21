@@ -69,8 +69,6 @@ class IndukanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, S
     public function query()
     {
         return Animal::query()
-            ->where('gender', 'BETINA')
-            ->where('is_active', true)
             ->with(['breed', 'physStatus', 'location', 'partner', 'offspring', 'photos', 'videos'])
             ->when($this->filters['partner_id'] ?? null, fn($q, $id) => $q->where('partner_id', $id))
             ->when($this->filters['location_id'] ?? null, fn($q, $id) => $q->where('current_location_id', $id))
@@ -79,11 +77,14 @@ class IndukanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, S
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT];
+        return [
+            'A' => NumberFormat::FORMAT_TEXT,   // tag_id
+            'B' => NumberFormat::FORMAT_TEXT,   // legacy_tag_number
+        ];
     }
 
     private function forceText($value): string
     {
-        return "=\"{$value}\"";
+        return (string) $value;
     }
 }

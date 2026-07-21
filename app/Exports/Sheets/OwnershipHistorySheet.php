@@ -13,6 +13,8 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
 class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting
 {
+    public function __construct(private array $filters = []) {}
+
     public function title(): string { return 'RIWAYAT PEMILIK'; }
 
     public function headings(): array
@@ -23,7 +25,7 @@ class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
     public function map($log): array
     {
         return [
-            $this->forceText($log->animal?->tag_id),
+            $log->animal?->tag_id,
             $log->partner?->name,
             $log->start_date?->format('Y-m-d') ?: '',
             $log->end_date?->format('Y-m-d') ?: '',
@@ -43,10 +45,5 @@ class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
     public function columnFormats(): array
     {
         return ['A' => NumberFormat::FORMAT_TEXT];
-    }
-
-    private function forceText($value): string
-    {
-        return "=\"{$value}\"";
     }
 }

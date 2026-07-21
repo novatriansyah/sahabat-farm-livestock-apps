@@ -2,7 +2,7 @@
 
 namespace App\Exports\Sheets;
 
-use App\Models\HppMonthlySnapshot;
+use App\Models\HppManualCost;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -19,41 +19,37 @@ class HppHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping
 
     public function headings(): array
     {
-        return ['tag_id', 'period_year', 'period_month', 'opening_hpp', 'feed_cost', 'medicine_cost', 'other_cost', 'overhead_cost', 'closing_hpp', 'active_days'];
+        return [
+            'id', 'animal_id', 'tag_id', 'cost_type', 'amount',
+            'description', 'input_date', 'created_at',
+        ];
     }
 
-    public function map($snap): array
+    public function map($cost): array
     {
         return [
-            $this->forceText($snap->animal?->tag_id),
-            $snap->period_year,
-            $snap->period_month,
-            $snap->opening_hpp,
-            $snap->feed_cost,
-            $snap->medicine_cost,
-            $snap->other_cost,
-            $snap->overhead_cost,
-            $snap->closing_hpp,
-            $snap->active_days,
+            $cost->id,
+            $cost->animal_id,
+            $cost->animal?->tag_id,
+            $cost->cost_type,
+            $cost->amount,
+            $cost->description,
+            $cost->input_date?->format('Y-m-d') ?: '',
+            $cost->created_at?->format('Y-m-d H:i:s'),
         ];
     }
 
     public function query()
     {
-        return HppMonthlySnapshot::query()
+        return HppManualCost::query()
             ->with('animal')
-            ->orderBy('animal_id')
-            ->orderBy('period_year')
-            ->orderBy('period_month');
+            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('input_date', '>=', $d))
+            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('input_date', '<=', $d))
+            ->orderBy('input_date');
     }
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT];
-    }
-
-    private function forceText($value): string
-    {
-        return "=\"{$value}\"";
+        return ['C' => NumberFormat::FORMAT_TEXT];
     }
 }

@@ -19,19 +19,22 @@ class WeightHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapp
 
     public function headings(): array
     {
-        return ['tag_id', 'weight', 'weight_type', 'weighed_at', 'notes', 'created_by', 'created_at'];
+        return [
+            'id', 'animal_id', 'tag_id', 'weigh_date', 'weight_kg',
+            'created_at', 'updated_at',
+        ];
     }
 
     public function map($log): array
     {
         return [
-            $this->forceText($log->animal?->tag_id),
-            $log->weight,
-            $log->weight_type,
-            $log->weighed_at?->format('Y-m-d H:i:s') ?: '',
-            $log->notes,
-            $log->created_by,
+            $log->id,
+            $log->animal_id,
+            $log->animal?->tag_id,
+            $log->weigh_date?->format('Y-m-d') ?: '',
+            $log->weight_kg,
             $log->created_at?->format('Y-m-d H:i:s'),
+            $log->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 
@@ -39,17 +42,15 @@ class WeightHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapp
     {
         return WeightLog::query()
             ->with('animal')
-            ->orderBy('animal_id')
-            ->orderBy('weighed_at');
+            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('weigh_date', '>=', $d))
+            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('weigh_date', '<=', $d))
+            ->orderBy('weigh_date');
     }
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT];
-    }
-
-    private function forceText($value): string
-    {
-        return "=\"{$value}\"";
+        return [
+            'C' => NumberFormat::FORMAT_TEXT,   // tag_id
+        ];
     }
 }

@@ -19,38 +19,43 @@ class BirthEventSheet implements FromQuery, WithTitle, WithHeadings, WithMapping
 
     public function headings(): array
     {
-        return ['dam_tag_id', 'birth_date', 'event_type', 'offspring_count', 'breed_id', 'sire_tag_id', 'litter_size', 'notes'];
+        return [
+            'event_id', 'dam_tag_id', 'sire_tag_id', 'mating_date',
+            'est_birth_date', 'event_type', 'status', 'offspring_count',
+            'notes', 'created_at',
+        ];
     }
 
     public function map($event): array
     {
         return [
-            $this->forceText($event->animal?->tag_id),
-            $event->event_date?->format('Y-m-d') ?: '',
+            $event->id,
+            $event->dam?->tag_id,
+            $event->sire?->tag_id,
+            $event->mating_date?->format('Y-m-d') ?: '',
+            $event->est_birth_date?->format('Y-m-d') ?: '',
             $event->event_type,
+            $event->status,
             $event->offspring_count,
-            $event->breed_id,
-            $event->sire_tag_id,
-            $event->litter_size,
             $event->notes,
+            $event->created_at?->format('Y-m-d H:i:s'),
         ];
     }
 
     public function query()
     {
         return BreedingEvent::query()
-            ->whereIn('event_type', ['LAHIR', 'LAHIR_TUNGGAL', 'LAHIR_KEMBAR'])
-            ->with('animal')
-            ->orderBy('event_date');
+            ->with(['dam', 'sire'])
+            ->when($this->filters['from'] ?? null, fn($q, $d) => $q->whereDate('mating_date', '>=', $d))
+            ->when($this->filters['to'] ?? null, fn($q, $d) => $q->whereDate('mating_date', '<=', $d))
+            ->orderBy('mating_date');
     }
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT];
-    }
-
-    private function forceText($value): string
-    {
-        return "=\"{$value}\"";
+        return [
+            'B' => NumberFormat::FORMAT_TEXT,   // dam_tag_id
+            'C' => NumberFormat::FORMAT_TEXT,   // sire_tag_id
+        ];
     }
 }
