@@ -29,7 +29,7 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
             'location_name', 'partner_name',
             'current_hpp', 'purchase_price', 'sale_price',
             'gdrive_folder_url', 'photo_url', 'video_url',
-            'confidence_level', 'data_source', 'notes', 'needs_review',
+            'confidence_source', 'data_source', 'notes',
             'created_at', 'updated_at', 'created_by', 'last_modified_by',
         ];
     }
@@ -66,11 +66,10 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
             $animal->sale_price,
             $animal->google_drive_link,
             $animal->photos()->first()?->url,
-            $animal->videos()->first()?->url,
+            '',
             $animal->confidence_level,
             $animal->data_source,
             $animal->notes,
-            $animal->needs_review ? 'Ya' : '',
             $animal->created_at?->format('Y-m-d H:i:s'),
             $animal->updated_at?->format('Y-m-d H:i:s'),
             $animal->created_by,
@@ -81,7 +80,7 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
     public function query()
     {
         return Animal::query()
-            ->with(['sire', 'dam', 'breed', 'physStatus', 'location', 'partner', 'photos', 'videos'])
+            ->with(['sire', 'dam', 'breed', 'physStatus', 'location', 'partner', 'photos'])
             ->when($this->filters['partner_id'] ?? null, fn($q, $id) => $q->where('partner_id', $id))
             ->when($this->filters['location_id'] ?? null, fn($q, $id) => $q->where('current_location_id', $id))
             ->orderBy('tag_id');

@@ -28,7 +28,7 @@ class IndukanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, S
             'current_hpp', 'total_offspring_count',
             'last_lambing_date', 'lambing_interval_days',
             'gdrive_folder_url', 'photo_url', 'video_url',
-            'notes', 'needs_review',
+            'notes',
             'created_at', 'updated_at',
         ];
     }
@@ -58,9 +58,8 @@ class IndukanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, S
             $animal->lambing_interval_days,
             $animal->google_drive_link,
             $animal->photos()->first()?->url,
-            $animal->videos()->first()?->url,
+            '',
             $animal->notes,
-            $animal->needs_review ? 'Ya' : '',
             $animal->created_at?->format('Y-m-d H:i:s'),
             $animal->updated_at?->format('Y-m-d H:i:s'),
         ];
@@ -69,7 +68,7 @@ class IndukanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, S
     public function query()
     {
         return Animal::query()
-            ->with(['breed', 'physStatus', 'location', 'partner', 'offspring', 'photos', 'videos'])
+            ->with(['breed', 'physStatus', 'location', 'partner', 'offspring', 'photos'])
             ->when($this->filters['partner_id'] ?? null, fn($q, $id) => $q->where('partner_id', $id))
             ->when($this->filters['location_id'] ?? null, fn($q, $id) => $q->where('current_location_id', $id))
             ->orderBy('tag_id');
