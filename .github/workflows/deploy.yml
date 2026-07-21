@@ -15,6 +15,15 @@ jobs:
   test:
     if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: sfi_testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,6 +34,12 @@ jobs:
           php-version: '8.3'
           extensions: mbstring, xml, ctype, iconv, mysql, zip, gd, bcmath, pdo_mysql
           coverage: none
+
+      - name: Create .env for testing
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=sfi_testing/' .env
 
       - name: Install Composer Dependencies
         run: composer install --no-interaction
@@ -39,8 +54,11 @@ jobs:
           npm ci
           npm run build
 
+      - name: Run migrations
+        run: php artisan migrate
+
       - name: Run Tests
-        run: php artisan test --parallel --without-tty 2>&1 || php artisan test 2>&1
+        run: php artisan test
 
   deploy:
     if: github.ref == 'refs/heads/master'
