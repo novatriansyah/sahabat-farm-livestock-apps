@@ -129,10 +129,13 @@ jobs:
              ln -sfn ${SHARED_DIR}/.env .env && \
              rm -rf storage && \
              ln -sfn ${SHARED_DIR}/storage storage && \
-             if [ ! -L public/storage ]; then php artisan storage:link --force; fi && \
+             rm -rf public/storage && \
+             ln -sfn ${SHARED_DIR}/storage/app/public public/storage && \
              php artisan migrate --force && \
+             php artisan route:cache && \
              php artisan config:cache && \
              php artisan view:cache && \
+             php artisan event:cache && \
              chmod -R 775 storage bootstrap/cache && \
              ln -sfn ${RELEASE_DIR} ${DEPLOY_DIR}/current"
 
