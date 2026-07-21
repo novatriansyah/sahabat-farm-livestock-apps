@@ -52,7 +52,7 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
             $animal->birth_weight,
             $animal->is_birth_weight_estimated ? 'Ya' : 'Tidak',
             $animal->litter_size,
-            $animal->latestWeight()?->weight,
+            $animal->latestWeightLog()?->weight,
             $animal->daily_adg,
             $animal->weaning_weight,
             $animal->weaning_date?->format('Y-m-d') ?: '',
