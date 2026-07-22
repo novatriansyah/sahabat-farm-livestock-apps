@@ -46,7 +46,7 @@ class IndukanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, S
             $animal->entry_date?->format('Y-m-d') ?: '',
             $animal->acquisition_type,
             $animal->purchase_price,
-            $animal->latestWeightLog()?->weight,
+            $animal->latestWeightLog?->weight,
             $animal->physStatus?->name,
             $animal->is_active ? 'Ya' : 'Tidak',
             $animal->necklace_color,
@@ -68,7 +68,7 @@ class IndukanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, S
     public function query()
     {
         return Animal::query()
-            ->with(['breed', 'physStatus', 'location', 'partner', 'offspring', 'photos'])
+            ->with(['breed', 'physStatus', 'location', 'partner', 'offspring', 'photos', 'latestWeightLog'])
             ->when($this->filters['partner_id'] ?? null, fn($q, $id) => $q->where('partner_id', $id))
             ->when($this->filters['location_id'] ?? null, fn($q, $id) => $q->where('current_location_id', $id))
             ->orderBy('tag_id');

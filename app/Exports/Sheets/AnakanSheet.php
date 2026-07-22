@@ -52,7 +52,7 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
             $animal->birth_weight,
             $animal->is_birth_weight_estimated ? 'Ya' : 'Tidak',
             $animal->litter_size,
-            $animal->latestWeightLog()?->weight,
+            $animal->latestWeightLog?->weight,
             $animal->daily_adg,
             $animal->weaning_weight,
             $animal->weaning_date?->format('Y-m-d') ?: '',
@@ -80,7 +80,7 @@ class AnakanSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sh
     public function query()
     {
         return Animal::query()
-            ->with(['sire', 'dam', 'breed', 'physStatus', 'location', 'partner', 'photos'])
+            ->with(['sire', 'dam', 'breed', 'physStatus', 'location', 'partner', 'photos', 'latestWeightLog'])
             ->when($this->filters['partner_id'] ?? null, fn($q, $id) => $q->where('partner_id', $id))
             ->when($this->filters['location_id'] ?? null, fn($q, $id) => $q->where('current_location_id', $id))
             ->orderBy('tag_id');
