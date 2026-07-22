@@ -57,14 +57,9 @@ class RestoreBackup extends Command
         }
 
         $sqlRaw = $storageDisk->get($sqlPath);
-        if ($manifest['compressed']) {
-            $sqlContent = gzdecode($sqlRaw);
-        } else {
-            $sqlContent = $sqlRaw;
-        }
 
-        // Verify SHA256 Integrity
-        $actualSha = hash('sha256', $sqlContent);
+        // Verify SHA256 Integrity on stored file bytes
+        $actualSha = hash('sha256', $sqlRaw);
         if ($actualSha !== $manifest['sha256']) {
             $this->error("INTEGRITY FAILED — file checksum does not match manifest!");
             $this->line("  Expected: {$manifest['sha256']}");
@@ -72,6 +67,16 @@ class RestoreBackup extends Command
             return Command::FAILURE;
         }
         $this->info("  ✓ SHA-256 Checksum Verified");
+
+        if ($manifest['compressed']) {
+            $sqlContent = gzdecode($sqlRaw);
+            if ($sqlContent === false) {
+                $this->error("DECOMPRESSION FAILED — Gzip stream is invalid or corrupted!");
+                return Command::FAILURE;
+            }
+        } else {
+            $sqlContent = $sqlRaw;
+        }
 
         if ($pretend) {
             $this->info("[PRETEND] Would restore {$manifest['total_records']} records across {$manifest['table_count']} tables");

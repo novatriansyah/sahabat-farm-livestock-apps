@@ -21,14 +21,15 @@ class ReconciliationService
         $spreadsheet = IOFactory::load($filePath);
 
         // 1. Read sheet by name priority, falling back to first sheet
-        $sheet = $spreadsheet->getSheetByName('ANIMALS_CURRENT')
+        $sheet = $spreadsheet->getSheetByName('DATA_TERNAK')
+            ?? $spreadsheet->getSheetByName('ANIMALS_CURRENT')
             ?? $spreadsheet->getSheetByName('INDUKAN')
             ?? $spreadsheet->getSheetByName('ANAKAN')
             ?? $spreadsheet->getSheet(0);
 
         $rawRows = $sheet->toArray(null, true, true, true);
         if (empty($rawRows)) {
-            return $this->formatResults(collect([]), collect([]));
+            return $this->formatResults(collect([]), (string) Str::uuid());
         }
 
         // 2. Map header row (Row 1) to column indexes

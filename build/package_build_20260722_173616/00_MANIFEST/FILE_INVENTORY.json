@@ -1,0 +1,110 @@
+[
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/01_GOVERNANCE\/COMPARISON_TO_PREVIOUS.md",
+        "size": 2459,
+        "sha256": "9fbcbca1158600541fd52d3b4746b31bee0f7a0fc89c62947ae1177a2bdbd995",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/01_GOVERNANCE\/FAILURE_LEDGER.md",
+        "size": 4434,
+        "sha256": "c9204b2400c8fa5d5cf529f6cb6b6664e22053abc864ea8b401682d3d118fe4d",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/01_GOVERNANCE\/INPUT_REGISTER.md",
+        "size": 1339,
+        "sha256": "4f1e52694bea645babdac0bd967e93e04ed2eba6b5d97ae1a8fdd05db33ed7dc",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/01_GOVERNANCE\/PROGRESS.md",
+        "size": 4124,
+        "sha256": "33981f8dc86444b4be9f010e553ea09338826993a39640c73ec8b336afdfc3d2",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/01_GOVERNANCE\/REFERENCES_AND_COMPATIBILITY.md",
+        "size": 1677,
+        "sha256": "4b46d597d426b73a158e0d78c65d375e5c18abedb4daec1eb52df114790c3961",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/01_GOVERNANCE\/REQUIREMENT_REGISTER.md",
+        "size": 3226,
+        "sha256": "08980617a5a7255dc9536fa0b04b6e3996b0606ebb98c1781364466a10309896",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/01_GOVERNANCE\/REQUIREMENT_TEST_MATRIX.md",
+        "size": 5919,
+        "sha256": "d2d426defb50d59d383b58c378eb18a007d7c47665a85952e08121b80593fed7",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/02_SOURCE_HANDOVER\/composer.json",
+        "size": 2702,
+        "sha256": "6eeb03a7daea41deeb0ebf6d05eeefce9566f9779e31b80c3fd6261759572546",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/02_SOURCE_HANDOVER\/composer.lock",
+        "size": 438011,
+        "sha256": "860f03a00bbd4e217dda0a1d53ae49437ec069d8b5c800ab0f6f00fa3c156466",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/04_ACTUAL_WORKBOOKS\/BLANK_IMPORT_TEMPLATE_V1.1.0_20260722_173616.xlsx",
+        "size": 15643,
+        "sha256": "483003204c79de759e03ebd4259917c8b8addae71c2b58db3d9d116a60c53914",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/04_ACTUAL_WORKBOOKS\/CANONICAL_FULL_EXPORT_20260722_173616.xlsx",
+        "size": 23632,
+        "sha256": "be8be17942d862a300489c921d9d27ae25b58f0d063c43cfa9100d618151a35e",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/04_ACTUAL_WORKBOOKS\/CANONICAL_FULL_EXPORT_20260722_173616.xlsx.sha256",
+        "size": 109,
+        "sha256": "bcaa52268b55b557787246f936bfb1a9e96fe0eeee56aea3d60bd4a4cce20362",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/04_ACTUAL_WORKBOOKS\/IMPORT_COMPATIBLE_ALL_V1.1.0_20260722_173616.xlsx",
+        "size": 8156,
+        "sha256": "0bcb75c203b383855af54c68601f34891a0f5531d65c870e8b8a6b016684ce42",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/04_ACTUAL_WORKBOOKS\/PARTNER_REPORT_Mitra_Test_20260722_173616.pdf.json",
+        "size": 373,
+        "sha256": "6c37fe8b3733c8a2a4ebd96399e4a2d04d88ecd6fc5d0ee46df6061527c6bdd5",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/04_ACTUAL_WORKBOOKS\/PARTNER_REPORT_Mitra_Test_20260722_173616.xlsx",
+        "size": 17594,
+        "sha256": "e7184a470f76950e4da2e3fe23d3649920eba4bbd3115e8dbec364e7628237e2",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/05_TEST_EVIDENCE\/RAW_TEST_OUTPUT.txt",
+        "size": 121,
+        "sha256": "1a33bc8f347106373718760e7a5d4799f56c67b0e35180d582f47a0904952685",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/06_REPORTS\/DEPLOYMENT_RUNBOOK.md",
+        "size": 184,
+        "sha256": "8f073eea3c3345b8526a076f85dc030df004b44486c9fc96e2c9eab3a558d4d5",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    },
+    {
+        "relative_path": "D:\/Nova\/Personal\/Projects\/sahabat-farm-livestock-apps\/build\/package_build_20260722_173616\/06_REPORTS\/ROLLBACK_RUNBOOK.md",
+        "size": 80,
+        "sha256": "821d245b45e2533065a155e41e1c2cdbf24697234b464d338bcefa0994fc8835",
+        "generated_at": "2026-07-22T17:36:17+00:00"
+    }
+]

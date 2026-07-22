@@ -24,6 +24,12 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\MasterPartner::class, 'partner_id');
     }
 
+    public function hasRole(string|array $roles): bool
+    {
+        $roles = (array) $roles;
+        return in_array($this->role, $roles, true);
+    }
+
     protected $hidden = [
         'password',
         'remember_token',

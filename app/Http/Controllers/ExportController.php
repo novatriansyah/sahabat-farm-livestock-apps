@@ -4,21 +4,82 @@ namespace App\Http\Controllers;
 
 use App\Exports\AnimalMasterExport;
 use App\Exports\BlankImportTemplate;
+use App\Exports\ImportCompatibleAnimalExport;
+use App\Exports\PartnerReportExport;
+use App\Services\PartnerReportPdfService;
 use App\Services\ReconciliationService;
+use App\Traits\PartnerScopeTrait;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportController extends Controller
 {
+    use PartnerScopeTrait;
+
+    /**
+     * Product A: Canonical Full Export.
+     * Filterless, full database snapshot for PEMILIK / Super Admin only.
+     */
     public function animals(Request $request)
     {
-        $filters = $request->only(['partner_id', 'location_id', 'status', 'from', 'to']);
         return Excel::download(
-            new AnimalMasterExport($filters),
-            'SFI_Export_Ternak_' . now()->format('Y-m-d') . '.xlsx'
+            new AnimalMasterExport(),
+            'SFI_Canonical_Full_Export_' . now()->format('Y-m-d_His') . '.xlsx'
         );
     }
 
+    /**
+     * Product B: Import-Compatible Animal Export.
+     * Mode ALL or PARTNER (dropdown selection / forced partner scope).
+     */
+    public function importCompatible(Request $request)
+    {
+        $partnerId = $this->resolvePartnerScope($request);
+        $suffix = $partnerId ? "Partner_{$partnerId}" : 'ALL';
+
+        return Excel::download(
+            new ImportCompatibleAnimalExport($partnerId),
+            "SFI_Import_Compatible_Export_{$suffix}_" . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
+     * Product C: Partner Report XLSX Export.
+     */
+    public function partnerReportXlsx(Request $request)
+    {
+        $partnerId = $this->resolvePartnerScope($request);
+        if (!$partnerId) {
+            return redirect()->back()->withErrors(['partner_id' => 'Mitra wajib dipilih untuk laporan mitra.']);
+        }
+
+        return Excel::download(
+            new PartnerReportExport($partnerId),
+            "SFI_Laporan_Mitra_{$partnerId}_" . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
+     * Product C: Partner Report PDF Summary.
+     */
+    public function partnerReportPdf(Request $request, PartnerReportPdfService $pdfService)
+    {
+        $partnerId = $this->resolvePartnerScope($request);
+        if (!$partnerId) {
+            return redirect()->back()->withErrors(['partner_id' => 'Mitra wajib dipilih untuk laporan mitra.']);
+        }
+
+        $reportData = $pdfService->generateReportData($partnerId);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $reportData,
+        ]);
+    }
+
+    /**
+     * Blank Import Template Download.
+     */
     public function template()
     {
         return Excel::download(
@@ -27,6 +88,9 @@ class ExportController extends Controller
         );
     }
 
+    /**
+     * Data Snapshot JSON Export.
+     */
     public function dataSnapshotJson()
     {
         $data = [
@@ -51,6 +115,9 @@ class ExportController extends Controller
         ]);
     }
 
+    /**
+     * Reconciliation File Compare Endpoint.
+     */
     public function reconcile(Request $request)
     {
         $request->validate([
@@ -72,6 +139,9 @@ class ExportController extends Controller
         }
     }
 
+    /**
+     * Reconciliation Batch List View.
+     */
     public function index()
     {
         $service = new ReconciliationService();
@@ -79,6 +149,9 @@ class ExportController extends Controller
         return view('admin.export.reconciliation-index', compact('batches'));
     }
 
+    /**
+     * Reconciliation Batch Detail View.
+     */
     public function show(string $batchId)
     {
         $service = new ReconciliationService();

@@ -17,12 +17,13 @@ class BackupDatabase extends Command
     public function handle(): int
     {
         $disk = $this->option('disk');
-        $compress = $this->option('compress');
+        $compress = (bool) $this->option('compress');
         $timestamp = now()->format('Y-m-d_H-i-s');
         $backupDir = "backups/{$timestamp}";
         $sqlFilename = $compress ? 'database.sql.gz' : 'database.sql';
         $sqlRelativePath = "{$backupDir}/{$sqlFilename}";
         $manifestRelativePath = "{$backupDir}/manifest.json";
+        $checksumRelativePath = "{$sqlRelativePath}.sha256";
 
         $this->info("Backing up database to disk [{$disk}]...");
 
@@ -31,15 +32,9 @@ class BackupDatabase extends Command
 
         $tempStream = fopen('php://temp', 'r+');
 
-        if ($compress) {
-            $write = function (string $data) use ($tempStream) {
-                fwrite($tempStream, gzencode($data, 9));
-            };
-        } else {
-            $write = function (string $data) use ($tempStream) {
-                fwrite($tempStream, $data);
-            };
-        }
+        $write = function (string $data) use ($tempStream) {
+            fwrite($tempStream, $data);
+        };
 
         try {
             // Write Header
@@ -103,29 +98,29 @@ class BackupDatabase extends Command
 
                     if ($colList === null) {
                         $firstRow = (array) $rows->first();
-                        $colList = '`' . implode('`,`', array_keys($firstRow)) . '`';
+                        $colList = '`' . implode('`, `', array_keys($firstRow)) . '`';
                     }
 
-                    $valuesList = [];
+                    $valRows = [];
                     foreach ($rows as $row) {
-                        $count++;
                         $rowArray = (array) $row;
-                        $escapedValues = [];
-
+                        $vals = [];
                         foreach ($rowArray as $colName => $val) {
                             if ($val === null) {
-                                $escapedValues[] = 'NULL';
+                                $vals[] = 'NULL';
                             } elseif ($stringColumns[$colName] ?? false) {
-                                $escapedValues[] = $pdo->quote((string) $val);
+                                $vals[] = $pdo->quote((string) $val);
+                            } elseif (is_numeric($val)) {
+                                $vals[] = (string) $val;
                             } else {
-                                $escapedValues[] = is_numeric($val) ? $val : $pdo->quote((string) $val);
+                                $vals[] = $pdo->quote((string) $val);
                             }
                         }
-                        $valuesList[] = '(' . implode(',', $escapedValues) . ')';
+                        $valRows[] = '(' . implode(', ', $vals) . ')';
+                        $count++;
                     }
 
-                    $write("INSERT INTO `{$table}` ({$colList}) VALUES\n");
-                    $write(implode(",\n", $valuesList) . ";\n\n");
+                    $write("INSERT INTO `{$table}` ({$colList}) VALUES\n" . implode(",\n", $valRows) . ";\n\n");
                 });
 
                 $recordCounts[$table] = $count;
@@ -135,8 +130,16 @@ class BackupDatabase extends Command
             $write("SET FOREIGN_KEY_CHECKS = 1;\n");
 
             rewind($tempStream);
-            $storageDisk->writeStream($sqlRelativePath, $tempStream);
+            $rawSqlContent = stream_get_contents($tempStream);
             fclose($tempStream);
+
+            if ($compress) {
+                $finalBytes = gzencode($rawSqlContent, 9);
+            } else {
+                $finalBytes = $rawSqlContent;
+            }
+
+            $storageDisk->put($sqlRelativePath, $finalBytes);
 
         } catch (\Throwable $e) {
             if (is_resource($tempStream)) {
@@ -160,8 +163,12 @@ class BackupDatabase extends Command
             // ignore if migrations table doesn't exist
         }
 
-        // Compute external SHA256 checksum via storage disk
-        $sha256 = hash('sha256', $storageDisk->get($sqlRelativePath));
+        // Compute external SHA256 checksum over exact stored file bytes
+        $storedContent = $storageDisk->get($sqlRelativePath);
+        $sha256 = hash('sha256', $storedContent);
+
+        // Store sidecar SHA-256 file
+        $storageDisk->put($checksumRelativePath, "{$sha256}  {$sqlFilename}\n");
 
         $manifest = [
             'timestamp' => now()->toIso8601String(),
@@ -178,33 +185,38 @@ class BackupDatabase extends Command
             'compressed' => $compress,
             'files' => [
                 'sql' => $sqlFilename,
-                'manifest' => 'manifest.json',
+                'sha256' => "{$sqlFilename}.sha256",
             ],
         ];
 
-        $storageDisk->put($manifestRelativePath, json_encode($manifest, JSON_PRETTY_PRINT));
-        $this->info("Backup complete successfully.");
-        $this->info("Manifest: {$manifestRelativePath}");
-        $this->info("SHA256: {$sha256}");
-        $this->info("Total Records: " . array_sum($recordCounts));
+        $storageDisk->put($manifestRelativePath, json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        $this->info("Backup completed successfully!");
+        $this->info("  SQL:      {$sqlRelativePath}");
+        $this->info("  Manifest: {$manifestRelativePath}");
+        $this->info("  Checksum: {$checksumRelativePath} ({$sha256})");
 
         return Command::SUCCESS;
     }
 
     private function getCommitHash(): string
     {
-        $headFile = base_path('.git/HEAD');
-        if (file_exists($headFile)) {
+        try {
+            $headFile = base_path('.git/HEAD');
+            if (!file_exists($headFile)) {
+                return 'unknown';
+            }
             $head = trim(file_get_contents($headFile));
             if (str_starts_with($head, 'ref: ')) {
-                $refPath = base_path('.git/' . substr($head, 5));
-                if (file_exists($refPath)) {
-                    return trim(file_get_contents($refPath));
+                $ref = substr($head, 5);
+                $refFile = base_path(".git/{$ref}");
+                if (file_exists($refFile)) {
+                    return trim(file_get_contents($refFile));
                 }
-            } else {
-                return $head;
             }
+            return strlen($head) === 40 ? $head : 'unknown';
+        } catch (\Throwable $e) {
+            return 'unknown';
         }
-        return 'f8a8c7cc96429eb7a74e20350b05a14975444612';
     }
 }

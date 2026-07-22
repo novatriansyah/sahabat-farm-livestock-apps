@@ -98,6 +98,9 @@ Route::middleware(['auth'])->group(function () {
             // Export & Backup
             Route::prefix('admin/export')->name('admin.export.')->group(function () {
                 Route::get('/animals', [\App\Http\Controllers\ExportController::class, 'animals'])->name('animals');
+                Route::get('/animals/import-compatible', [\App\Http\Controllers\ExportController::class, 'importCompatible'])->name('animals.import-compatible');
+                Route::get('/partner-report/xlsx', [\App\Http\Controllers\ExportController::class, 'partnerReportXlsx'])->name('partner-report.xlsx');
+                Route::get('/partner-report/pdf', [\App\Http\Controllers\ExportController::class, 'partnerReportPdf'])->name('partner-report.pdf');
                 Route::get('/animals/template', [\App\Http\Controllers\ExportController::class, 'template'])->name('animals.template');
                 Route::get('/data-snapshot-json', [\App\Http\Controllers\ExportController::class, 'dataSnapshotJson'])->name('data-snapshot-json');
                 Route::post('/reconcile', [\App\Http\Controllers\ExportController::class, 'reconcile'])->name('reconcile');

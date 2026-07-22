@@ -2,12 +2,12 @@
 
 namespace App\Exports;
 
+use App\Schemas\AnimalTemplateSchema;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -24,6 +24,7 @@ class BlankImportTemplate implements WithMultipleSheets
     {
         return [
             'PETUNJUK'         => new PetunjukSheet(),
+            'DATA_TERNAK'      => new DataTernakBlankSheet(),
             'ANIMALS_CURRENT'  => new AnimalsCurrentBlankSheet(),
             'INDUKAN'          => new IndukanBlankSheet(),
             'ANAKAN'           => new AnakanBlankSheet(),
@@ -52,18 +53,18 @@ class PetunjukSheet implements WithTitle, WithEvents
                 $instructions = [
                     ['', ''],
                     ['A. CARA PENGISIAN TEMPLATE', ''],
-                    ['1. Sheet ANIMALS_CURRENT:', 'Digunakan untuk import master ternak lengkap (rekomendasi utama)'],
+                    ['1. Sheet DATA_TERNAK / ANIMALS_CURRENT:', 'Digunakan untuk import master ternak lengkap (rekomendasi utama)'],
                     ['2. Sheet INDUKAN / ANAKAN:', 'Gunakan untuk klasifikasi laporan atau import parsial'],
                     ['3. Baris Contoh [CONTOH]:', 'Baris yang diawali [CONTOH] adalah contoh data dan WAJIB dihapus sebelum di-upload!'],
-                    ['4. Kolom bertanda *:', 'Wajib diisi (misal tag_id*, gender*, birth_date*)'],
+                    ['4. Kolom bertanda *:', 'Wajib diisi (misal tag_id*, gender*, breed*, location*, partner*)'],
                     ['', ''],
                     ['B. FORMAT DATA & ATURAN VALIDASI', ''],
                     ['Tag ID (Ear Tag):', 'Wajib diketik sebagai TEKS agar nomor seperti 036 atau 010 tidak hilang angka nol terdepan'],
-                    ['Tanggal (birth_date):', 'Format YYYY-MM-DD (contoh: 2025-11-24)'],
+                    ['Tanggal (birth_date):', 'Format YYYY-MM-DD (contoh: 2024-05-15)'],
                     ['Gender / Jenis Kelamin:', 'JANTAN atau BETINA'],
-                    ['Status Fisik:', 'SEHAT, BUNTING, MENYUSUI, ISOLASI, AFKIR, DEAD'],
+                    ['Status Fisik:', 'SEHAT, SAKIT, KARANTINA, AFKIR, MATI, TERJUAL'],
                     ['Angka Desimal:', 'Gunakan TITIK sebagai pemisah desimal (contoh: 4.15), BUKAN koma'],
-                    ['Harga / Rupiah:', 'Angka bulat tanpa titik/koma (contoh: 5500000)'],
+                    ['Harga / Rupiah:', 'Angka bulat tanpa titik/koma (contoh: 2500000)'],
                     ['', ''],
                     ['C. SHIFTING REFERENSI', ''],
                     ['Lihat sheet REFERENSI', 'Untuk daftar Breed, Lokasi Kandang, Partner, dan Status Fisik yang valid.'],
@@ -86,6 +87,62 @@ class PetunjukSheet implements WithTitle, WithEvents
     }
 }
 
+class DataTernakBlankSheet implements WithTitle, WithHeadings, FromArray, WithColumnFormatting, ShouldAutoSize
+{
+    public function title(): string
+    {
+        return 'DATA_TERNAK';
+    }
+
+    public function headings(): array
+    {
+        return AnimalTemplateSchema::getHeaders();
+    }
+
+    public function array(): array
+    {
+        return [
+            [
+                '[CONTOH] uuid-sample-1234',
+                '036',
+                'OLD-036',
+                'BETINA',
+                'Garut',
+                'F1',
+                'Putih Kepala Hitam',
+                'SEHAT',
+                '1',
+                '0',
+                '2024-05-15',
+                '0',
+                '2024-06-01',
+                'HASIL_TERNAK',
+                2500000,
+                3.5,
+                28.4,
+                '2026-07-20',
+                'Kandang B - Blok 2',
+                'Mitra Berkah',
+                '010',
+                '099',
+                '[CONTOH] Catatan ternak',
+                'https://drive.google.com/drive/folders/1a2b3c4d5e',
+            ],
+        ];
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'A' => NumberFormat::FORMAT_TEXT,
+            'B' => NumberFormat::FORMAT_TEXT,
+            'C' => NumberFormat::FORMAT_TEXT,
+            'U' => NumberFormat::FORMAT_TEXT,
+            'V' => NumberFormat::FORMAT_TEXT,
+        ];
+    }
+}
+
 class AnimalsCurrentBlankSheet implements WithTitle, WithHeadings, FromArray, WithColumnFormatting, ShouldAutoSize
 {
     public function title(): string
@@ -95,33 +152,7 @@ class AnimalsCurrentBlankSheet implements WithTitle, WithHeadings, FromArray, Wi
 
     public function headings(): array
     {
-        return [
-            'id',
-            'tag_id*',
-            'legacy_tag_id',
-            'gender*',
-            'breed_name*',
-            'generation*',
-            'ear_tag_color',
-            'necklace_color',
-            'physical_status*',
-            'is_active',
-            'is_for_sale',
-            'birth_date*',
-            'entry_date',
-            'acquisition_type',
-            'purchase_price',
-            'sale_price',
-            'current_weight',
-            'current_hpp',
-            'location_name',
-            'partner_name',
-            'sire_tag_id',
-            'dam_tag_id',
-            'gdrive_folder_url',
-            'photo_url',
-            'notes',
-        ];
+        return AnimalTemplateSchema::getHeaders();
     }
 
     public function array(): array
@@ -130,29 +161,28 @@ class AnimalsCurrentBlankSheet implements WithTitle, WithHeadings, FromArray, Wi
             [
                 '[CONTOH] uuid-sample-1234',
                 '036',
-                'LEGACY-036',
+                'OLD-036',
                 'BETINA',
-                'DORPER',
+                'Garut',
                 'F1',
-                'KUNING',
-                'MERAH',
+                'Putih Kepala Hitam',
                 'SEHAT',
                 '1',
                 '0',
-                '2024-05-10',
-                '2024-06-01',
-                'BELI',
-                '4500000',
+                '2024-05-15',
                 '0',
-                '45.5',
-                '4500000',
-                'Kandang A',
-                'Mitra Utama',
+                '2024-06-01',
+                'HASIL_TERNAK',
+                2500000,
+                3.5,
+                28.4,
+                '2026-07-20',
+                'Kandang B - Blok 2',
+                'Mitra Berkah',
                 '010',
                 '099',
-                'https://drive.google.com/folder/example',
-                'https://example.com/photo.jpg',
-                '[CONTOH] Hapus baris contoh ini sebelum upload',
+                '[CONTOH] Catatan ternak',
+                'https://drive.google.com/drive/folders/1a2b3c4d5e',
             ],
         ];
     }
@@ -160,8 +190,9 @@ class AnimalsCurrentBlankSheet implements WithTitle, WithHeadings, FromArray, Wi
     public function columnFormats(): array
     {
         return [
+            'A' => NumberFormat::FORMAT_TEXT,
             'B' => NumberFormat::FORMAT_TEXT,
-            'L' => NumberFormat::FORMAT_TEXT,
+            'C' => NumberFormat::FORMAT_TEXT,
             'U' => NumberFormat::FORMAT_TEXT,
             'V' => NumberFormat::FORMAT_TEXT,
         ];
@@ -179,17 +210,17 @@ class IndukanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColum
     {
         return [
             'id',
-            'tag_id*',
+            'tag_id',
             'legacy_tag_id',
-            'gender*',
-            'breed_name*',
-            'generation*',
-            'ear_tag_color',
-            'birth_date*',
-            'physical_status*',
+            'gender',
+            'breed',
+            'declared_generation',
+            'colors',
+            'birth_date',
+            'physical_status',
             'is_active',
-            'location_name',
-            'partner_name',
+            'location',
+            'partner',
             'notes',
         ];
     }
@@ -200,17 +231,17 @@ class IndukanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColum
             [
                 '[CONTOH] uuid-indukan-01',
                 '099',
-                'LEGACY-099',
+                'OLD-099',
                 'BETINA',
-                'CROSS',
-                'LOKAL',
-                'HIJAU',
+                'Garut',
+                'PUREBRED',
+                'Hitam',
                 '2023-01-15',
                 'SEHAT',
                 '1',
-                'Kandang Utama',
-                'Mitra A',
-                '[CONTOH] Hapus baris contoh ini',
+                'Kandang A',
+                'Mitra Berkah',
+                '[CONTOH] Indukan utama',
             ],
         ];
     }
@@ -218,8 +249,9 @@ class IndukanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColum
     public function columnFormats(): array
     {
         return [
+            'A' => NumberFormat::FORMAT_TEXT,
             'B' => NumberFormat::FORMAT_TEXT,
-            'H' => NumberFormat::FORMAT_TEXT,
+            'C' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }
@@ -235,19 +267,19 @@ class AnakanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColumn
     {
         return [
             'id',
-            'tag_id*',
+            'tag_id',
             'legacy_tag_id',
             'dam_tag_id',
             'sire_tag_id',
-            'gender*',
-            'breed_name*',
-            'generation*',
-            'birth_date*',
-            'birth_weight',
-            'physical_status*',
+            'gender',
+            'breed',
+            'declared_generation',
+            'birth_date',
+            'initial_weight',
+            'physical_status',
             'is_active',
-            'location_name',
-            'partner_name',
+            'location',
+            'partner',
             'notes',
         ];
     }
@@ -258,19 +290,19 @@ class AnakanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColumn
             [
                 '[CONTOH] uuid-anakan-01',
                 '010',
-                'LEGACY-010',
+                'OLD-010',
                 '099',
                 '036',
                 'JANTAN',
-                'DORPER',
+                'Garut',
                 'F1',
                 '2025-02-01',
-                '3.8',
+                3.8,
                 'SEHAT',
                 '1',
-                'Kandang Cempe',
-                'Mitra A',
-                '[CONTOH] Hapus baris contoh ini',
+                'Kandang B',
+                'Mitra Berkah',
+                '[CONTOH] Anakan cempe',
             ],
         ];
     }
@@ -278,10 +310,11 @@ class AnakanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColumn
     public function columnFormats(): array
     {
         return [
+            'A' => NumberFormat::FORMAT_TEXT,
             'B' => NumberFormat::FORMAT_TEXT,
+            'C' => NumberFormat::FORMAT_TEXT,
             'D' => NumberFormat::FORMAT_TEXT,
             'E' => NumberFormat::FORMAT_TEXT,
-            'I' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }
@@ -303,14 +336,13 @@ class ReferensiSheet implements WithTitle, FromArray, WithHeadings, ShouldAutoSi
             return $this->referenceData;
         }
 
-        // Static fallback reference mapping without DB queries
         return [
-            ['BREED / RAS', 'DORPER, MERINO, TEXEL, GARUT, COMPOSITE, LOKAL, CROSS'],
-            ['STATUS FISIK', 'SEHAT, BUNTING, MENYUSUI, ISOLASI, AFKIR, DEAD'],
-            ['GENERASI', 'LOKAL, F1, F2, F3, FULLBLOOD, CROSS, PURE'],
-            ['GENDER', 'JANTAN, BETINA'],
-            ['AKUISISI', 'HASIL_TERNAK, BELI'],
-            ['CATATAN', 'Lihat master data sistem di web untuk ID lokasi dan mitra.'],
+            ['BREED / RAS', 'Garut, Dorper, Merino, Texel, Composite, Lokal, Cross'],
+            ['STATUS KONDISI FISIK', 'SEHAT, SAKIT, KARANTINA, AFKIR, MATI, TERJUAL'],
+            ['GENERASI', 'F1, F2, F3, F4, PUREBRED, CROSS, UNKNOWN'],
+            ['JENIS KELAMIN', 'JANTAN, BETINA'],
+            ['TIPE PEROLEHAN', 'HASIL_TERNAK, PEMBELIAN, MITRA, HIBAH'],
+            ['CATATAN IMPORTANT', 'Tag ID wajib berupa teks dengan angka 0 di depan jika ada (misal 010, 036, 099).'],
         ];
     }
 

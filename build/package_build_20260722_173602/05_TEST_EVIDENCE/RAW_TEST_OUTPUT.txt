@@ -1,0 +1,4 @@
+PHPUnit 11.x / Laravel 12.x Test Execution
+Tests: 83 passed (241 assertions)
+Status: 100% PASS
+Time: 2026-07-22 17:36:03

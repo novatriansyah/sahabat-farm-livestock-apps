@@ -1,0 +1,13 @@
+{
+    "package_name": "SFI_RELEASE0_CLOSEOUT_PARTNER_EXPORT_20260722_173616_WIB.zip",
+    "version": "1.1.0",
+    "created_at": "2026-07-22T17:36:17+00:00",
+    "environment": "staging",
+    "branch": "development",
+    "requirements_pass": 17,
+    "requirements_fail": 0,
+    "test_count": 83,
+    "test_assertions": 241,
+    "test_failures": 0,
+    "total_files": 18
+}
