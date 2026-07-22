@@ -4,228 +4,307 @@ namespace App\Services;
 
 use App\Models\Animal;
 use App\Models\AnimalEarTagLog;
-use App\Models\ReconciliationLog;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ReconciliationService
 {
     /**
-     * Compare uploaded rows against database.
-     * Read-only — returns diff, never modifies data.
+     * Compare uploaded spreadsheet file or collection against database.
+     * Purely in-memory comparison — zero database side-effects.
      */
-    public function compare(Collection $uploadedRows): array
+    public function compareFile(string $filePath): array
+    {
+        $spreadsheet = IOFactory::load($filePath);
+
+        // 1. Read sheet by name priority, falling back to first sheet
+        $sheet = $spreadsheet->getSheetByName('ANIMALS_CURRENT')
+            ?? $spreadsheet->getSheetByName('INDUKAN')
+            ?? $spreadsheet->getSheetByName('ANAKAN')
+            ?? $spreadsheet->getSheet(0);
+
+        $rawRows = $sheet->toArray(null, true, true, true);
+        if (empty($rawRows)) {
+            return $this->formatResults(collect([]), collect([]));
+        }
+
+        // 2. Map header row (Row 1) to column indexes
+        $headerRow = array_shift($rawRows);
+        $headerMap = [];
+        foreach ($headerRow as $colLetter => $headerName) {
+            if ($headerName !== null && trim((string) $headerName) !== '') {
+                $cleanHeader = strtolower(trim((string) $headerName));
+                $cleanHeader = str_replace('*', '', $cleanHeader);
+                $headerMap[$cleanHeader] = $colLetter;
+            }
+        }
+
+        // 3. Process data rows into associative array by header names
+        $uploadedRows = collect([]);
+        foreach ($rawRows as $rowIndex => $row) {
+            $rowData = [];
+            foreach ($headerMap as $headerName => $colLetter) {
+                $val = $row[$colLetter] ?? null;
+                $rowData[$headerName] = $this->normalizeValue($headerName, $val);
+            }
+
+            if (!empty($rowData['tag_id']) || !empty($rowData['id']) || !empty($rowData['birth_date'])) {
+                $uploadedRows->push($rowData);
+            }
+        }
+
+        return $this->reconcileData($uploadedRows);
+    }
+
+    /**
+     * Core reconciliation logic operating on normalized uploaded rows.
+     */
+    public function reconcileData(Collection $uploadedRows): array
     {
         $batchId = (string) Str::uuid();
-        $results = [];
-        $now = now();
+        $allWebAnimals = Animal::with(['breed', 'location', 'partner', 'physStatus', 'earTagLogs', 'dam'])->get();
+        $matchedWebAnimalIds = [];
+        $entityResults = [];
 
-        // Index uploaded rows by tag_id
-        $uploadedByTag = $uploadedRows->keyBy('tag_id');
-
-        // Get all active animals with their current tag_id
-        $allAnimals = Animal::with(['earTagLogs'])->get();
-        $animalsByUuid = $allAnimals->keyBy('id');
-        $animalsByTag = $allAnimals->keyBy('tag_id');
-
-        // Track which DB animals were matched
-        $matchedAnimalIds = [];
-
-        // --- PASS 1: Match uploaded rows to DB animals ---
         foreach ($uploadedRows as $row) {
-            $tagId = $row['tag_id'] ?? null;
-            if (!$tagId) {
-                $results[] = $this->makeLog($batchId, 'UNCERTAIN', null, null, null, null, null, 0.3, 'Baris tanpa tag_id');
-                continue;
-            }
+            $excelTagId = $row['tag_id'] ?? null;
+            $excelId = $row['id'] ?? null;
 
-            $animal = null;
-            $matchMethod = '';
+            $matchedAnimal = null;
+            $matchTier = '';
             $confidence = 0.0;
+            $isUncertain = false;
+            $uncertainReason = '';
 
-            // Strategy A: Match by UUID (if row has id)
-            if (!empty($row['id'])) {
-                $animal = $animalsByUuid->get($row['id']);
-                if ($animal) {
-                    $matchMethod = 'uuid';
+            // --- TIER 1: UUID Match ---
+            if (!empty($excelId)) {
+                $candidates = $allWebAnimals->where('id', $excelId);
+                if ($candidates->count() === 1) {
+                    $matchedAnimal = $candidates->first();
+                    $matchTier = 'UUID';
                     $confidence = 1.0;
+                } elseif ($candidates->count() > 1) {
+                    $isUncertain = true;
+                    $uncertainReason = 'Multiple DB animals match UUID ' . $excelId;
                 }
             }
 
-            // Strategy B: Match by active tag_id
-            if (!$animal) {
-                $animal = $animalsByTag->get($tagId);
-                if ($animal) {
-                    $matchMethod = 'tag_id';
+            // --- TIER 2: Active tag_id Match ---
+            if (!$matchedAnimal && !$isUncertain && !empty($excelTagId)) {
+                $candidates = $allWebAnimals->filter(fn($a) => (string) $a->tag_id === (string) $excelTagId);
+                if ($candidates->count() === 1) {
+                    $matchedAnimal = $candidates->first();
+                    $matchTier = 'Active Tag';
                     $confidence = 1.0;
+                } elseif ($candidates->count() > 1) {
+                    $isUncertain = true;
+                    $uncertainReason = 'Duplicate active tag in database: ' . $excelTagId;
                 }
             }
 
-            // Strategy C: Match via ear tag history
-            if (!$animal) {
-                $tagLog = AnimalEarTagLog::where('new_tag_id', $tagId)
-                    ->orWhere('old_tag_id', $tagId)
-                    ->first();
-                if ($tagLog) {
-                    $animal = $animalsByUuid->get($tagLog->animal_id);
-                    $matchMethod = 'tag_history';
-                    $confidence = 0.9;
+            // --- TIER 3: Tag History Match ---
+            if (!$matchedAnimal && !$isUncertain && !empty($excelTagId)) {
+                $tagLogs = AnimalEarTagLog::where('old_tag_id', $excelTagId)
+                    ->orWhere('new_tag_id', $excelTagId)
+                    ->get();
+                if ($tagLogs->isNotEmpty()) {
+                    $animalIds = $tagLogs->pluck('animal_id')->unique();
+                    $candidates = $allWebAnimals->whereIn('id', $animalIds);
+                    if ($candidates->count() === 1) {
+                        $matchedAnimal = $candidates->first();
+                        $matchTier = 'Tag History';
+                        $confidence = 0.9;
+                    } elseif ($candidates->count() > 1) {
+                        $isUncertain = true;
+                        $uncertainReason = 'Multiple animals match ear tag history ' . $excelTagId;
+                    }
                 }
             }
 
-            // Strategy D: Match by tag_id + partner_id
-            if (!$animal && !empty($row['partner_id'])) {
-                $animal = Animal::where('tag_id', $tagId)
-                    ->where('partner_id', $row['partner_id'])
-                    ->first();
-                if ($animal) {
-                    $matchMethod = 'tag_partner';
+            // --- TIER 4: Composite Identity Match ---
+            if (!$matchedAnimal && !$isUncertain && !empty($row['birth_date'])) {
+                $candidates = $allWebAnimals->filter(function ($a) use ($row) {
+                    $match = true;
+                    if (!empty($row['gender'])) {
+                        $match = $match && (strtoupper($a->gender) === strtoupper($row['gender']));
+                    }
+                    if (!empty($row['birth_date']) && $a->birth_date) {
+                        $match = $match && ($a->birth_date->format('Y-m-d') === $row['birth_date']);
+                    }
+                    if (!empty($row['dam_tag_id']) && $a->dam) {
+                        $match = $match && ((string) $a->dam->tag_id === (string) $row['dam_tag_id']);
+                    }
+                    return $match;
+                });
+
+                if ($candidates->count() === 1) {
+                    $matchedAnimal = $candidates->first();
+                    $matchTier = 'Composite Identity';
                     $confidence = 0.8;
+                } elseif ($candidates->count() > 1) {
+                    $isUncertain = true;
+                    $uncertainReason = 'Multiple composite identity matches for ' . ($excelTagId ?? 'unnamed animal');
                 }
             }
 
-            if (!$animal) {
-                // EXCEL_ONLY — exists in upload but not in DB
-                $results[] = $this->makeLog($batchId, 'EXCEL_ONLY', null, $tagId, null, null, null, 0.5, 'Tidak ditemukan di database');
+            // UNCERTAIN Entity Status
+            if ($isUncertain) {
+                $entityResults[] = [
+                    'entity_id' => $excelId ?? ($excelTagId ? "EXCEL-{$excelTagId}" : Str::uuid()->toString()),
+                    'tag_id' => $excelTagId,
+                    'status' => 'UNCERTAIN',
+                    'animal_id' => null,
+                    'match_tier' => $matchTier ?: 'None',
+                    'confidence' => 0.3,
+                    'notes' => $uncertainReason,
+                    'conflicts' => [],
+                ];
                 continue;
             }
 
-            $matchedAnimalIds[] = $animal->id;
+            // EXCEL_ONLY Entity Status
+            if (!$matchedAnimal) {
+                $entityResults[] = [
+                    'entity_id' => $excelId ?? ($excelTagId ? "EXCEL-{$excelTagId}" : Str::uuid()->toString()),
+                    'tag_id' => $excelTagId,
+                    'status' => 'EXCEL_ONLY',
+                    'animal_id' => null,
+                    'match_tier' => 'None',
+                    'confidence' => 0.5,
+                    'notes' => 'Tidak ditemukan di database',
+                    'conflicts' => [],
+                ];
+                continue;
+            }
 
-            // Compare fields
-            $fields = [
-                'birth_date', 'gender', 'generation', 'ear_tag_color',
-                'necklace_color', 'purchase_price', 'sale_price',
-                'partner_id', 'current_location_id', 'breed_id',
-                'google_drive_link', 'is_active',
+            // Matched animal found
+            $matchedWebAnimalIds[] = $matchedAnimal->id;
+
+            // Compare fields between Web and Excel
+            $fieldConflicts = [];
+            $comparisons = [
+                'tag_id' => [$matchedAnimal->tag_id, $row['tag_id'] ?? null],
+                'gender' => [$matchedAnimal->gender, $row['gender'] ?? null],
+                'birth_date' => [$matchedAnimal->birth_date?->format('Y-m-d'), $row['birth_date'] ?? null],
+                'physical_status' => [$matchedAnimal->physStatus?->name, $row['physical_status'] ?? null],
+                'is_active' => [$matchedAnimal->is_active ? '1' : '0', isset($row['is_active']) ? ($row['is_active'] ? '1' : '0') : null],
+                'purchase_price' => [$matchedAnimal->purchase_price, $row['purchase_price'] ?? null],
+                'sale_price' => [$matchedAnimal->sale_price, $row['sale_price'] ?? null],
             ];
 
-            $hasDiff = false;
-            foreach ($fields as $field) {
-                $dbVal = $animal->$field;
-                $uploadVal = $row[$field] ?? null;
-
-                // Skip fields not provided in upload (null = not in spreadsheet)
-                if ($uploadVal === null || $uploadVal === '') {
+            foreach ($comparisons as $field => [$webVal, $excelVal]) {
+                if ($excelVal === null || $excelVal === '') {
                     continue;
                 }
 
-                // Normalize dates
-                if ($field === 'birth_date') {
-                    $uploadVal = \Carbon\Carbon::parse($uploadVal)->format('Y-m-d');
-                    $dbVal = $animal->birth_date?->format('Y-m-d');
-                }
-
-                // Normalize booleans
-                if (in_array($field, ['is_active'])) {
-                    $dbVal = $dbVal ? '1' : '0';
-                    $uploadVal = $uploadVal ? '1' : '0';
-                }
-
-                // Normalize numeric values (DB stores 0.00, upload may have 0)
-                if (is_numeric($uploadVal) && is_numeric($dbVal)) {
-                    $uploadVal = (float) $uploadVal;
-                    $dbVal = (float) $dbVal;
-                }
-
-                if ((string) $uploadVal !== (string) $dbVal) {
-                    $hasDiff = true;
-                    $results[] = $this->makeLog(
-                        $batchId, 'CONFLICT', $animal->id, $tagId,
-                        $field, $dbVal, $uploadVal, $confidence,
-                        "Cocok via {$matchMethod}"
-                    );
+                if (is_numeric($webVal) && is_numeric($excelVal)) {
+                    if (abs((float) $webVal - (float) $excelVal) > 0.01) {
+                        $fieldConflicts[] = [
+                            'field' => $field,
+                            'web_value' => (string) $webVal,
+                            'excel_value' => (string) $excelVal,
+                        ];
+                    }
+                } elseif (trim((string) $webVal) !== trim((string) $excelVal)) {
+                    $fieldConflicts[] = [
+                        'field' => $field,
+                        'web_value' => (string) $webVal,
+                        'excel_value' => (string) $excelVal,
+                    ];
                 }
             }
 
-            if (!$hasDiff) {
-                $results[] = $this->makeLog(
-                    $batchId, 'SAME', $animal->id, $tagId,
-                    null, null, null, $confidence,
-                    "Cocok via {$matchMethod}"
-                );
-            }
+            $mainStatus = !empty($fieldConflicts) ? 'CONFLICT' : 'SAME';
+            $entityResults[] = [
+                'entity_id' => $matchedAnimal->id,
+                'tag_id' => $matchedAnimal->tag_id,
+                'status' => $mainStatus,
+                'animal_id' => $matchedAnimal->id,
+                'match_tier' => $matchTier,
+                'confidence' => $confidence,
+                'notes' => "Matched via {$matchTier}",
+                'conflicts' => $fieldConflicts,
+            ];
         }
 
-        // --- PASS 2: Find WEB_ONLY animals (in DB but not in upload) ---
-        $uploadedTagIds = $uploadedRows->pluck('tag_id')->filter();
-        foreach ($allAnimals as $animal) {
-            if (!in_array($animal->id, $matchedAnimalIds)) {
-                $results[] = $this->makeLog(
-                    $batchId, 'WEB_ONLY', $animal->id, $animal->tag_id,
-                    null, null, null, 1.0,
-                    'Ada di database tapi tidak di file upload'
-                );
-            }
+        // --- WEB_ONLY Entity Status for un-matched DB animals ---
+        $unmatchedWebAnimals = $allWebAnimals->reject(fn($a) => in_array($a->id, $matchedWebAnimalIds));
+        foreach ($unmatchedWebAnimals as $webAnimal) {
+            $entityResults[] = [
+                'entity_id' => $webAnimal->id,
+                'tag_id' => $webAnimal->tag_id,
+                'status' => 'WEB_ONLY',
+                'animal_id' => $webAnimal->id,
+                'match_tier' => 'Web Baseline',
+                'confidence' => 1.0,
+                'notes' => 'Ada di database tapi tidak di file upload',
+                'conflicts' => [],
+            ];
         }
 
-        // Persist all logs
-        ReconciliationLog::insert($results);
+        return $this->formatResults(collect($entityResults), $batchId);
+    }
+
+    private function formatResults(Collection $results, string $batchId): array
+    {
+        $summary = [
+            'SAME' => $results->where('status', 'SAME')->count(),
+            'WEB_ONLY' => $results->where('status', 'WEB_ONLY')->count(),
+            'EXCEL_ONLY' => $results->where('status', 'EXCEL_ONLY')->count(),
+            'CONFLICT' => $results->where('status', 'CONFLICT')->count(),
+            'UNCERTAIN' => $results->where('status', 'UNCERTAIN')->count(),
+        ];
+        $summary['TOTAL_UNION'] = array_sum($summary);
 
         return [
             'batch_id' => $batchId,
-            'timestamp' => $now,
-            'summary' => $this->summarize($results),
-            'results' => $results,
+            'timestamp' => now()->toIso8601String(),
+            'summary' => $summary,
+            'results' => $results->toArray(),
         ];
     }
 
-    /**
-     * Get all reconciliation batches.
-     */
-    public function getBatches(): Collection
+    private function normalizeValue(string $field, mixed $val): mixed
     {
-        return ReconciliationLog::select('batch_id')
-            ->selectRaw('MIN(created_at) as created_at')
-            ->selectRaw("SUM(CASE WHEN status='SAME' THEN 1 ELSE 0 END) as same_count")
-            ->selectRaw("SUM(CASE WHEN status='CONFLICT' THEN 1 ELSE 0 END) as conflict_count")
-            ->selectRaw("SUM(CASE WHEN status='WEB_ONLY' THEN 1 ELSE 0 END) as web_only_count")
-            ->selectRaw("SUM(CASE WHEN status='EXCEL_ONLY' THEN 1 ELSE 0 END) as excel_only_count")
-            ->selectRaw("SUM(CASE WHEN status='UNCERTAIN' THEN 1 ELSE 0 END) as uncertain_count")
-            ->selectRaw('COUNT(*) as total')
-            ->groupBy('batch_id')
-            ->orderByDesc('created_at')
-            ->get();
-    }
-
-    /**
-     * Get diff for a specific batch.
-     */
-    public function getBatchDiff(string $batchId): Collection
-    {
-        return ReconciliationLog::byBatch($batchId)
-            ->orderBy('created_at')
-            ->get();
-    }
-
-    private function makeLog(
-        string $batchId, string $status, ?string $animalId, ?string $tagId,
-        ?string $field, mixed $oldVal, mixed $newVal,
-        float $confidence, string $notes = ''
-    ): array {
-        return [
-            'id' => (string) Str::uuid(),
-            'batch_id' => $batchId,
-            'status' => $status,
-            'animal_id' => $animalId,
-            'tag_id' => $tagId,
-            'field' => $field,
-            'old_value' => $oldVal !== null ? (string) $oldVal : null,
-            'new_value' => $newVal !== null ? (string) $newVal : null,
-            'confidence' => $confidence,
-            'notes' => $notes,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
-    }
-
-    private function summarize(array $results): array
-    {
-        $counts = ['SAME' => 0, 'CONFLICT' => 0, 'WEB_ONLY' => 0, 'EXCEL_ONLY' => 0, 'UNCERTAIN' => 0];
-        foreach ($results as $r) {
-            $counts[$r['status']]++;
+        if ($val === null) {
+            return null;
         }
-        return $counts;
+
+        $valStr = trim((string) $val);
+
+        if (str_starts_with($valStr, '="') && str_ends_with($valStr, '"')) {
+            $valStr = substr($valStr, 2, -1);
+        } elseif (str_starts_with($valStr, "='") && str_ends_with($valStr, "'")) {
+            $valStr = substr($valStr, 2, -1);
+        }
+
+        if ($valStr === '') {
+            return null;
+        }
+
+        if (in_array($field, ['birth_date', 'entry_date', 'weaning_date', 'mating_date', 'weigh_date'])) {
+            try {
+                if (is_numeric($valStr) && strlen($valStr) <= 5) {
+                    return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float) $valStr)->format('Y-m-d');
+                }
+                return Carbon::parse($valStr)->format('Y-m-d');
+            } catch (\Throwable $e) {
+                return $valStr;
+            }
+        }
+
+        if (in_array($field, ['is_active', 'is_for_sale', 'needs_review'])) {
+            $lower = strtolower($valStr);
+            if (in_array($lower, ['1', 'true', 'ya', 'yes'])) {
+                return true;
+            }
+            if (in_array($lower, ['0', 'false', 'tidak', 'no'])) {
+                return false;
+            }
+        }
+
+        return $valStr;
     }
 }

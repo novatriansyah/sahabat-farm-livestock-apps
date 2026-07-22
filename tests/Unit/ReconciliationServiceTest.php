@@ -17,6 +17,10 @@ class ReconciliationServiceTest extends TestCase
 
     private ReconciliationService $service;
     private string $ownerId;
+    private int $catId;
+    private int $breedId;
+    private int $locId;
+    private int $physId;
 
     protected function setUp(): void
     {
@@ -82,12 +86,12 @@ class ReconciliationServiceTest extends TestCase
         ], $overrides);
     }
 
-    public function test_compare_returns_same_for_identical_data()
+    public function test_compare_returns_same_for_identical_data(): void
     {
         $animal = $this->createAnimal(['tag_id' => 'B31']);
         $uploaded = collect([$this->makeRow(['id' => $animal->id, 'tag_id' => 'B31'])]);
 
-        $result = $this->service->compare($uploaded);
+        $result = $this->service->reconcileData($uploaded);
 
         $this->assertArrayHasKey('batch_id', $result);
         $this->assertArrayHasKey('summary', $result);
@@ -95,49 +99,49 @@ class ReconciliationServiceTest extends TestCase
         $this->assertEquals(0, $result['summary']['CONFLICT']);
     }
 
-    public function test_compare_returns_conflict_for_differing_data()
+    public function test_compare_returns_conflict_for_differing_data(): void
     {
-        $animal = $this->createAnimal(['tag_id' => 'B31']);
+        $animal = $this->createAnimal(['tag_id' => 'B31', 'gender' => 'BETINA']);
         $uploaded = collect([$this->makeRow(['id' => $animal->id, 'tag_id' => 'B31', 'gender' => 'JANTAN'])]);
 
-        $result = $this->service->compare($uploaded);
+        $result = $this->service->reconcileData($uploaded);
 
-        $this->assertGreaterThan(0, $result['summary']['CONFLICT']);
+        $this->assertEquals(1, $result['summary']['CONFLICT']);
     }
 
-    public function test_compare_returns_excel_only_for_new_tag()
+    public function test_compare_returns_excel_only_for_new_tag(): void
     {
         $uploaded = collect([$this->makeRow(['tag_id' => 'NEW-001'])]);
 
-        $result = $this->service->compare($uploaded);
+        $result = $this->service->reconcileData($uploaded);
 
         $this->assertEquals(1, $result['summary']['EXCEL_ONLY']);
     }
 
-    public function test_compare_returns_web_only_for_animals_not_in_upload()
+    public function test_compare_returns_web_only_for_animals_not_in_upload(): void
     {
         $this->createAnimal(['tag_id' => 'B31']);
         $this->createAnimal(['tag_id' => 'B32']);
 
         $uploaded = collect([$this->makeRow(['tag_id' => 'B31'])]);
 
-        $result = $this->service->compare($uploaded);
+        $result = $this->service->reconcileData($uploaded);
 
         $this->assertGreaterThanOrEqual(1, $result['summary']['WEB_ONLY']);
     }
 
-    public function test_compare_matches_by_uuid_when_tag_id_changes()
+    public function test_compare_matches_by_uuid_when_tag_id_changes(): void
     {
         $animal = $this->createAnimal(['tag_id' => 'OLD-001']);
         $uploaded = collect([$this->makeRow(['id' => $animal->id, 'tag_id' => 'NEW-001'])]);
 
-        $result = $this->service->compare($uploaded);
+        $result = $this->service->reconcileData($uploaded);
 
         $this->assertEquals(0, $result['summary']['EXCEL_ONLY']);
         $this->assertGreaterThanOrEqual(1, $result['summary']['SAME']);
     }
 
-    public function test_compare_matches_by_tag_history()
+    public function test_compare_matches_by_tag_history(): void
     {
         $animal = $this->createAnimal(['tag_id' => 'CURRENT-001']);
 
@@ -150,32 +154,27 @@ class ReconciliationServiceTest extends TestCase
 
         $uploaded = collect([$this->makeRow(['tag_id' => 'OLD-001'])]);
 
-        $result = $this->service->compare($uploaded);
+        $result = $this->service->reconcileData($uploaded);
 
         $this->assertEquals(0, $result['summary']['EXCEL_ONLY']);
     }
 
-    public function test_batch_id_is_unique()
+    public function test_batch_id_is_unique(): void
     {
-        $result1 = $this->service->compare(collect([]));
-        $result2 = $this->service->compare(collect([]));
+        $result1 = $this->service->reconcileData(collect([]));
+        $result2 = $this->service->reconcileData(collect([]));
 
         $this->assertNotEquals($result1['batch_id'], $result2['batch_id']);
     }
 
-    public function test_reconciliation_is_read_only()
-    {
-        $this->assertTrue(method_exists($this->service, 'compare'));
-        $this->assertFalse(method_exists($this->service, 'applyReconciliation'));
-    }
-
-    public function test_logs_are_persisted()
+    public function test_reconciliation_is_read_only_and_zero_write(): void
     {
         $animal = $this->createAnimal(['tag_id' => 'B31']);
         $uploaded = collect([$this->makeRow(['id' => $animal->id, 'tag_id' => 'B31'])]);
 
-        $this->service->compare($uploaded);
+        $initialCount = ReconciliationLog::count();
+        $this->service->reconcileData($uploaded);
 
-        $this->assertGreaterThan(0, ReconciliationLog::count());
+        $this->assertEquals($initialCount, ReconciliationLog::count());
     }
 }

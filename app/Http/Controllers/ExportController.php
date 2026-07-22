@@ -27,7 +27,7 @@ class ExportController extends Controller
         );
     }
 
-    public function fullBackup()
+    public function dataSnapshotJson()
     {
         $data = [
             'animals'            => \App\Models\Animal::with(['breed','partner','location','physStatus'])->get()->toArray(),
@@ -58,38 +58,14 @@ class ExportController extends Controller
         ]);
 
         try {
-            $importedRows = Excel::toCollection(null, $request->file('file'));
-            // Flatten sheets — take first sheet with data
-            $firstSheet = $importedRows->first() ?? collect([]);
-            // Skip header row
-            $dataRows = $firstSheet->skip(1)->map(function ($row) {
-                return [
-                    'id'         => $row[0] ?? null,
-                    'tag_id'     => $row[1] ?? null,
-                    'birth_date' => $row[2] ?? null,
-                    'gender'     => $row[3] ?? null,
-                    'generation' => $row[4] ?? null,
-                    'ear_tag_color' => $row[5] ?? null,
-                    'necklace_color' => $row[6] ?? null,
-                    'purchase_price' => $row[7] ?? null,
-                    'sale_price'     => $row[8] ?? null,
-                    'partner_id'     => $row[9] ?? null,
-                    'current_location_id' => $row[10] ?? null,
-                    'breed_id'           => $row[11] ?? null,
-                    'google_drive_link'  => $row[12] ?? null,
-                    'is_active'          => $row[13] ?? null,
-                    'physical_status'    => $row[14] ?? null,
-                ];
-            })->filter(fn($r) => !empty($r['tag_id']));
-
             $service = new ReconciliationService();
-            $result = $service->compare($dataRows);
+            $result = $service->compareFile($request->file('file')->getRealPath());
 
             return view('admin.export.reconcile-diff', [
-                'batchId'  => $result['batch_id'],
+                'batchId'   => $result['batch_id'],
                 'timestamp' => $result['timestamp'],
-                'summary'  => $result['summary'],
-                'results'  => collect($result['results']),
+                'summary'   => $result['summary'],
+                'results'   => collect($result['results']),
             ]);
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['file' => 'Gagal membaca file: ' . $e->getMessage()]);

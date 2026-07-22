@@ -99,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
             Route::prefix('admin/export')->name('admin.export.')->group(function () {
                 Route::get('/animals', [\App\Http\Controllers\ExportController::class, 'animals'])->name('animals');
                 Route::get('/animals/template', [\App\Http\Controllers\ExportController::class, 'template'])->name('animals.template');
-                Route::get('/full-backup', [\App\Http\Controllers\ExportController::class, 'fullBackup'])->name('full-backup');
+                Route::get('/data-snapshot-json', [\App\Http\Controllers\ExportController::class, 'dataSnapshotJson'])->name('data-snapshot-json');
                 Route::post('/reconcile', [\App\Http\Controllers\ExportController::class, 'reconcile'])->name('reconcile');
                 Route::get('/reconciliation', [\App\Http\Controllers\ExportController::class, 'index'])->name('reconciliation.index');
                 Route::get('/reconciliation/{batch}', [\App\Http\Controllers\ExportController::class, 'show'])->name('reconciliation.show');
