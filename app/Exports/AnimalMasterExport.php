@@ -19,11 +19,15 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class AnimalMasterExport implements WithMultipleSheets
 {
+    private string $version;
+
     public function __construct(
-        private string $version = '2.0.0',
+        array|string $version = '2.0.0',
         private string $commitHash = 'f8a8c7cc96429eb7a74e20350b05a14975444612',
         private string $environment = 'staging'
-    ) {}
+    ) {
+        $this->version = is_array($version) ? '2.0.0' : $version;
+    }
 
     public function sheets(): array
     {

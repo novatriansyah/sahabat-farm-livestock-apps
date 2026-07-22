@@ -99,11 +99,15 @@ class ArticleController extends Controller
         // Check if file is image or video
         $mime = $file->getMimeType();
         if (Str::startsWith($mime, 'image/')) {
-            $filename = 'articles/media/' . uniqid() . '.webp';
-            $image = Image::read($file);
-            $image->scale(width: 1000);
-            $encoded = $image->toWebp(75);
-            Storage::disk('public')->put($filename, (string) $encoded);
+            try {
+                $filename = 'articles/media/' . uniqid() . '.webp';
+                $image = Image::read($file);
+                $image->scale(width: 1000);
+                $encoded = $image->toWebp(75);
+                Storage::disk('public')->put($filename, (string) $encoded);
+            } catch (\Throwable $e) {
+                $filename = $file->store('articles/media', 'public');
+            }
         } else {
             // Save video raw
             $filename = 'articles/media/' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -118,10 +122,14 @@ class ArticleController extends Controller
     private function uploadAndCompress($file, string $folder): string
     {
         $filename = $folder . '/' . uniqid() . '.webp';
-        $image = Image::read($file);
-        $image->scale(width: 800);
-        $encoded = $image->toWebp(75);
-        Storage::disk('public')->put($filename, (string) $encoded);
+        try {
+            $image = Image::read($file);
+            $image->scale(width: 800);
+            $encoded = $image->toWebp(75);
+            Storage::disk('public')->put($filename, (string) $encoded);
+        } catch (\Throwable $e) {
+            $filename = $file->store($folder, 'public');
+        }
         return $filename;
     }
 }

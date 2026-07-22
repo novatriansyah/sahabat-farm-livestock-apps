@@ -18,7 +18,7 @@ class MediaLinksSheet implements FromQuery, WithTitle, WithHeadings, WithMapping
 
     public function query()
     {
-        return Animal::query()->whereNotNull('gdrive_folder_url')->orWhereNotNull('photo_url');
+        return Animal::query()->whereNotNull('google_drive_link');
     }
 
     public function headings(): array
@@ -26,8 +26,7 @@ class MediaLinksSheet implements FromQuery, WithTitle, WithHeadings, WithMapping
         return [
             'animal_id',
             'tag_id',
-            'gdrive_folder_url',
-            'photo_url',
+            'google_drive_link',
             'created_at',
         ];
     }
@@ -37,8 +36,7 @@ class MediaLinksSheet implements FromQuery, WithTitle, WithHeadings, WithMapping
         return [
             (string) $animal->id,
             '="' . (string) $animal->tag_id . '"',
-            $animal->gdrive_folder_url,
-            $animal->photo_url,
+            $animal->google_drive_link,
             $animal->created_at?->format('Y-m-d H:i:s'),
         ];
     }

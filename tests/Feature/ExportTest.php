@@ -22,7 +22,7 @@ class ExportTest extends TestCase
     {
         $this->get('/admin/export/animals')->assertRedirect('/login');
         $this->get('/admin/export/animals/template')->assertRedirect('/login');
-        $this->get('/admin/export/full-backup')->assertRedirect('/login');
+        $this->get('/admin/export/data-snapshot-json')->assertRedirect('/login');
     }
 
     public function test_non_pemilik_gets_redirected()
@@ -52,7 +52,7 @@ class ExportTest extends TestCase
     public function test_full_backup_returns_json()
     {
         $this->actingAs($this->owner)
-            ->get('/admin/export/full-backup')
+            ->get('/admin/export/data-snapshot-json')
             ->assertStatus(200)
             ->assertHeader('Content-Type', 'application/json');
     }
@@ -60,7 +60,7 @@ class ExportTest extends TestCase
     public function test_full_backup_has_required_keys()
     {
         $response = $this->actingAs($this->owner)
-            ->get('/admin/export/full-backup');
+            ->get('/admin/export/data-snapshot-json');
 
         $data = $response->json();
         $this->assertArrayHasKey('animals', $data);

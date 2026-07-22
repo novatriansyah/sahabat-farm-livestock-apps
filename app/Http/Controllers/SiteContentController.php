@@ -184,10 +184,14 @@ class SiteContentController extends Controller
     private function uploadAndCompress($file, string $folder): string
     {
         $filename = $folder . '/' . uniqid() . '.webp';
-        $image = Image::read($file);
-        $image->scale(width: 1200);
-        $encoded = $image->toWebp(75);
-        Storage::disk('public')->put($filename, (string) $encoded);
+        try {
+            $image = Image::read($file);
+            $image->scale(width: 1200);
+            $encoded = $image->toWebp(75);
+            Storage::disk('public')->put($filename, (string) $encoded);
+        } catch (\Throwable $e) {
+            $filename = $file->store($folder, 'public');
+        }
         return $filename;
     }
 }

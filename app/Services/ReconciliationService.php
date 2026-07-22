@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Animal;
 use App\Models\AnimalEarTagLog;
+use App\Models\ReconciliationLog;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -245,6 +246,19 @@ class ReconciliationService
         }
 
         return $this->formatResults(collect($entityResults), $batchId);
+    }
+
+    public function getBatches(): Collection
+    {
+        return ReconciliationLog::select('batch_id', 'created_at')
+            ->distinct()
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function getBatchDiff(string $batchId): Collection
+    {
+        return ReconciliationLog::where('batch_id', $batchId)->get();
     }
 
     private function formatResults(Collection $results, string $batchId): array

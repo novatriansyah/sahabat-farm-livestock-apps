@@ -138,7 +138,7 @@ class ReconciliationServiceTest extends TestCase
         $result = $this->service->reconcileData($uploaded);
 
         $this->assertEquals(0, $result['summary']['EXCEL_ONLY']);
-        $this->assertGreaterThanOrEqual(1, $result['summary']['SAME']);
+        $this->assertEquals(1, $result['summary']['CONFLICT']);
     }
 
     public function test_compare_matches_by_tag_history(): void

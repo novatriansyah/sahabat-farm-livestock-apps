@@ -94,7 +94,7 @@ class ArticleAndCmsTest extends TestCase
     public function test_admin_can_create_article()
     {
         Storage::fake('public');
-        $file = UploadedFile::fake()->image('thumbnail.png');
+        $file = UploadedFile::fake()->create('thumbnail.png', 10, 'image/png');
 
         $response = $this->actingAs($this->adminUser)->post(route('admin.articles.store'), [
             'title' => 'Artikel Baru Dari Test',
@@ -127,7 +127,7 @@ class ArticleAndCmsTest extends TestCase
             'is_published' => false
         ]);
 
-        $newFile = UploadedFile::fake()->image('new_thumbnail.png');
+        $newFile = UploadedFile::fake()->create('new_thumbnail.png', 10, 'image/png');
 
         $response = $this->actingAs($this->adminUser)->put(route('admin.articles.update', $article->id), [
             'title' => 'Judul Diubah',
@@ -175,7 +175,7 @@ class ArticleAndCmsTest extends TestCase
     public function test_admin_can_upload_media_quill()
     {
         Storage::fake('public');
-        $file = UploadedFile::fake()->image('media.png');
+        $file = UploadedFile::fake()->create('media.png', 10, 'image/png');
 
         $response = $this->actingAs($this->adminUser)->postJson(route('admin.articles.upload-media'), [
             'image' => $file
@@ -192,8 +192,8 @@ class ArticleAndCmsTest extends TestCase
     public function test_admin_can_update_site_settings_cms()
     {
         Storage::fake('public');
-        $aboutImage = UploadedFile::fake()->image('about.png');
-        $team1Image = UploadedFile::fake()->image('team1.png');
+        $aboutImage = UploadedFile::fake()->create('about.png', 10, 'image/png');
+        $team1Image = UploadedFile::fake()->create('team1.png', 10, 'image/png');
 
         $payload = [
             'whatsapp' => '08123456789',
