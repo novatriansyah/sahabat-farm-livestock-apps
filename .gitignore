@@ -25,3 +25,10 @@ yarn-error.log
 .cline/*
 *.zip
 *.tar.gz
+build/*
+database/sqlite.db
+database/test_export.php
+issues.csv
+gen.ps1
+package_release0.php
+package_release0_cp*.php

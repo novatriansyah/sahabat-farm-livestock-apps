@@ -3,13 +3,16 @@
 namespace App\Exports\Sheets;
 
 use App\Models\Animal;
+use App\Schemas\AnimalTemplateSchema;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class MediaLinksSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize
+class MediaLinksSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting
 {
     public function title(): string
     {
@@ -26,7 +29,7 @@ class MediaLinksSheet implements FromQuery, WithTitle, WithHeadings, WithMapping
         return [
             'animal_id',
             'tag_id',
-            'google_drive_link',
+            AnimalTemplateSchema::CANONICAL_GDRIVE_FIELD,
             'created_at',
         ];
     }
@@ -35,9 +38,14 @@ class MediaLinksSheet implements FromQuery, WithTitle, WithHeadings, WithMapping
     {
         return [
             (string) $animal->id,
-            '="' . (string) $animal->tag_id . '"',
-            $animal->google_drive_link,
-            $animal->created_at?->format('Y-m-d H:i:s'),
+            (string) $animal->tag_id,
+            (string) AnimalTemplateSchema::extractGDriveUrl($animal),
+            $animal->created_at ? date('Y-m-d H:i:s', strtotime($animal->created_at)) : '',
         ];
+    }
+
+    public function columnFormats(): array
+    {
+        return ['B' => NumberFormat::FORMAT_TEXT];
     }
 }

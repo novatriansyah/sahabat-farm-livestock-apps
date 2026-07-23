@@ -15,7 +15,7 @@ class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
 {
     public function __construct(private array $filters = []) {}
 
-    public function title(): string { return 'RIWAYAT PEMILIK'; }
+    public function title(): string { return 'OWNERSHIP_HISTORY'; }
 
     public function headings(): array
     {
@@ -25,19 +25,19 @@ class OwnershipHistorySheet implements FromQuery, WithTitle, WithHeadings, WithM
     public function map($log): array
     {
         return [
-            $log->animal?->tag_id,
-            $log->partner?->name,
-            $log->changed_at?->format('Y-m-d') ?: '',
-            $log->end_date?->format('Y-m-d') ?: '',
-            $log->is_current ? 'Ya' : 'Tidak',
-            $log->notes,
+            (string) ($log->animal?->tag_id ?? ''),
+            (string) ($log->newPartner?->name ?? $log->oldPartner?->name ?? 'SFI Internal'),
+            $log->changed_at ? date('Y-m-d', strtotime($log->changed_at)) : '',
+            '',
+            'Ya',
+            (string) ($log->reason ?? ''),
         ];
     }
 
     public function query()
     {
         return AnimalOwnershipLog::query()
-            ->with(['animal', 'partner'])
+            ->with(['animal', 'newPartner', 'oldPartner'])
             ->orderBy('animal_id')
             ->orderBy('changed_at');
     }

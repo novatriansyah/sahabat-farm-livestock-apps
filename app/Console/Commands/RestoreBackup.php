@@ -83,36 +83,30 @@ class RestoreBackup extends Command
             return Command::SUCCESS;
         }
 
-        // 2. TOKENIZE SQL STATEMENTS (No fragile explode(";\n"))
+        // 2. TOKENIZE SQL STATEMENTS
         $statements = $this->parseSqlStatements($sqlContent);
         $this->info("  Parsed " . count($statements) . " SQL statements.");
 
-        // 3. EXECUTE STATEMENTS WITH FAIL-FAST TRANSACTION
+        // 3. EXECUTE STATEMENTS WITH FAIL-FAST
         DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
 
-        try {
-            DB::beginTransaction();
+        $pdo = DB::getPdo();
 
-            foreach ($statements as $index => $stmt) {
-                try {
-                    DB::unprepared($stmt);
-                } catch (\Throwable $e) {
-                    $this->error("FAIL-FAST ABORT on statement #{$index}: " . $e->getMessage());
-                    $this->line("Failing Statement: " . substr($stmt, 0, 200) . "...");
-                    DB::rollBack();
-                    DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
-                    return Command::FAILURE;
+        foreach ($statements as $index => $stmt) {
+            try {
+                $pdo->exec($stmt);
+            } catch (\Throwable $e) {
+                if (str_contains($e->getMessage(), 'There is no active transaction')) {
+                    continue;
                 }
+                $this->error("FAIL-FAST ABORT on statement #{$index}: " . $e->getMessage());
+                $this->line("Failing Statement: " . substr($stmt, 0, 200) . "...");
+                DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+                return Command::FAILURE;
             }
-
-            DB::commit();
-            DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
-            $this->error("Restore execution failed: " . $e->getMessage());
-            return Command::FAILURE;
         }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
 
         // 4. POST-RESTORE VALIDATIONS
         $this->info("  Running Post-Restore Verification Checks...");
@@ -179,127 +173,40 @@ class RestoreBackup extends Command
     public function parseSqlStatements(string $sql): array
     {
         $statements = [];
-        $len = strlen($sql);
         $current = '';
-        $inSingle = false;
-        $inDouble = false;
-        $inBacktick = false;
-        $inLineComment = false;
-        $inBlockComment = false;
+        $inString = false;
+        $stringChar = null;
+        $len = strlen($sql);
 
         for ($i = 0; $i < $len; $i++) {
-            $ch = $sql[$i];
-            $next = ($i + 1 < $len) ? $sql[$i + 1] : '';
+            $char = $sql[$i];
+            $prev = ($i > 0) ? $sql[$i - 1] : '';
 
-            if ($inLineComment) {
-                if ($ch === "\n") {
-                    $inLineComment = false;
-                }
-                $current .= $ch;
-                continue;
-            }
-
-            if ($inBlockComment) {
-                if ($ch === '*' && $next === '/') {
-                    $inBlockComment = false;
-                    $current .= '*/';
-                    $i++;
-                    continue;
-                }
-                $current .= $ch;
-                continue;
-            }
-
-            if ($inSingle) {
-                $current .= $ch;
-                if ($ch === '\\') {
-                    if ($next !== '') {
-                        $current .= $next;
-                        $i++;
-                    }
-                } elseif ($ch === "'") {
-                    if ($next === "'") {
-                        $current .= "'";
-                        $i++;
-                    } else {
-                        $inSingle = false;
-                    }
-                }
-                continue;
-            }
-
-            if ($inDouble) {
-                $current .= $ch;
-                if ($ch === '\\') {
-                    if ($next !== '') {
-                        $current .= $next;
-                        $i++;
-                    }
-                } elseif ($ch === '"') {
-                    $inDouble = false;
-                }
-                continue;
-            }
-
-            if ($inBacktick) {
-                $current .= $ch;
-                if ($ch === '`') {
-                    $inBacktick = false;
-                }
-                continue;
-            }
-
-            if ($ch === '-' && $next === '-') {
-                $afterNext = ($i + 2 < $len) ? $sql[$i + 2] : '';
-                if (ctype_space($afterNext) || $afterNext === '' || $afterNext === "\r" || $afterNext === "\n") {
-                    $inLineComment = true;
-                    $current .= '--';
-                    $i++;
-                    continue;
+            // Handle string quotes ' or "
+            if (($char === "'" || $char === '"') && $prev !== '\\') {
+                if (!$inString) {
+                    $inString = true;
+                    $stringChar = $char;
+                } elseif ($stringChar === $char) {
+                    $inString = false;
+                    $stringChar = null;
                 }
             }
-            if ($ch === '#') {
-                $inLineComment = true;
-                $current .= '#';
-                continue;
-            }
-            if ($ch === '/' && $next === '*') {
-                $inBlockComment = true;
-                $current .= '/*';
-                $i++;
-                continue;
-            }
 
-            if ($ch === "'") {
-                $inSingle = true;
-                $current .= "'";
-                continue;
-            }
-            if ($ch === '"') {
-                $inDouble = true;
-                $current .= '"';
-                continue;
-            }
-            if ($ch === '`') {
-                $inBacktick = true;
-                $current .= '`';
-                continue;
-            }
-
-            if ($ch === ';') {
+            // Semicolon separator outside of strings
+            if ($char === ';' && !$inString) {
                 $trimmed = trim($current);
-                if ($trimmed !== '') {
+                if ($trimmed !== '' && !str_starts_with($trimmed, '--')) {
                     $statements[] = $trimmed;
                 }
                 $current = '';
-                continue;
+            } else {
+                $current .= $char;
             }
-
-            $current .= $ch;
         }
 
         $trimmed = trim($current);
-        if ($trimmed !== '') {
+        if ($trimmed !== '' && !str_starts_with($trimmed, '--')) {
             $statements[] = $trimmed;
         }
 

@@ -8,12 +8,14 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class LocationHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize
+class LocationHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting
 {
     public function title(): string
     {
-        return 'LOCATION_HISTORY';
+        return 'LOCATION_CURRENT_SNAPSHOT';
     }
 
     public function query()
@@ -36,10 +38,15 @@ class LocationHistorySheet implements FromQuery, WithTitle, WithHeadings, WithMa
     {
         return [
             (string) $animal->id,
-            '="' . (string) $animal->tag_id . '"',
-            $animal->current_location_id,
-            $animal->location?->name,
-            $animal->updated_at?->format('Y-m-d H:i:s'),
+            (string) $animal->tag_id,
+            (string) ($animal->current_location_id ?? ''),
+            (string) ($animal->location?->name ?? '-'),
+            $animal->updated_at ? date('Y-m-d H:i:s', strtotime($animal->updated_at)) : '',
         ];
+    }
+
+    public function columnFormats(): array
+    {
+        return ['B' => NumberFormat::FORMAT_TEXT];
     }
 }

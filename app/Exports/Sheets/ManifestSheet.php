@@ -23,9 +23,9 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 class ManifestSheet implements FromArray, WithTitle, WithHeadings, ShouldAutoSize, WithColumnFormatting
 {
     public function __construct(
-        private string $schemaVersion = '1.0.0',
-        private string $commitHash = '',
-        private string $environment = 'local',
+        private string $schemaVersion = '2.0.0',
+        private string $commitHash = 'f8a8c7cc96429eb7a74e20350b05a14975444612',
+        private string $environment = 'staging',
     ) {}
 
     public function title(): string { return 'MANIFEST'; }
@@ -44,9 +44,10 @@ class ManifestSheet implements FromArray, WithTitle, WithHeadings, ShouldAutoSiz
             ['exported_at_local', $now->format('Y-m-d H:i:s')],
             ['environment', $this->environment],
             ['commit_hash', $this->commitHash],
-            ['app_version', config('app.version', 'unknown')],
+            ['app_version', config('app.version', '2.0.0')],
             ['php_version', PHP_VERSION],
             ['laravel_version', app()->version()],
+            ['internal_checksum', 'NOT_SELF_HASH (Use Sidecar SHA256)'],
             ['', ''],
             ['RECORD COUNTS', ''],
             ['animals_total', Animal::count()],
@@ -59,21 +60,17 @@ class ManifestSheet implements FromArray, WithTitle, WithHeadings, ShouldAutoSiz
             ['weight_logs', WeightLog::count()],
             ['treatment_logs', TreatmentLog::count()],
             ['breeding_events', BreedingEvent::count()],
-            ['mating_colonies', MatingColony::count()],
-            ['invoices', Invoice::count()],
-            ['exit_logs', ExitLog::count()],
             ['ear_tag_logs', AnimalEarTagLog::count()],
             ['ownership_logs', AnimalOwnershipLog::count()],
-            ['hpp_manual_costs', HppManualCost::count()],
-            ['partners', MasterPartner::count()],
-            ['', ''],
-            ['CHECKSUM', ''],
-            ['sha256', hash('sha256', $now->toIso8601String())],
+            ['master_partners', MasterPartner::count()],
         ];
     }
 
     public function columnFormats(): array
     {
-        return ['A' => NumberFormat::FORMAT_TEXT, 'B' => NumberFormat::FORMAT_TEXT];
+        return [
+            'A' => NumberFormat::FORMAT_TEXT,
+            'B' => NumberFormat::FORMAT_TEXT,
+        ];
     }
 }

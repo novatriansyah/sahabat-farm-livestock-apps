@@ -16,7 +16,7 @@ class ReconciliationService
      * Compare uploaded spreadsheet file or collection against database.
      * Purely in-memory comparison — zero database side-effects.
      */
-    public function compareFile(string $filePath): array
+    public function compareFile(string $filePath, ?string $partnerId = null): array
     {
         $spreadsheet = IOFactory::load($filePath);
 
@@ -57,16 +57,23 @@ class ReconciliationService
             }
         }
 
-        return $this->reconcileData($uploadedRows);
+        return $this->reconcileData($uploadedRows, $partnerId);
     }
 
     /**
      * Core reconciliation logic operating on normalized uploaded rows.
      */
-    public function reconcileData(Collection $uploadedRows): array
+    public function reconcileData(Collection $uploadedRows, ?string $partnerId = null): array
     {
         $batchId = (string) Str::uuid();
-        $allWebAnimals = Animal::with(['breed', 'location', 'partner', 'physStatus', 'earTagLogs', 'dam'])->get();
+
+        // 1. Query Web Baseline (Scoped strictly if partnerId provided)
+        $query = Animal::with(['breed', 'location', 'partner', 'physStatus', 'earTagLogs', 'dam']);
+        if (!empty($partnerId)) {
+            $query->where('partner_id', $partnerId);
+        }
+
+        $allWebAnimals = $query->get();
         $matchedWebAnimalIds = [];
         $entityResults = [];
 
@@ -130,10 +137,10 @@ class ReconciliationService
                 $candidates = $allWebAnimals->filter(function ($a) use ($row) {
                     $match = true;
                     if (!empty($row['gender'])) {
-                        $match = $match && (strtoupper($a->gender) === strtoupper($row['gender']));
+                        $match = $match && (strtoupper((string) $a->gender) === strtoupper((string) $row['gender']));
                     }
                     if (!empty($row['birth_date']) && $a->birth_date) {
-                        $match = $match && ($a->birth_date->format('Y-m-d') === $row['birth_date']);
+                        $match = $match && (date('Y-m-d', strtotime($a->birth_date)) === $row['birth_date']);
                     }
                     if (!empty($row['dam_tag_id']) && $a->dam) {
                         $match = $match && ((string) $a->dam->tag_id === (string) $row['dam_tag_id']);
@@ -154,14 +161,14 @@ class ReconciliationService
             // UNCERTAIN Entity Status
             if ($isUncertain) {
                 $entityResults[] = [
-                    'entity_id' => $excelId ?? ($excelTagId ? "EXCEL-{$excelTagId}" : Str::uuid()->toString()),
-                    'tag_id' => $excelTagId,
-                    'status' => 'UNCERTAIN',
-                    'animal_id' => null,
+                    'entity_id'  => $excelId ?? ($excelTagId ? "EXCEL-{$excelTagId}" : Str::uuid()->toString()),
+                    'tag_id'     => $excelTagId,
+                    'status'     => 'UNCERTAIN',
+                    'animal_id'  => null,
                     'match_tier' => $matchTier ?: 'None',
                     'confidence' => 0.3,
-                    'notes' => $uncertainReason,
-                    'conflicts' => [],
+                    'notes'      => $uncertainReason,
+                    'conflicts'  => [],
                 ];
                 continue;
             }
@@ -169,14 +176,14 @@ class ReconciliationService
             // EXCEL_ONLY Entity Status
             if (!$matchedAnimal) {
                 $entityResults[] = [
-                    'entity_id' => $excelId ?? ($excelTagId ? "EXCEL-{$excelTagId}" : Str::uuid()->toString()),
-                    'tag_id' => $excelTagId,
-                    'status' => 'EXCEL_ONLY',
-                    'animal_id' => null,
+                    'entity_id'  => $excelId ?? ($excelTagId ? "EXCEL-{$excelTagId}" : Str::uuid()->toString()),
+                    'tag_id'     => $excelTagId,
+                    'status'     => 'EXCEL_ONLY',
+                    'animal_id'  => null,
                     'match_tier' => 'None',
                     'confidence' => 0.5,
-                    'notes' => 'Tidak ditemukan di database',
-                    'conflicts' => [],
+                    'notes'      => 'Tidak ditemukan di database',
+                    'conflicts'  => [],
                 ];
                 continue;
             }
@@ -187,13 +194,12 @@ class ReconciliationService
             // Compare fields between Web and Excel
             $fieldConflicts = [];
             $comparisons = [
-                'tag_id' => [$matchedAnimal->tag_id, $row['tag_id'] ?? null],
-                'gender' => [$matchedAnimal->gender, $row['gender'] ?? null],
-                'birth_date' => [$matchedAnimal->birth_date?->format('Y-m-d'), $row['birth_date'] ?? null],
+                'tag_id'          => [$matchedAnimal->tag_id, $row['tag_id'] ?? null],
+                'gender'          => [$matchedAnimal->gender, $row['gender'] ?? null],
+                'birth_date'      => [$matchedAnimal->birth_date ? date('Y-m-d', strtotime($matchedAnimal->birth_date)) : null, $row['birth_date'] ?? null],
                 'physical_status' => [$matchedAnimal->physStatus?->name, $row['physical_status'] ?? null],
-                'is_active' => [$matchedAnimal->is_active ? '1' : '0', isset($row['is_active']) ? ($row['is_active'] ? '1' : '0') : null],
-                'purchase_price' => [$matchedAnimal->purchase_price, $row['purchase_price'] ?? null],
-                'sale_price' => [$matchedAnimal->sale_price, $row['sale_price'] ?? null],
+                'is_active'       => [$matchedAnimal->is_active ? '1' : '0', isset($row['is_active']) ? ($row['is_active'] ? '1' : '0') : null],
+                'purchase_price'  => [$matchedAnimal->purchase_price, $row['acquisition_cost'] ?? $row['purchase_price'] ?? null],
             ];
 
             foreach ($comparisons as $field => [$webVal, $excelVal]) {
@@ -204,15 +210,15 @@ class ReconciliationService
                 if (is_numeric($webVal) && is_numeric($excelVal)) {
                     if (abs((float) $webVal - (float) $excelVal) > 0.01) {
                         $fieldConflicts[] = [
-                            'field' => $field,
-                            'web_value' => (string) $webVal,
+                            'field'       => $field,
+                            'web_value'   => (string) $webVal,
                             'excel_value' => (string) $excelVal,
                         ];
                     }
                 } elseif (trim((string) $webVal) !== trim((string) $excelVal)) {
                     $fieldConflicts[] = [
-                        'field' => $field,
-                        'web_value' => (string) $webVal,
+                        'field'       => $field,
+                        'web_value'   => (string) $webVal,
                         'excel_value' => (string) $excelVal,
                     ];
                 }
@@ -220,14 +226,14 @@ class ReconciliationService
 
             $mainStatus = !empty($fieldConflicts) ? 'CONFLICT' : 'SAME';
             $entityResults[] = [
-                'entity_id' => $matchedAnimal->id,
-                'tag_id' => $matchedAnimal->tag_id,
-                'status' => $mainStatus,
-                'animal_id' => $matchedAnimal->id,
+                'entity_id'  => $matchedAnimal->id,
+                'tag_id'     => $matchedAnimal->tag_id,
+                'status'     => $mainStatus,
+                'animal_id'  => $matchedAnimal->id,
                 'match_tier' => $matchTier,
                 'confidence' => $confidence,
-                'notes' => "Matched via {$matchTier}",
-                'conflicts' => $fieldConflicts,
+                'notes'      => "Matched via {$matchTier}",
+                'conflicts'  => $fieldConflicts,
             ];
         }
 
@@ -235,14 +241,14 @@ class ReconciliationService
         $unmatchedWebAnimals = $allWebAnimals->reject(fn($a) => in_array($a->id, $matchedWebAnimalIds));
         foreach ($unmatchedWebAnimals as $webAnimal) {
             $entityResults[] = [
-                'entity_id' => $webAnimal->id,
-                'tag_id' => $webAnimal->tag_id,
-                'status' => 'WEB_ONLY',
-                'animal_id' => $webAnimal->id,
+                'entity_id'  => $webAnimal->id,
+                'tag_id'     => $webAnimal->tag_id,
+                'status'     => 'WEB_ONLY',
+                'animal_id'  => $webAnimal->id,
                 'match_tier' => 'Web Baseline',
                 'confidence' => 1.0,
-                'notes' => 'Ada di database tapi tidak di file upload',
-                'conflicts' => [],
+                'notes'      => 'Ada di database tapi tidak di file upload',
+                'conflicts'  => [],
             ];
         }
 
@@ -264,62 +270,51 @@ class ReconciliationService
 
     private function formatResults(Collection $results, string $batchId): array
     {
+        $sameCount = $results->where('status', 'SAME')->count();
+        $webOnlyCount = $results->where('status', 'WEB_ONLY')->count();
+        $excelOnlyCount = $results->where('status', 'EXCEL_ONLY')->count();
+        $conflictCount = $results->where('status', 'CONFLICT')->count();
+        $uncertainCount = $results->where('status', 'UNCERTAIN')->count();
+        $totalUnion = $sameCount + $webOnlyCount + $excelOnlyCount + $conflictCount + $uncertainCount;
+
         $summary = [
-            'SAME' => $results->where('status', 'SAME')->count(),
-            'WEB_ONLY' => $results->where('status', 'WEB_ONLY')->count(),
-            'EXCEL_ONLY' => $results->where('status', 'EXCEL_ONLY')->count(),
-            'CONFLICT' => $results->where('status', 'CONFLICT')->count(),
-            'UNCERTAIN' => $results->where('status', 'UNCERTAIN')->count(),
+            'SAME'               => $sameCount,
+            'WEB_ONLY'           => $webOnlyCount,
+            'EXCEL_ONLY'         => $excelOnlyCount,
+            'CONFLICT'           => $conflictCount,
+            'UNCERTAIN'          => $uncertainCount,
+            'TOTAL_UNION'        => $totalUnion,
+            'same_count'         => $sameCount,
+            'web_only_count'     => $webOnlyCount,
+            'excel_only_count'   => $excelOnlyCount,
+            'conflict_count'     => $conflictCount,
+            'uncertain_count'    => $uncertainCount,
+            'total_unique_union' => $totalUnion,
         ];
-        $summary['TOTAL_UNION'] = array_sum($summary);
 
         return [
-            'batch_id' => $batchId,
+            'batch_id'  => $batchId,
             'timestamp' => now()->toIso8601String(),
-            'summary' => $summary,
-            'results' => $results->toArray(),
+            'summary'   => $summary,
+            'results'   => $results->toArray(),
         ];
     }
 
-    private function normalizeValue(string $field, mixed $val): mixed
+    private function normalizeValue(string $field, mixed $val): ?string
     {
         if ($val === null) {
             return null;
         }
 
-        $valStr = trim((string) $val);
-
-        if (str_starts_with($valStr, '="') && str_ends_with($valStr, '"')) {
-            $valStr = substr($valStr, 2, -1);
-        } elseif (str_starts_with($valStr, "='") && str_ends_with($valStr, "'")) {
-            $valStr = substr($valStr, 2, -1);
-        }
-
-        if ($valStr === '') {
+        $str = trim((string) $val);
+        if ($str === '') {
             return null;
         }
 
-        if (in_array($field, ['birth_date', 'entry_date', 'weaning_date', 'mating_date', 'weigh_date'])) {
-            try {
-                if (is_numeric($valStr) && strlen($valStr) <= 5) {
-                    return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float) $valStr)->format('Y-m-d');
-                }
-                return Carbon::parse($valStr)->format('Y-m-d');
-            } catch (\Throwable $e) {
-                return $valStr;
-            }
+        if (str_starts_with($str, '="') && str_ends_with($str, '"')) {
+            $str = substr($str, 2, -1);
         }
 
-        if (in_array($field, ['is_active', 'is_for_sale', 'needs_review'])) {
-            $lower = strtolower($valStr);
-            if (in_array($lower, ['1', 'true', 'ya', 'yes'])) {
-                return true;
-            }
-            if (in_array($lower, ['0', 'false', 'tidak', 'no'])) {
-                return false;
-            }
-        }
-
-        return $valStr;
+        return $str;
     }
 }

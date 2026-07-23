@@ -8,8 +8,10 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class ExitDeathEventsSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize
+class ExitDeathEventsSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting
 {
     public function title(): string
     {
@@ -30,9 +32,7 @@ class ExitDeathEventsSheet implements FromQuery, WithTitle, WithHeadings, WithMa
             'exit_type',
             'exit_date',
             'price',
-            'reason',
-            'destination',
-            'notes',
+            'final_hpp',
             'created_at',
         ];
     }
@@ -42,14 +42,17 @@ class ExitDeathEventsSheet implements FromQuery, WithTitle, WithHeadings, WithMa
         return [
             (string) $log->id,
             (string) $log->animal_id,
-            '="' . (string) $log->animal?->tag_id . '"',
-            $log->exit_type,
-            $log->exit_date?->format('Y-m-d'),
-            $log->price,
-            $log->reason,
-            $log->destination,
-            $log->notes,
-            $log->created_at?->format('Y-m-d H:i:s'),
+            (string) ($log->animal?->tag_id ?? ''),
+            (string) ($log->exit_type ?? 'MATI'),
+            $log->exit_date ? date('Y-m-d', strtotime($log->exit_date)) : '',
+            (float) ($log->price ?? 0),
+            (float) ($log->final_hpp ?? 0),
+            $log->created_at ? date('Y-m-d H:i:s', strtotime($log->created_at)) : '',
         ];
+    }
+
+    public function columnFormats(): array
+    {
+        return ['C' => NumberFormat::FORMAT_TEXT];
     }
 }

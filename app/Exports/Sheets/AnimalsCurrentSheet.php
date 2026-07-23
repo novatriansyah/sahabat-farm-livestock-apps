@@ -3,6 +3,7 @@
 namespace App\Exports\Sheets;
 
 use App\Models\Animal;
+use App\Schemas\AnimalTemplateSchema;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -63,33 +64,33 @@ class AnimalsCurrentSheet implements FromQuery, WithTitle, WithHeadings, WithMap
     {
         return [
             (string) $animal->id,
-            '="' . str_replace('"', '""', (string) $animal->tag_id) . '"',
-            $animal->legacy_tag_id,
-            $animal->gender,
-            $animal->breed?->name,
-            $animal->generation,
-            $animal->ear_tag_color,
-            $animal->necklace_color,
-            $animal->physStatus?->name,
+            (string) $animal->tag_id,
+            (string) ($animal->legacy_tag_id ?? ''),
+            (string) ($animal->gender ?? ''),
+            (string) ($animal->breed?->name ?? ''),
+            (string) ($animal->generation ?? ''),
+            (string) ($animal->ear_tag_color ?? ''),
+            (string) ($animal->necklace_color ?? ''),
+            (string) ($animal->physStatus?->name ?? 'SEHAT'),
             $animal->is_active ? '1' : '0',
             $animal->is_for_sale ? '1' : '0',
-            $animal->birth_date?->format('Y-m-d') ?: '',
-            $animal->entry_date?->format('Y-m-d') ?: '',
-            $animal->acquisition_type,
-            $animal->purchase_price,
-            $animal->sale_price,
-            $animal->latestWeightLog?->weight,
-            $animal->current_hpp,
-            $animal->location?->name,
-            $animal->partner?->name,
-            $animal->sire_id,
-            $animal->sire ? '="' . str_replace('"', '""', (string) $animal->sire->tag_id) . '"' : '',
-            $animal->dam_id,
-            $animal->dam ? '="' . str_replace('"', '""', (string) $animal->dam->tag_id) . '"' : '',
-            $animal->gdrive_folder_url,
-            $animal->photo_url,
-            $animal->created_at?->format('Y-m-d H:i:s'),
-            $animal->updated_at?->format('Y-m-d H:i:s'),
+            $animal->birth_date ? date('Y-m-d', strtotime($animal->birth_date)) : '',
+            $animal->entry_date ? date('Y-m-d', strtotime($animal->entry_date)) : '',
+            (string) ($animal->acquisition_type ?? ''),
+            $animal->purchase_price ?? 0,
+            $animal->sale_price ?? 0,
+            $animal->latestWeightLog?->weight_kg ?? 0,
+            $animal->current_hpp ?? 0,
+            (string) ($animal->location?->name ?? ''),
+            (string) ($animal->partner?->name ?? 'SFI Internal'),
+            (string) ($animal->sire_id ?? ''),
+            (string) ($animal->sire?->tag_id ?? ''),
+            (string) ($animal->dam_id ?? ''),
+            (string) ($animal->dam?->tag_id ?? ''),
+            (string) AnimalTemplateSchema::extractGDriveUrl($animal),
+            (string) ($animal->photo_url ?? ''),
+            $animal->created_at ? date('Y-m-d H:i:s', strtotime($animal->created_at)) : '',
+            $animal->updated_at ? date('Y-m-d H:i:s', strtotime($animal->updated_at)) : '',
         ];
     }
 
@@ -97,6 +98,7 @@ class AnimalsCurrentSheet implements FromQuery, WithTitle, WithHeadings, WithMap
     {
         return [
             'B' => NumberFormat::FORMAT_TEXT, // tag_id
+            'C' => NumberFormat::FORMAT_TEXT, // legacy_tag_id
             'V' => NumberFormat::FORMAT_TEXT, // sire_tag_id
             'X' => NumberFormat::FORMAT_TEXT, // dam_tag_id
         ];

@@ -20,6 +20,47 @@ class BlankImportTemplate implements WithMultipleSheets
         private array $referenceData = []
     ) {}
 
+    public static function getExampleRow(): array
+    {
+        return [
+            '[CONTOH] 9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d', // 1. id
+            '036',                                         // 2. tag_id
+            'OLD-036',                                     // 3. legacy_tag_id
+            'BETINA',                                      // 4. gender
+            'Garut',                                       // 5. breed
+            'PUREBRED',                                    // 6. declared_generation
+            'Kuning',                                      // 7. ear_tag_color
+            'Hitam',                                       // 8. necklace_color
+            'Sehat proporsional',                          // 9. physical_characteristics
+            'SEHAT',                                       // 10. physical_status
+            'TERSEDIA',                                    // 11. current_inventory_status
+            '1',                                           // 12. is_active
+            '0',                                           // 13. is_for_sale
+            '2025-01-15',                                  // 14. birth_date
+            '0',                                           // 15. birth_date_estimated
+            '3.6',                                         // 16. birth_weight
+            '2025-02-01',                                  // 17. entry_date
+            'BELI',                                        // 18. acquisition_type
+            '3500000',                                     // 19. acquisition_cost
+            '4200000',                                     // 20. valuation
+            '45.5',                                        // 21. current_weight
+            'TIMBANGAN_AKTUAL',                             // 22. weight_type
+            '0',                                           // 23. weight_estimated
+            'TUNGGAL',                                     // 24. litter_size
+            '1',                                           // 25. total_cycles
+            'Kandang A - Utama',                           // 26. location
+            'Mitra VINA',                                  // 27. partner
+            'SIRE-010',                                    // 28. sire_tag_id
+            'DAM-001',                                     // 29. dam_tag_id
+            'EVT-2025-001',                                // 30. birth_event_ref
+            'Pencatatan Kandang',                          // 31. data_source
+            'TINGGI',                                      // 32. confidence
+            '1',                                           // 33. in_partner_file
+            'Contoh ternak indukan',                       // 34. notes
+            'https://drive.google.com/folder/036',          // 35. gdrive_folder_url
+        ];
+    }
+
     public function sheets(): array
     {
         return [
@@ -46,27 +87,27 @@ class PetunjukSheet implements WithTitle, WithEvents
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 $sheet->mergeCells('A1:H1');
-                $sheet->setCellValue('A1', 'PETUNJUK PENGISIAN TEMPLATE CANONICAL IMPORT SFI');
+                $sheet->setCellValue('A1', 'PETUNJUK PENGISIAN TEMPLATE CANONICAL IMPORT SFI (v2.0.0)');
                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
                 $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $instructions = [
                     ['', ''],
                     ['A. CARA PENGISIAN TEMPLATE', ''],
-                    ['1. Sheet DATA_TERNAK / ANIMALS_CURRENT:', 'Digunakan untuk import master ternak lengkap (rekomendasi utama)'],
+                    ['1. Sheet DATA_TERNAK / ANIMALS_CURRENT:', 'Digunakan untuk import master ternak lengkap 35 kolom (rekomendasi utama)'],
                     ['2. Sheet INDUKAN / ANAKAN:', 'Gunakan untuk klasifikasi laporan atau import parsial'],
                     ['3. Baris Contoh [CONTOH]:', 'Baris yang diawali [CONTOH] adalah contoh data dan WAJIB dihapus sebelum di-upload!'],
-                    ['4. Kolom bertanda *:', 'Wajib diisi (misal tag_id*, gender*, breed*, location*, partner*)'],
+                    ['4. Kolom bertanda *:', 'Wajib diisi (misal tag_id*, gender*, breed*, location*, physical_status*, acquisition_type*)'],
                     ['', ''],
                     ['B. FORMAT DATA & ATURAN VALIDASI', ''],
                     ['Tag ID (Ear Tag):', 'Wajib diketik sebagai TEKS agar nomor seperti 036 atau 010 tidak hilang angka nol terdepan'],
-                    ['Tanggal (birth_date):', 'Format YYYY-MM-DD (contoh: 2024-05-15)'],
+                    ['Tanggal (birth_date):', 'Format YYYY-MM-DD (contoh: 2025-01-15)'],
                     ['Gender / Jenis Kelamin:', 'JANTAN atau BETINA'],
-                    ['Status Fisik:', 'SEHAT, SAKIT, KARANTINA, AFKIR, MATI, TERJUAL'],
-                    ['Angka Desimal:', 'Gunakan TITIK sebagai pemisah desimal (contoh: 4.15), BUKAN koma'],
-                    ['Harga / Rupiah:', 'Angka bulat tanpa titik/koma (contoh: 2500000)'],
+                    ['Status Fisik:', 'SEHAT, SAKIT, KARANTINA, AFKIR, DEAD, TERJUAL'],
+                    ['Angka Desimal:', 'Gunakan TITIK sebagai pemisah desimal (contoh: 4.5), BUKAN koma'],
+                    ['Harga / Rupiah:', 'Angka bulat tanpa titik/koma (contoh: 3500000)'],
                     ['', ''],
-                    ['C. SHIFTING REFERENSI', ''],
+                    ['C. REFERENSI ENUM & SHIFTING', ''],
                     ['Lihat sheet REFERENSI', 'Untuk daftar Breed, Lokasi Kandang, Partner, dan Status Fisik yang valid.'],
                 ];
 
@@ -101,44 +142,17 @@ class DataTernakBlankSheet implements WithTitle, WithHeadings, FromArray, WithCo
 
     public function array(): array
     {
-        return [
-            [
-                '[CONTOH] uuid-sample-1234',
-                '036',
-                'OLD-036',
-                'BETINA',
-                'Garut',
-                'F1',
-                'Putih Kepala Hitam',
-                'SEHAT',
-                '1',
-                '0',
-                '2024-05-15',
-                '0',
-                '2024-06-01',
-                'HASIL_TERNAK',
-                2500000,
-                3.5,
-                28.4,
-                '2026-07-20',
-                'Kandang B - Blok 2',
-                'Mitra Berkah',
-                '010',
-                '099',
-                '[CONTOH] Catatan ternak',
-                'https://drive.google.com/drive/folders/1a2b3c4d5e',
-            ],
-        ];
+        return [BlankImportTemplate::getExampleRow()];
     }
 
     public function columnFormats(): array
     {
         return [
-            'A' => NumberFormat::FORMAT_TEXT,
-            'B' => NumberFormat::FORMAT_TEXT,
-            'C' => NumberFormat::FORMAT_TEXT,
-            'U' => NumberFormat::FORMAT_TEXT,
-            'V' => NumberFormat::FORMAT_TEXT,
+            'A'  => NumberFormat::FORMAT_TEXT,
+            'B'  => NumberFormat::FORMAT_TEXT,
+            'C'  => NumberFormat::FORMAT_TEXT,
+            'AB' => NumberFormat::FORMAT_TEXT,
+            'AC' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }
@@ -157,44 +171,17 @@ class AnimalsCurrentBlankSheet implements WithTitle, WithHeadings, FromArray, Wi
 
     public function array(): array
     {
-        return [
-            [
-                '[CONTOH] uuid-sample-1234',
-                '036',
-                'OLD-036',
-                'BETINA',
-                'Garut',
-                'F1',
-                'Putih Kepala Hitam',
-                'SEHAT',
-                '1',
-                '0',
-                '2024-05-15',
-                '0',
-                '2024-06-01',
-                'HASIL_TERNAK',
-                2500000,
-                3.5,
-                28.4,
-                '2026-07-20',
-                'Kandang B - Blok 2',
-                'Mitra Berkah',
-                '010',
-                '099',
-                '[CONTOH] Catatan ternak',
-                'https://drive.google.com/drive/folders/1a2b3c4d5e',
-            ],
-        ];
+        return [BlankImportTemplate::getExampleRow()];
     }
 
     public function columnFormats(): array
     {
         return [
-            'A' => NumberFormat::FORMAT_TEXT,
-            'B' => NumberFormat::FORMAT_TEXT,
-            'C' => NumberFormat::FORMAT_TEXT,
-            'U' => NumberFormat::FORMAT_TEXT,
-            'V' => NumberFormat::FORMAT_TEXT,
+            'A'  => NumberFormat::FORMAT_TEXT,
+            'B'  => NumberFormat::FORMAT_TEXT,
+            'C'  => NumberFormat::FORMAT_TEXT,
+            'AB' => NumberFormat::FORMAT_TEXT,
+            'AC' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }
@@ -208,50 +195,24 @@ class IndukanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColum
 
     public function headings(): array
     {
-        return [
-            'id',
-            'tag_id',
-            'legacy_tag_id',
-            'gender',
-            'breed',
-            'declared_generation',
-            'colors',
-            'birth_date',
-            'physical_status',
-            'is_active',
-            'location',
-            'partner',
-            'notes',
-        ];
+        return AnimalTemplateSchema::getHeaders();
     }
 
     public function array(): array
     {
-        return [
-            [
-                '[CONTOH] uuid-indukan-01',
-                '099',
-                'OLD-099',
-                'BETINA',
-                'Garut',
-                'PUREBRED',
-                'Hitam',
-                '2023-01-15',
-                'SEHAT',
-                '1',
-                'Kandang A',
-                'Mitra Berkah',
-                '[CONTOH] Indukan utama',
-            ],
-        ];
+        $row = BlankImportTemplate::getExampleRow();
+        $row[3] = 'BETINA';
+        return [$row];
     }
 
     public function columnFormats(): array
     {
         return [
-            'A' => NumberFormat::FORMAT_TEXT,
-            'B' => NumberFormat::FORMAT_TEXT,
-            'C' => NumberFormat::FORMAT_TEXT,
+            'A'  => NumberFormat::FORMAT_TEXT,
+            'B'  => NumberFormat::FORMAT_TEXT,
+            'C'  => NumberFormat::FORMAT_TEXT,
+            'AB' => NumberFormat::FORMAT_TEXT,
+            'AC' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }
@@ -265,89 +226,64 @@ class AnakanBlankSheet implements WithTitle, WithHeadings, FromArray, WithColumn
 
     public function headings(): array
     {
-        return [
-            'id',
-            'tag_id',
-            'legacy_tag_id',
-            'dam_tag_id',
-            'sire_tag_id',
-            'gender',
-            'breed',
-            'declared_generation',
-            'birth_date',
-            'initial_weight',
-            'physical_status',
-            'is_active',
-            'location',
-            'partner',
-            'notes',
-        ];
+        return AnimalTemplateSchema::getHeaders();
     }
 
     public function array(): array
     {
-        return [
-            [
-                '[CONTOH] uuid-anakan-01',
-                '010',
-                'OLD-010',
-                '099',
-                '036',
-                'JANTAN',
-                'Garut',
-                'F1',
-                '2025-02-01',
-                3.8,
-                'SEHAT',
-                '1',
-                'Kandang B',
-                'Mitra Berkah',
-                '[CONTOH] Anakan cempe',
-            ],
-        ];
+        $row = BlankImportTemplate::getExampleRow();
+        $row[17] = 'HASIL_TERNAK';
+        return [$row];
     }
 
     public function columnFormats(): array
     {
         return [
-            'A' => NumberFormat::FORMAT_TEXT,
-            'B' => NumberFormat::FORMAT_TEXT,
-            'C' => NumberFormat::FORMAT_TEXT,
-            'D' => NumberFormat::FORMAT_TEXT,
-            'E' => NumberFormat::FORMAT_TEXT,
+            'A'  => NumberFormat::FORMAT_TEXT,
+            'B'  => NumberFormat::FORMAT_TEXT,
+            'C'  => NumberFormat::FORMAT_TEXT,
+            'AB' => NumberFormat::FORMAT_TEXT,
+            'AC' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }
 
-class ReferensiSheet implements WithTitle, FromArray, WithHeadings, ShouldAutoSize
+class ReferensiSheet implements WithTitle, WithHeadings, FromArray, ShouldAutoSize
 {
-    public function __construct(
-        private array $referenceData = []
-    ) {}
+    public function __construct(private array $data = []) {}
 
     public function title(): string
     {
         return 'REFERENSI';
     }
 
-    public function array(): array
-    {
-        if (!empty($this->referenceData)) {
-            return $this->referenceData;
-        }
-
-        return [
-            ['BREED / RAS', 'Garut, Dorper, Merino, Texel, Composite, Lokal, Cross'],
-            ['STATUS KONDISI FISIK', 'SEHAT, SAKIT, KARANTINA, AFKIR, MATI, TERJUAL'],
-            ['GENERASI', 'F1, F2, F3, F4, PUREBRED, CROSS, UNKNOWN'],
-            ['JENIS KELAMIN', 'JANTAN, BETINA'],
-            ['TIPE PEROLEHAN', 'HASIL_TERNAK, PEMBELIAN, MITRA, HIBAH'],
-            ['CATATAN IMPORTANT', 'Tag ID wajib berupa teks dengan angka 0 di depan jika ada (misal 010, 036, 099).'],
-        ];
-    }
-
     public function headings(): array
     {
-        return ['KATEGORI REFERENSI', 'NILAI STANDAR'];
+        return ['KATEGORI_REFERENSI', 'KODE_NAMA_VAL', 'KETERANGAN'];
+    }
+
+    public function array(): array
+    {
+        return [
+            ['JENIS_KELIMAN', 'JANTAN', 'Ternak Pejantan'],
+            ['JENIS_KELIMAN', 'BETINA', 'Ternak Betina / Indukan / Dara'],
+            ['KONDISI_FISIK', 'SEHAT', 'Ternak sehat di kandang'],
+            ['KONDISI_FISIK', 'SAKIT', 'Ternak sakit / perawatan'],
+            ['KONDISI_FISIK', 'KARANTINA', 'Karantina isolasi'],
+            ['KONDISI_FISIK', 'AFKIR', 'Ternak afkir / culling'],
+            ['KONDISI_FISIK', 'DEAD', 'Ternak mati / nonaktif'],
+            ['KONDISI_FISIK', 'TERJUAL', 'Ternak sudah dijual'],
+            ['CARA_PEROLEHAN', 'BELI', 'Pembelian dari luar'],
+            ['CARA_PEROLEHAN', 'HASIL_TERNAK', 'Kelahiran internal SFI'],
+            ['CARA_PEROLEHAN', 'MITRA', 'Ternak bawaan mitra'],
+            ['GENERASI', 'PUREBRED', 'Fullblood / Murni'],
+            ['GENERASI', 'F1 DORPER', 'Silangan Generasi F1'],
+            ['GENERASI', 'F2 DORPER', 'Silangan Generasi F2'],
+            ['GENERASI', 'F3 DORPER', 'Silangan Generasi F3'],
+            ['WARNA_EAR_TAG', 'Hijau', 'Lokal / Komposit'],
+            ['WARNA_EAR_TAG', 'Kuning', 'F1 Dorper'],
+            ['WARNA_EAR_TAG', 'Orange', 'F2 Dorper'],
+            ['WARNA_EAR_TAG', 'Biru', 'F3 Dorper'],
+        ];
     }
 }
