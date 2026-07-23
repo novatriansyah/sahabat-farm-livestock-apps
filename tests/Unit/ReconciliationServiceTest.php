@@ -7,13 +7,13 @@ use App\Models\AnimalEarTagLog;
 use App\Models\ReconciliationLog;
 use App\Models\User;
 use App\Services\ReconciliationService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ReconciliationServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     private ReconciliationService $service;
     private string $ownerId;

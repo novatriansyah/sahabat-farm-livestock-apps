@@ -11,12 +11,12 @@ use App\Models\MasterPhysStatus;
 use App\Models\ReconciliationLog;
 use App\Models\User;
 use App\Services\ReconciliationService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class ReconciliationEngineTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected User $owner;
     protected MasterCategory $category;
@@ -27,6 +27,8 @@ class ReconciliationEngineTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Animal::whereIn('tag_id', ['036', '010', '099'])->forceDelete();
 
         $this->owner = User::factory()->create(['role' => 'PEMILIK']);
         $this->category = MasterCategory::firstOrCreate(['name' => 'Kambing']);

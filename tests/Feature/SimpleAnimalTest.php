@@ -11,11 +11,11 @@ use App\Models\MasterPhysStatus;
 use App\Models\MasterPartner;
 use Carbon\Carbon;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class SimpleAnimalTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_can_save_health_status_directly()
     {

@@ -18,11 +18,11 @@ use App\Models\WeightLog;
 use App\Actions\Finance\CalculateDailyHpp;
 use Carbon\Carbon;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class FullSystemTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected $user;
     protected $category;

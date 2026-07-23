@@ -1,7 +1,7 @@
 # FAILURE LEDGER — SFI RELEASE 0 CLOSEOUT / PHASE 1.1
 
 Last Updated: 2026-07-23  
-Checkpoint Status: `CP7 REV1 Final Data-Truth Closeout`  
+Checkpoint Status: `CP8 Phase 1 Final Closeout (CLOSED)`  
 Target Branch: `development`
 
 ---
@@ -13,7 +13,7 @@ Target Branch: `development`
 | **F-001** | ExportController constructor parameter type mismatch | HIGH | CP0 | CLOSED | 2 | Fixed ExportController constructor parameter types. Tested via `CanonicalExportTest`. |
 | **F-002** | Canonical export mixed with operational filters | HIGH | CP0 | CLOSED | 2 | Filterless `AnimalMasterExport.php` created. `CanonicalExportTest` verifies unfiltered query across all partners and statuses. |
 | **F-003** | Schema mismatch between template, export, and importer | CRITICAL | CP0 | CLOSED (RECURRENT) | 4 | Unified `AnimalTemplateSchema` v2.0.0 (35 columns) across template, export, `AnimalsImport.php`, and `ReconciliationService.php`. Persistent migration added. |
-| **F-004** | Missing actual workbooks in ZIP package | CRITICAL | CP0 | CLOSED (RECURRENT) | 4 | `package_release0_cp7.php` generates populated workbooks from seeded 166-animal dataset. |
+| **F-004** | Missing actual workbooks in ZIP package | CRITICAL | CP0 | CLOSED (RECURRENT) | 4 | `package_release0_cp8.php` generates populated workbooks from seeded 166-animal dataset. |
 | **F-005** | Partner data isolation unverified | HIGH | CP0 | CLOSED (RECURRENT) | 4 | `ExportCenterController.php` enforces server-side scoping. `ExportCenterAndParityTest` proves zero cross-partner data leakage. |
 | **F-006** | Partner report missing animal list and trend dashboards | HIGH | CP0 | CLOSED (RECURRENT) | 4 | `PartnerReportExport.php` and `PartnerReportPdfService.php` render populated active animal lists and dynamic ADG calculations. |
 | **F-007** | Inconsistent GDrive field naming (`gdrive_folder_url` vs `google_drive_link`) | MEDIUM | CP0 | CLOSED (RECURRENT) | 4 | Standardized on canonical `gdrive_folder_url` across all exports and schema. |
@@ -52,11 +52,12 @@ Target Branch: `development`
 | **F-040** | CP6 missing "Lengkapi Data" User Completion Flow & Inbox UI/API | HIGH | CP6 | CLOSED | 1 | Built `DataQualityInboxController.php` and user data completion endpoints with audit trail. |
 | **F-041** | CP6 B43 male exit date non-nullable schema failure | HIGH | CP6 | CLOSED | 1 | Created migration `2026_07_23_000003_make_exit_date_nullable.php` allowing NULL exit date. |
 | **F-042** | CP6 Importer non-idempotent dry-run write & default fabrication | CRITICAL | CP6 | CLOSED | 1 | Refactored `AnimalsImport.php` with zero dry-run writes and idempotent UUID/tag_id updates. |
-| **F-043** | CP6 Partner Export missing visual Excel charts and tenant isolation UI | HIGH | CP6 | CLOSED | 1 | Implemented Export Center UI with tenant isolation and chart embedded Partner XLSX Export. |
+| **F-043** | CP6 Partner Export missing visual Excel charts and tenant isolation UI | HIGH | CP8 | CLOSED | 2 | Implemented 4 embedded PhpSpreadsheet charts (Population 12mo, ADG, Births, Generations) via `BuildsPartnerCharts` and `WithCharts`. Verified 4 charts per partner report. |
 | **F-044** | CP6 Reconciliation self-comparison instead of Master Excel comparison | HIGH | CP6 | CLOSED | 1 | Implemented `compareMasterExcel()` in `ReconciliationService.php` to compare Master Excel directly against DB. |
 | **F-045** | CP6 Backup verification compressed byte mismatch & missing zero-media manifest | HIGH | CP6 | CLOSED | 1 | Fixed `VerifyBackup.php` to compute SHA-256 over exact stored bytes and updated `BackupMedia.php` with zero-media evidence. |
 
 ---
 
 ## Recurrence Analysis Summary
-All 45 failure items (`F-001` through `F-045`) have been resolved, re-tested, and verified with direct evidence in `SFI_RELEASE0_CLOSEOUT_CP7_FINAL_<timestamp>_WIB.zip`.
+All 45 failure items (`F-001` through `F-045`) and all CP8 audit defects (X-01, X-02, X-03, X-04) have been resolved, re-tested, and verified with direct evidence in `SFI_RELEASE0_CLOSEOUT_CP8_FINAL_<timestamp>_WIB.zip`.
+

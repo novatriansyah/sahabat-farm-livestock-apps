@@ -7,7 +7,7 @@ use App\Exports\Sheets\SummarySheet;
 use App\Exports\Sheets\IndukanSheet;
 use App\Exports\Sheets\AnakanSheet;
 use App\Models\Animal;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class ExportSheetTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_manifest_sheet_has_correct_schema_version()
     {

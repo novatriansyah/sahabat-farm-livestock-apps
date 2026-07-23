@@ -5,11 +5,11 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\MasterPartner;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class PartnerCrudTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected $user;
 

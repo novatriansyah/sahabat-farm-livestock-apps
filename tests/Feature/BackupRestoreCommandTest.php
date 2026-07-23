@@ -8,18 +8,19 @@ use App\Models\MasterCategory;
 use App\Models\MasterLocation;
 use App\Models\MasterPhysStatus;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class BackupRestoreCommandTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_backup_command_creates_sql_and_manifest(): void
     {
         Storage::fake('local');
+        Animal::whereIn('id', ['99999999-9999-9999-9999-999999999999', '88888888-8888-8888-8888-888888888888'])->orWhereIn('tag_id', ['036', '010'])->forceDelete();
 
         $user = User::factory()->create();
         $category = MasterCategory::firstOrCreate(['name' => 'Kambing']);
@@ -56,6 +57,7 @@ class BackupRestoreCommandTest extends TestCase
     public function test_restore_preserves_special_characters_and_record_counts(): void
     {
         Storage::fake('local');
+        Animal::whereIn('id', ['99999999-9999-9999-9999-999999999999', '88888888-8888-8888-8888-888888888888'])->orWhereIn('tag_id', ['036', '010'])->forceDelete();
 
         $user = User::factory()->create();
         $category = MasterCategory::firstOrCreate(['name' => 'Kambing']);

@@ -12,12 +12,12 @@ use App\Models\MasterPartner;
 use App\Models\MasterPhysStatus;
 use App\Models\User;
 use App\Schemas\AnimalTemplateSchema;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class ImportCompatibleExportTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected function setUp(): void
     {
