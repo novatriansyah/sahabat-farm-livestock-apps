@@ -1,11 +1,16 @@
-# REQUIREMENT_REGISTER.md — SFI Release 0 Closeout (CP8 Phase 1 Final Closeout)
+# REQUIREMENT_REGISTER.md — SFI Release 0 Closeout (CP8 RC2-A Logic Resilience Core)
 
-| Requirement ID | Audit Ref | Description | Category | Acceptance Criteria | CP8 Status |
+| Requirement ID | Acceptance Gate Ref | Description | Category | Acceptance Criteria | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `R0-CP8-01` | X-01 | Embed at least 4 visual charts per partner XLSX report (Population, ADG, Births, Generations) | Visual Analytics | `$writer->setIncludeCharts(true)` via `WithCharts` & `BuildsPartnerCharts` | **PASS** |
-| `R0-CP8-02` | X-02 | Eliminate hardcoded 125 ADG fallback | Data-Truth | Compute dynamic ADG from `WeightLog` or return `TIDAK DAPAT DIHITUNG` | **PASS** |
-| `R0-CP8-03` | X-03 | Eliminate hardcoded 45000 treatment cost fallback | Data-Truth | Compute actual treatment cost from `TreatmentLog` | **PASS** |
-| `R0-CP8-04` | X-04 | Populate `KELAHIRAN_REPRODUKSI` sheet in partner reports | Data Completeness | Sheet contains partner birth records (`rows > 1`) | **PASS** |
-| `R0-CP8-05` | Gate 5 | Restore full test suite total count and pass status | Quality Assurance | `php artisan test` runs 98 tests, 0 failures, 0 errors | **PASS** |
-| `R0-CP8-06` | Gate 7 | Record raw, unedited execution logs | Governance | Logged in `01_VERIFICATION_OUTPUT.txt` | **PASS** |
-| `R0-CP8-07` | Gate 8 | Build 100% compliant CP8 release ZIP bundle | Packaging | Programmatic packager creates verified CP8 ZIP | **PASS** |
+| `R0-RC2A-01` | Gate G1 | All 14 baseline fields editable with audit trail & tenant isolation | Baseline Governance | All 14 baseline fields editable; changes written to `animal_field_changes` | **PASS** |
+| `R0-RC2A-02` | Gate G2 | Assumption to actual weight updates ADG from PROVISIONAL to ACTUAL | Calculation Engine | ADG badge updates from `PROVISIONAL` to `ACTUAL` upon weight correction | **PASS** |
+| `R0-RC2A-03` | Gate G3 | Single weight log results in `NOT_CALCULABLE` (`NULL`), not zero | Growth Engine | Returns `NULL` / `TIDAK DAPAT DIHITUNG` when logs < 2 | **PASS** |
+| `R0-RC2A-04` | Gate G4 | Entry date correction rebuilds HPP eligibility and allocations | HPP Allocation Ledger | `hpp_allocations` re-allocates costs deterministically upon entry date change | **PASS** |
+| `R0-RC2A-05` | Gate G5 | Ownership correction updates history and clears cache both sides | Cache & Tenant Isolation | `animal_ownership_logs` populated; cache for old and new partner invalidated | **PASS** |
+| `R0-RC2A-06` | Gate G6 | Location correction rebuilds location history and HPP | Location History | Field audit trail logged; HPP projections recalculated | **PASS** |
+| `R0-RC2A-07` | Gate G7 | Data Quality Inbox correction queue end-to-end | Correction Queue | Complete Data workflow resolves issue and updates animal attributes | **PASS** |
+| `R0-RC2A-08` | Gate G8 | Failure recovery creates failed run and retries without duplicate ledgers | Fault Tolerance | `derived_calculation_runs` tracks failures; idempotency keys prevent duplicates | **PASS** |
+| `R0-RC2A-09` | Gate G9 | Full rebuild command produces identical checksums on consecutive runs | Determinism & Idempotency | `php artisan sfi:rebuild-derived` yields identical SHA256 checksums | **PASS** |
+| `R0-RC2A-10` | Gate G10 | Imported assumed weights preserve ASSUMED status & PROVISIONAL label | Import Governance | `measurement_status = ASSUMED` preserved; ADG badge remains `PROVISIONAL` | **PASS** |
+| `R0-RC2A-11` | Gate G11 | Value resolver priority order (`ACTUAL > ESTIMATED > ASSUMED > UNKNOWN`) | Priority Resolver | Highest confidence value resolved deterministically | **PASS** |
+| `R0-RC2A-12` | Gate G12 | Full regression passes with zero failures, 0 skipped, 0 incomplete | Quality Assurance | `php artisan test` 100% PASS across 104+ test cases | **PASS** |

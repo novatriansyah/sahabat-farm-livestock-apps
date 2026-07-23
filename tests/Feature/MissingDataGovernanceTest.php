@@ -21,6 +21,22 @@ class MissingDataGovernanceTest extends TestCase
 
     public function test_missing_data_rule_evaluation_generates_issues()
     {
+        $cat = \App\Models\MasterCategory::firstOrCreate(['name' => 'Domba']);
+        $breed = \App\Models\MasterBreed::firstOrCreate(['name' => 'Garut'], ['category_id' => $cat->id]);
+        $loc = \App\Models\MasterLocation::firstOrCreate(['name' => 'Kandang Utama'], ['type' => 'Kandang']);
+        $phys = \App\Models\MasterPhysStatus::firstOrCreate(['name' => 'SEHAT']);
+
+        Animal::create([
+            'tag_id' => 'TEMP-001',
+            'gender' => 'JANTAN',
+            'category_id' => $cat->id,
+            'breed_id' => $breed->id,
+            'current_location_id' => $loc->id,
+            'current_phys_status_id' => $phys->id,
+            'birth_date' => '2025-01-01',
+            'is_active' => true,
+        ]);
+
         $service = new MissingDataGovernanceService();
         $issuesCreated = $service->scanAndGenerateIssues();
 

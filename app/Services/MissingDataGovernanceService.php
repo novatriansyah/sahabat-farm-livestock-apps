@@ -160,8 +160,9 @@ class MissingDataGovernanceService
         $beforeState = $issue->toArray();
 
         // If animal record ID present, apply updates
-        if ($issue->record_type === 'ANIMAL' && $issue->record_id) {
-            $animal = Animal::find($issue->record_id);
+        $animalId = $issue->animal_id ?? ($issue->record_type === 'ANIMAL' ? $issue->record_id : null);
+        if ($animalId) {
+            $animal = Animal::find($animalId);
             if ($animal && $issue->field_name && isset($inputData[$issue->field_name])) {
                 $animal->update([$issue->field_name => $inputData[$issue->field_name]]);
             }

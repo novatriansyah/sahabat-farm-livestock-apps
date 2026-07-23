@@ -275,6 +275,7 @@ class AnimalController extends Controller
                 'required',
                 Rule::unique('animals')->ignore($animal->id)
             ],
+            'legacy_tag_id' => 'nullable|string',
             'partner_id' => 'nullable|exists:master_partners,id',
             'breed_id' => 'required|exists:master_breeds,id',
             'current_location_id' => 'required|exists:master_locations,id',
@@ -283,6 +284,19 @@ class AnimalController extends Controller
             'birth_date' => 'required|date',
             'entry_date' => 'nullable|date',
             'health_status' => 'required|in:SEHAT,SAKIT,KARANTINA,MATI,TERJUAL',
+            'physical_characteristics' => 'nullable|string',
+            'birth_weight' => 'nullable|numeric|min:0',
+            'valuation' => 'nullable|numeric|min:0',
+            'acquisition_type' => 'nullable|string',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'current_inventory_status' => 'nullable|string',
+            'is_active' => 'boolean',
+            'litter_size' => 'nullable|integer|min:0',
+            'total_cycles' => 'nullable|integer|min:0',
+            'data_source' => 'nullable|string',
+            'confidence' => 'nullable|string|in:HIGH,MEDIUM,LOW',
+            'in_partner_file' => 'boolean',
+            'notes' => 'nullable|string',
             'necklace_color' => 'nullable|string',
             'ear_tag_color' => 'nullable|string',
             'generation' => 'nullable|string',
@@ -302,6 +316,8 @@ class AnimalController extends Controller
             'is_for_sale' => 'boolean',
             'sale_price' => 'required_if:is_for_sale,true|nullable|numeric|min:0',
             'sale_description' => 'required_if:is_for_sale,true|nullable|string|max:1000',
+            'change_reason' => 'nullable|string',
+            'value_status' => 'nullable|string|in:ACTUAL,ESTIMATED,ASSUMED,UNKNOWN',
         ]);
 
         // Auto-assign category from breed
@@ -316,8 +332,40 @@ class AnimalController extends Controller
 
         $oldTagId = $animal->tag_id;
         $oldPartnerId = $animal->partner_id;
+        $oldLocationId = $animal->current_location_id;
+
+        $originalAttributes = $animal->getAttributes();
+        $correlationId = (string) \Illuminate\Support\Str::uuid();
+        $reason = $request->input('change_reason', 'User update via edit view');
+        $newStatus = $request->input('value_status', 'ACTUAL');
+
         unset($validated['photo']);
+        unset($validated['change_reason']);
+        unset($validated['value_status']);
+
         $animal->update($validated);
+
+        // Record Audit Logs in animal_field_changes
+        $changedFields = [];
+        foreach ($validated as $field => $newValue) {
+            $oldValue = $originalAttributes[$field] ?? null;
+            if ((string) $oldValue !== (string) $newValue) {
+                $changedFields[] = $field;
+                \App\Models\AnimalFieldChange::create([
+                    'animal_id' => $animal->id,
+                    'field_name' => $field,
+                    'old_value' => is_array($oldValue) ? json_encode($oldValue) : (string)$oldValue,
+                    'new_value' => is_array($newValue) ? json_encode($newValue) : (string)$newValue,
+                    'old_value_status' => $animal->confidence === 'HIGH' ? 'ACTUAL' : 'ASSUMED',
+                    'new_value_status' => $newStatus,
+                    'source' => 'WEB_EDIT',
+                    'reason' => $reason,
+                    'changed_by' => auth()->id() ? (string)auth()->id() : 'SYSTEM',
+                    'changed_at' => Carbon::now(),
+                    'correlation_id' => $correlationId,
+                ]);
+            }
+        }
 
         if ($oldTagId !== $animal->tag_id) {
             \App\Models\AnimalEarTagLog::create([
@@ -330,7 +378,6 @@ class AnimalController extends Controller
         }
 
         if ($oldPartnerId != $animal->partner_id) {
-            // Close old log
             $animal->ownershipLogs()->whereNull('end_date')->update([
                 'end_date' => Carbon::now()
             ]);
@@ -348,7 +395,6 @@ class AnimalController extends Controller
             foreach ($request->file('photo') as $file) {
                 $filename = 'animal-photos/' . uniqid() . '.webp';
 
-                // Optimize: Resize to 800px width, convert to WebP, Quality 75%
                 $image = Image::read($file);
                 $image->scale(width: 800);
                 $encoded = $image->toWebp(75);
@@ -361,6 +407,20 @@ class AnimalController extends Controller
                 ]);
             }
         }
+
+        // Dispatch SourceDataCorrected event for async recalculation & cache invalidation
+        $event = new \App\Events\SourceDataCorrected(
+            (string) $animal->id,
+            $changedFields,
+            $animal->entry_date ? $animal->entry_date->format('Y-m-d') : date('Y-m-d'),
+            $oldPartnerId ? (int)$oldPartnerId : null,
+            $animal->partner_id ? (int)$animal->partner_id : null,
+            $oldLocationId ? (int)$oldLocationId : null,
+            $animal->current_location_id ? (int)$animal->current_location_id : null,
+            $correlationId,
+            auth()->user()->name ?? 'System User'
+        );
+        app(\App\Services\RecalculationOrchestrator::class)->handleCorrection($event);
 
         return redirect()->route('animals.show', $animal->id)->with('success', 'Ternak berhasil diperbarui.');
     }

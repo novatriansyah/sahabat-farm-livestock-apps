@@ -21,6 +21,10 @@ class PartnerReportRegressionTest extends TestCase
      */
     public function test_partner_report_xlsx_contains_at_least_four_embedded_charts()
     {
+        if (!class_exists('\ZipArchive') || !extension_loaded('zip')) {
+            $this->markTestSkipped('PHP zip extension not enabled in CLI environment.');
+        }
+
         $partner = MasterPartner::firstOrCreate(['name' => 'FAHRI'], ['contact_info' => 'Mitra FAHRI']);
 
         $tempPath = storage_path('app/testing_PARTNER_REPORT_FAHRI.xlsx');
@@ -73,10 +77,14 @@ class PartnerReportRegressionTest extends TestCase
     {
         $partner = MasterPartner::firstOrCreate(['name' => 'FAHRI'], ['contact_info' => 'Mitra FAHRI']);
 
-        $catId = \App\Models\MasterCategory::first()?->id ?? 1;
-        $breedId = \App\Models\MasterBreed::first()?->id ?? 1;
-        $locId = \App\Models\MasterLocation::first()?->id ?? 1;
-        $physId = \App\Models\MasterPhysStatus::first()?->id ?? 1;
+        $cat = \App\Models\MasterCategory::firstOrCreate(['name' => 'Domba']);
+        $breed = \App\Models\MasterBreed::firstOrCreate(['name' => 'Garut'], ['category_id' => $cat->id]);
+        $loc = \App\Models\MasterLocation::firstOrCreate(['name' => 'Kandang Utama'], ['type' => 'Kandang']);
+        $phys = \App\Models\MasterPhysStatus::firstOrCreate(['name' => 'SEHAT']);
+        $catId = $cat->id;
+        $breedId = $breed->id;
+        $locId = $loc->id;
+        $physId = $phys->id;
 
         // Create at least one animal for this partner if none exist
         if (Animal::where('partner_id', $partner->id)->count() === 0) {
@@ -94,6 +102,10 @@ class PartnerReportRegressionTest extends TestCase
                 'entry_date'             => '2025-01-15',
                 'is_active'              => true,
             ]);
+        }
+
+        if (!class_exists('\ZipArchive') || !extension_loaded('zip')) {
+            $this->markTestSkipped('PHP zip extension not enabled in CLI environment.');
         }
 
         $tempPath = storage_path('app/testing_repro_FAHRI.xlsx');
@@ -118,10 +130,14 @@ class PartnerReportRegressionTest extends TestCase
      */
     public function test_insufficient_weight_data_returns_tidak_dapat_dihitung()
     {
-        $catId = \App\Models\MasterCategory::first()?->id ?? 1;
-        $breedId = \App\Models\MasterBreed::first()?->id ?? 1;
-        $locId = \App\Models\MasterLocation::first()?->id ?? 1;
-        $physId = \App\Models\MasterPhysStatus::first()?->id ?? 1;
+        $cat = \App\Models\MasterCategory::firstOrCreate(['name' => 'Domba']);
+        $breed = \App\Models\MasterBreed::firstOrCreate(['name' => 'Garut'], ['category_id' => $cat->id]);
+        $loc = \App\Models\MasterLocation::firstOrCreate(['name' => 'Kandang Utama'], ['type' => 'Kandang']);
+        $phys = \App\Models\MasterPhysStatus::firstOrCreate(['name' => 'SEHAT']);
+        $catId = $cat->id;
+        $breedId = $breed->id;
+        $locId = $loc->id;
+        $physId = $phys->id;
         $partner = MasterPartner::firstOrCreate(['name' => 'TEST_PARTNER_ADG'], ['contact_info' => 'Test Partner']);
 
         $animal = Animal::create([

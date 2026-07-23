@@ -48,7 +48,13 @@ Route::name('pages.')->group(function () {
     Route::get('artikel/{slug}', [\App\Http\Controllers\PublicArticleController::class, 'show'])->name('articles.show');
 });
 
+use App\Http\Controllers\DataQualityInboxController;
+
 Route::middleware(['auth'])->group(function () {
+
+    // --- DATA QUALITY INBOX ---
+    Route::get('data-quality-inbox', [DataQualityInboxController::class, 'index'])->name('data-quality-inbox.index');
+    Route::post('data-quality-inbox/{id}/resolve', [DataQualityInboxController::class, 'resolve'])->name('data-quality-inbox.resolve');
 
     // --- NOTIFICATIONS ---
     Route::get('notifications', [\App\Http\Controllers\NotificationController::class , 'index'])->name('notifications.index');
