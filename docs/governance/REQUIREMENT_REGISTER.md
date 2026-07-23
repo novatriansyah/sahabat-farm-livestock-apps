@@ -1,21 +1,22 @@
-# REQUIREMENT_REGISTER.md — SFI Release 0 Closeout / Phase 1.1
+# REQUIREMENT_REGISTER.md — SFI Release 0 Closeout (CP7 REV1 Data-Truth & Operability Closeout)
 
-| Requirement ID | Audit Ref | Description | Category | Acceptance Criteria | Target Status |
+| Requirement ID | Audit Ref | Description | Category | Acceptance Criteria | CP7 Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `R0-001` | Section 3.1 | Fix `ExportController::animals()` type mismatch (array to string parameter) | Defect Fix | No `TypeError` on PHP 8.3; canonical export accepts zero filters | PASS |
-| `R0-002` | Section 3.2 | Separate export into 3 products: Canonical Full, Import-Compatible, Partner Report | Architecture | 3 distinct export classes/controllers & endpoints | PASS |
-| `R0-003` | Section 3.3 | Fix canonical worksheet titles equality (`OWNERSHIP_HISTORY` matching sheet title) | Data Structure | Actual workbook titles match schema key names 100% | PASS |
-| `R0-004` | Section 3.4 | Replace timestamp hash manifest with SHA-256 over exact stored bytes | Security | Sidecar manifest contains actual file SHA-256 | PASS |
-| `R0-005` | Section 3.5 | Rename current-snapshot sheets from `HISTORY` to `CURRENT_SNAPSHOT` | Data Structure | No misleading history claims on snapshot sheets | PASS |
-| `R0-006` | Section 3.6 | Establish single canonical field `gdrive_folder_url` with accessor alias | Compatibility | Zero link data loss between database and export | PASS |
-| `R0-007` | Section 3.7 | Implement missing `ReconciliationService` methods (`getBatches`, `getBatchDiff`) | Defect Fix | All reconciliation routes pass smoke tests | PASS |
-| `R0-008` | Section 3.8 | Fix reconciliation empty workbook `TypeError` & prove unique-entity union math | Engine | $\sum \text{Statuses} = \text{TOTAL\_UNION}$; zero DB side-effects | PASS |
-| `R0-009` | Section 3.9 | Fix Gzip compression stream & stored-bytes checksum in backup command | Backup | Single valid Gzip stream; checksum matches stored bytes | PASS |
-| `R0-010` | Section 3.10| Enforce disposable database guard & non-atomic DDL tokenizer in restore | Restore | Production hard-block (`APP_ENV=production`); post-restore FK check | PASS |
-| `R0-011` | Section 2.1 | Implement Partner Export selection (`Semua Ternak` vs `Per Mitra`) & tenant isolation | Security | MITRA role forced to own scope; 0 cross-partner data leakage | PASS |
-| `R0-012` | Section 2.2 | Create unified `AnimalTemplateSchema` shared by exports, templates, importers | Schema | Exact 1:1 schema equality between template & import export | PASS |
-| `R0-013` | Section 2.2 | Enforce true string cell formatting for tags & UUIDs (`010`, `036`, `099`) | Format | Tags retain leading zeros without formula `="036"` | PASS |
-| `R0-014` | Section 2.3 | Implement 9-sheet Partner XLSX Report & PDF with dashboard KPIs | Reporting | 100% numerical reconciliation between XLSX & PDF | PASS |
-| `R0-015` | Section 5.3 | Add `PRELIMINARY / UNVERIFIED` label to financial metrics on Partner Reports | Compliance | Financial numbers clearly disclaimed | PASS |
-| `R0-016` | Contract VII | Run full behavioral test suite `T-001` through `T-030` | Testing | 100% passing tests on final commit | PASS |
-| `R0-017` | Contract IX | Package final Acceptance ZIP (`SFI_RELEASE0_CLOSEOUT_PARTNER_EXPORT_<timestamp>.zip`) | Deliverables | Contains raw test logs, actual workbooks, PDFs, manifest | PASS |
+| `R0-CP7-01` | CP6-01 | Remove fictitious ADG (125 g/day) and treatment cost (45,000) defaults | Data-Truth | Return NULL / `TIDAK DAPAT DIHITUNG` when event logs missing | **PASS** |
+| `R0-CP7-02` | CP6-02 | Remove fabricated default values (`Sehat proporsional`, `3.5`, `3500000*1.2`, `40.0`, `EVT-2025-001`) | Data-Truth | 35-field exporter returns exact DB state or NULL | **PASS** |
+| `R0-CP7-03` | CP6-03 | Correct fictitious pedigree tags (`SIRE-010`) in example rows and tests | Data-Truth | Pedigree references valid or NULL | **PASS** |
+| `R0-CP7-04` | CP6-04 | Support nullable `exit_date` for unverified exit records in DB schema | Schema | `exit_logs.exit_date` allows NULL | **PASS** |
+| `R0-CP7-05` | CP6-05 | Implement Missing Data Governance Engine & Rule Matrix CSV | Governance | Registered rules categorize OPTIONAL, CONDITIONALLY_REQUIRED, CRITICAL | **PASS** |
+| `R0-CP7-06` | CP6-06 | Implement Process Dependency Matrix & Conditional Process Blocking | Governance | Blocks process operations when required fields missing | **PASS** |
+| `R0-CP7-07` | CP6-07 | Implement "Lengkapi Data" User Completion Flow & Data Quality Inbox | UI / API | Data Quality Inbox supports field completion with audit trail | **PASS** |
+| `R0-CP7-08` | CP6-08 | Seed exact 166 animals baseline with accurate owner distribution | Data Seeding | SFI (98), VINA (22), FAHRI (18), LETA (11), AGENG (10), OKI (7) | **PASS** |
+| `R0-CP7-09` | CP6-09 | Seed 46 ear tag history logs and 71 open data quality issues | Data Seeding | DB contains 46 tag history logs & 71 issues | **PASS** |
+| `R0-CP7-10` | CP6-10 | Fix B43 male exit record and tag 411 weight log handling | Data-Truth | B43 male, F2, VINA, exit status MATI, exit date NULL | **PASS** |
+| `R0-CP7-11` | CP6-11 | Build Export Center UI & Tenant Isolation | UI / Security | Single Export Center view; MITRA restricted to own partner data | **PASS** |
+| `R0-CP7-12` | CP6-12 | Refactor Importer to enforce 0 dry-run writes & 0 factual defaults | Importer | Importer updates by UUID/tag_id without fabricating values | **PASS** |
+| `R0-CP7-13` | CP6-13 | Build Unified Calculation Service for cross-format parity (Web/XLSX/PDF) | Calculation | 100% numerical parity across Web, XLSX, PDF | **PASS** |
+| `R0-CP7-14` | CP6-14 | Refactor Independent Reconciliation Engine (Master-to-DB comparison) | Reconciliation | Direct comparison between Master Excel and DB | **PASS** |
+| `R0-CP7-15` | CP6-15 | Fix Backup & Verification commands (SHA-256 compressed stream & zero-media evidence) | Recovery | Verification passes on compressed bytes; zero-media manifest generated | **PASS** |
+| `R0-CP7-16` | CP6-16 | Enforce Disposable Database Allowlist in Restore command | Security | Restore allowed only on staging/testing/disposable DBs | **PASS** |
+| `R0-CP7-17` | CP6-17 | Create Operational Runbooks (Deployment, Rollback, Recovery) | Runbooks | 3 operational runbooks created in `docs/runbooks/` | **PASS** |
+| `R0-CP7-18` | CP6-18 | Package Final CP7 Acceptance Bundle & Programmatic Validator | Packaging | All G1 - G18 gates pass; CP6 rejected as negative control | **PASS** |

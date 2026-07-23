@@ -18,9 +18,16 @@ class RestoreBackup extends Command
 
     public function handle(): int
     {
-        // 1. HARD-BLOCK PRODUCTION
-        if (app()->environment('production') || config('app.env') === 'production') {
-            $this->error("CRITICAL SAFETY BLOCK: Restoring backups is strictly prohibited in PRODUCTION environment!");
+        // 1. HARD-BLOCK PRODUCTION & NON-DISPOSABLE DB
+        $dbName = strtolower(config('database.connections.' . config('database.default') . '.database', ''));
+        $isDisposableDb = str_contains($dbName, 'staging')
+            || str_contains($dbName, 'disposable')
+            || str_contains($dbName, 'testing')
+            || str_contains($dbName, 'test')
+            || str_contains($dbName, 'sahabat_farm');
+
+        if (app()->environment('production') || config('app.env') === 'production' || !$isDisposableDb) {
+            $this->error("CRITICAL SAFETY BLOCK: Restoring backups is strictly prohibited on target database [{$dbName}]!");
             return Command::FAILURE;
         }
 

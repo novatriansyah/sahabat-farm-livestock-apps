@@ -32,3 +32,6 @@ issues.csv
 gen.ps1
 package_release0.php
 package_release0_cp*.php
+check_*.php
+parse_master.php
+fix_dqi_schema.php

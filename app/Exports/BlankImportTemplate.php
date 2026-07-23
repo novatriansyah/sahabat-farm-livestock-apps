@@ -50,7 +50,7 @@ class BlankImportTemplate implements WithMultipleSheets
             '1',                                           // 25. total_cycles
             'Kandang A - Utama',                           // 26. location
             'Mitra VINA',                                  // 27. partner
-            'SIRE-010',                                    // 28. sire_tag_id
+            'SIRE-001',                                    // 28. sire_tag_id
             'DAM-001',                                     // 29. dam_tag_id
             'EVT-2025-001',                                // 30. birth_event_ref
             'Pencatatan Kandang',                          // 31. data_source

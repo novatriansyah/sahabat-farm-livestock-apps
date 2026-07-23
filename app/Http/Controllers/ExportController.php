@@ -69,12 +69,15 @@ class ExportController extends Controller
             return redirect()->back()->withErrors(['partner_id' => 'Mitra wajib dipilih untuk laporan mitra.']);
         }
 
-        $reportData = $pdfService->generateReportData($partnerId);
+        $pdfContent = $pdfService->generatePdfContent($partnerId);
+        $partner = \App\Models\MasterPartner::find($partnerId);
+        $partnerName = $partner ? str_replace(' ', '_', $partner->name) : "Partner_{$partnerId}";
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => $reportData,
-        ]);
+        return response()->streamDownload(
+            fn() => print($pdfContent),
+            "PARTNER_REPORT_{$partnerName}_" . now()->format('Y-m-d') . ".pdf",
+            ['Content-Type' => 'application/pdf']
+        );
     }
 
     /**

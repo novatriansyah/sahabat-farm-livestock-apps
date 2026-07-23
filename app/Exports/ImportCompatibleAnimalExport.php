@@ -25,6 +25,11 @@ class ImportCompatibleAnimalExport implements WithMultipleSheets
             'SYSTEM_FIELDS' => new SystemFieldsExportSheet($this->partnerId),
         ];
     }
+
+    public function getDataTernakCollection(): \Illuminate\Support\Collection
+    {
+        return (new DataTernakExportSheet($this->partnerId))->collection();
+    }
 }
 
 class DataTernakExportSheet implements WithTitle, WithHeadings, FromCollection, WithColumnFormatting, ShouldAutoSize
@@ -53,44 +58,43 @@ class DataTernakExportSheet implements WithTitle, WithHeadings, FromCollection, 
 
         return $query->get()->map(function (Animal $animal) {
             $latestWeight = $animal->weightLogs->sortByDesc('weigh_date')->first();
-            $birthWeight = $animal->weightLogs->sortBy('weigh_date')->first();
 
             return [
                 'id'                       => (string) $animal->id,
                 'tag_id'                   => (string) $animal->tag_id,
                 'legacy_tag_id'            => $animal->legacy_tag_id ? (string) $animal->legacy_tag_id : null,
                 'gender'                   => strtoupper((string) $animal->gender),
-                'breed'                    => $animal->breed?->name ?? 'Lokal',
-                'declared_generation'      => $animal->generation ?? 'PUREBRED',
-                'ear_tag_color'            => $animal->ear_tag_color ?? 'Kuning',
-                'necklace_color'           => $animal->necklace_color ?? 'Hitam',
-                'physical_characteristics' => 'Sehat proporsional',
-                'physical_status'          => $animal->physStatus?->name ?? ($animal->is_active ? 'SEHAT' : 'DEAD'),
-                'current_inventory_status' => $animal->is_active ? 'TERSEDIA' : 'KELUAR',
+                'breed'                    => $animal->breed?->name ?? null,
+                'declared_generation'      => $animal->declared_generation ?? null,
+                'ear_tag_color'            => $animal->ear_tag_color ?? null,
+                'necklace_color'           => $animal->necklace_color ?? null,
+                'physical_characteristics' => $animal->physical_characteristics ?? null,
+                'physical_status'          => $animal->physStatus?->name ?? ($animal->is_active ? 'SEHAT' : 'MATI'),
+                'current_inventory_status' => $animal->current_inventory_status ?? ($animal->is_active ? 'TERSEDIA' : 'KELUAR'),
                 'is_active'                => $animal->is_active ? '1' : '0',
                 'is_for_sale'              => $animal->is_for_sale ? '1' : '0',
                 'birth_date'               => $animal->birth_date ? date('Y-m-d', strtotime($animal->birth_date)) : null,
-                'birth_date_estimated'     => '0',
-                'birth_weight'             => $birthWeight ? (float) $birthWeight->weight_kg : 3.5,
+                'birth_date_estimated'     => null,
+                'birth_weight'             => $animal->birth_weight !== null ? (float) $animal->birth_weight : null,
                 'entry_date'               => $animal->entry_date ? date('Y-m-d', strtotime($animal->entry_date)) : null,
                 'acquisition_type'         => $animal->acquisition_type ?? 'BELI',
-                'acquisition_cost'         => $animal->purchase_price ? (float) $animal->purchase_price : 0.0,
-                'valuation'                => ($animal->purchase_price ? (float) $animal->purchase_price : 3500000.0) * 1.2,
-                'current_weight'           => $latestWeight ? (float) $latestWeight->weight_kg : 40.0,
-                'weight_type'              => 'TIMBANGAN_AKTUAL',
-                'weight_estimated'         => '0',
-                'litter_size'              => 'TUNGGAL',
-                'total_cycles'             => 1,
-                'location'                 => $animal->location?->name ?? 'Kandang Utama',
-                'partner'                  => $animal->partner?->name ?? 'SFI Internal',
+                'acquisition_cost'         => $animal->purchase_price !== null ? (float) $animal->purchase_price : null,
+                'valuation'                => $animal->valuation !== null ? (float) $animal->valuation : null,
+                'current_weight'           => $latestWeight ? (float) $latestWeight->weight_kg : null,
+                'weight_type'              => $latestWeight ? 'TIMBANGAN_AKTUAL' : null,
+                'weight_estimated'         => null,
+                'litter_size'              => $animal->litter_size ?? null,
+                'total_cycles'             => null,
+                'location'                 => $animal->location?->name ?? null,
+                'partner'                  => $animal->partner?->name ?? null,
                 'sire_tag_id'              => $animal->sire?->tag_id ? (string) $animal->sire->tag_id : null,
                 'dam_tag_id'               => $animal->dam?->tag_id ? (string) $animal->dam->tag_id : null,
-                'birth_event_ref'          => 'EVT-2025-001',
-                'data_source'              => 'Pencatatan Kandang',
-                'confidence'               => 'TINGGI',
-                'in_partner_file'          => $animal->partner_id ? '1' : '0',
-                'notes'                    => (string) ($animal->notes ?? ''),
-                'gdrive_folder_url'        => AnimalTemplateSchema::extractGDriveUrl($animal),
+                'birth_event_ref'          => $animal->birth_event_ref ?? null,
+                'data_source'              => $animal->data_source ?? null,
+                'confidence'               => $animal->confidence ?? null,
+                'in_partner_file'          => $animal->in_partner_file ? '1' : '0',
+                'notes'                    => $animal->notes ?? null,
+                'gdrive_folder_url'        => $animal->google_drive_link ?? null,
             ];
         });
     }

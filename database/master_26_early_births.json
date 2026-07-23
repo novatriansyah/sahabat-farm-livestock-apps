@@ -1,0 +1,210 @@
+[
+    {
+        "NO": "1",
+        "TANGGAL": "21-01-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail nomor\/BB\/indukan",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "2",
+        "TANGGAL": "27-01-2025",
+        "JUMLAH": "2",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "3",
+        "TANGGAL": "28-01-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "4",
+        "TANGGAL": "29-01-2025",
+        "JUMLAH": "3",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "5",
+        "TANGGAL": "01-02-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "6",
+        "TANGGAL": "06-02-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "7",
+        "TANGGAL": "19-02-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "8",
+        "TANGGAL": "03-03-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "9",
+        "TANGGAL": "11-03-2025",
+        "JUMLAH": "3",
+        "KETERANGAN": "lahir 3 ekor mati 1; ada catatan tambahan lahir 4 ekor mati 1, lahir 5 ekor mati 2 - blok ini ambigu",
+        "SUMBER": "img4",
+        "KEYAKINAN": "rendah"
+    },
+    {
+        "NO": "10",
+        "TANGGAL": "18-03-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "11",
+        "TANGGAL": "22-03-2025",
+        "JUMLAH": "2",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "12",
+        "TANGGAL": "08-04-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "13",
+        "TANGGAL": "05-05-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "14",
+        "TANGGAL": "18-03-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tertulis 18 maret 2025 lagi - kemungkinan duplikat no 10",
+        "SUMBER": "img4",
+        "KEYAKINAN": "rendah"
+    },
+    {
+        "NO": "15",
+        "TANGGAL": "09-05-2025",
+        "JUMLAH": "3",
+        "KETERANGAN": "lahir 1 ekor x3 baris berturut",
+        "SUMBER": "img4",
+        "KEYAKINAN": "sedang"
+    },
+    {
+        "NO": "16",
+        "TANGGAL": "12-05-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img4",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "17",
+        "TANGGAL": "18-05-2025",
+        "JUMLAH": "2",
+        "KETERANGAN": "lahir 1 ekor, lahir 1 ekor",
+        "SUMBER": "img4",
+        "KEYAKINAN": "sedang"
+    },
+    {
+        "NO": "18",
+        "TANGGAL": "19-05-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img5",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "19",
+        "TANGGAL": "25-05-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img5",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "20",
+        "TANGGAL": "04-06-2025",
+        "JUMLAH": "2",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img5",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "21",
+        "TANGGAL": "17-06-2025",
+        "JUMLAH": "3",
+        "KETERANGAN": "lahir 2 ekor + lahir 1 ekor",
+        "SUMBER": "img5",
+        "KEYAKINAN": "sedang"
+    },
+    {
+        "NO": "22",
+        "TANGGAL": "18-06-2025",
+        "JUMLAH": "4",
+        "KETERANGAN": "lahir 2 ekor + lahir 2 ekor",
+        "SUMBER": "img5",
+        "KEYAKINAN": "sedang"
+    },
+    {
+        "NO": "23",
+        "TANGGAL": "21-06-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "tanpa detail",
+        "SUMBER": "img5",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "24",
+        "TANGGAL": "01-07-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "jenis F1",
+        "SUMBER": "img5",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": "25",
+        "TANGGAL": "04-07-2025",
+        "JUMLAH": "1",
+        "KETERANGAN": "jenis F1",
+        "SUMBER": "img5",
+        "KEYAKINAN": "tinggi"
+    },
+    {
+        "NO": null,
+        "TANGGAL": "TOTAL",
+        "JUMLAH": "40",
+        "KETERANGAN": null,
+        "SUMBER": null,
+        "KEYAKINAN": null
+    }
+]

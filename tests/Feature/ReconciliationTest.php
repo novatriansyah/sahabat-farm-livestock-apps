@@ -5,25 +5,27 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Animal;
 use App\Models\ReconciliationLog;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class ReconciliationTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     private User $owner;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withoutMiddleware();
         $this->owner = User::factory()->create(['role' => 'PEMILIK']);
     }
 
     public function test_reconcile_requires_file()
     {
         $this->actingAs($this->owner)
+            ->from('/admin/export/reconciliation')
             ->post('/admin/export/reconcile', [])
             ->assertSessionHasErrors('file');
     }
@@ -32,6 +34,7 @@ class ReconciliationTest extends TestCase
     {
         $file = UploadedFile::fake()->create('data.csv', 100);
         $this->actingAs($this->owner)
+            ->from('/admin/export/reconciliation')
             ->post('/admin/export/reconcile', ['file' => $file])
             ->assertSessionHasErrors('file');
     }

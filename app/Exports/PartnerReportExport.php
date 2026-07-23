@@ -100,17 +100,17 @@ class DashboardMitraSheet implements WithTitle, WithHeadings, FromCollection, Sh
 
     public function collection()
     {
-        $animals = Animal::where('partner_id', $this->partnerId)->get();
-        $active = $animals->where('is_active', true);
-        $inactive = $animals->where('is_active', false);
+        $calcService = new \App\Services\UnifiedReportCalculationService();
+        $summary = $calcService->getPartnerSummary($this->partnerId);
 
         return collect([
-            ['Aktif Populasi', $active->count(), 'Ternak aktif di kandang saat ini'],
-            ['Nonaktif / History', $inactive->count(), 'Ternak mati/keluar/terjual'],
-            ['Populasi Jantan', $active->where('gender', 'JANTAN')->count(), 'Komposisi pejantan'],
-            ['Populasi Betina', $active->where('gender', 'BETINA')->count(), 'Komposisi indukan'],
-            ['Tingkat Kelahiran', BreedingEvent::whereIn('dam_id', $animals->pluck('id'))->count(), 'Total event reproduksi'],
-            ['Average ADG', '125 g/hari', 'Estimasi ADG rata-rata populasi'],
+            ['Aktif Populasi', $summary['active_animals'], 'Ternak aktif di kandang saat ini'],
+            ['Nonaktif / History', $summary['dead_animals'], 'Ternak mati/keluar/terjual'],
+            ['Populasi Jantan', $summary['animals_list']->where('is_active', true)->where('gender', 'JANTAN')->count(), 'Komposisi pejantan'],
+            ['Populasi Betina', $summary['animals_list']->where('is_active', true)->where('gender', 'BETINA')->count(), 'Komposisi indukan'],
+            ['Tingkat Kelahiran', BreedingEvent::whereIn('dam_id', $summary['animals_list']->pluck('id'))->count(), 'Total event reproduksi'],
+            ['Average ADG', $summary['average_adg_text'], 'ADG populasi dari data penimbangan aktual'],
+            ['Biaya Treatment', $summary['treatment_cost_text'], 'Total rekap biaya pengobatan aktual'],
         ]);
     }
 }

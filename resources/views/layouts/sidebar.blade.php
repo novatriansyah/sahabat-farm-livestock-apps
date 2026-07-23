@@ -106,6 +106,9 @@
                 <li>
                     <a href="{{ route('reports.audit') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('reports.audit') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Audit (Mortalitas)</a>
                 </li>
+                <li>
+                    <a href="{{ route('exports.index') }}" class="flex items-center w-full p-2 text-sm transition duration-75 rounded-lg pl-11 group {{ request()->routeIs('exports.*') ? 'text-primary-700 bg-primary-50/50 font-semibold' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700' }}">Pusat Export (Export Center)</a>
+                </li>
             </ul>
         </li>
         @endif

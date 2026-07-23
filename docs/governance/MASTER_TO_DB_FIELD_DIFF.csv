@@ -1,0 +1,35 @@
+MASTER_EXCEL_FIELD,DB_TABLE,DB_COLUMN,DATA_TYPE,NULLABLE,SOURCE_ORIGIN,TRANSFORMATION_RULE,DEFAULT_VALUE_POLICY
+No,animals,line_no,INTEGER,YES,SOURCE,Sequential line index in Master Excel,NULL
+Nomor Eartag,animals,tag_id,STRING,NO,SOURCE,Trim whitespace; preserve leading zeroes,NONE (Required)
+Eartag Lama,animals,legacy_tag_id,STRING,YES,SOURCE,Old tag before replacement,NULL
+Pemilik,animals,partner_id,FOREIGN_KEY,YES,SOURCE,Map to master_partners table or NULL if SFI,NULL (No SFI default)
+Jenis Kelamin,animals,gender,ENUM,NO,SOURCE,Upper case JANTAN / BETINA,NONE (No defaulted gender)
+Rumpun/Ras,animals,breed_id,FOREIGN_KEY,NO,SOURCE,Map to master_breeds table,LOKAL if unmapped
+Generasi Terdeklarasi,animals,declared_generation,STRING,YES,SOURCE,F1; F2; F3; PUREBRED,NULL
+Warna Eartag,animals,ear_tag_color,STRING,YES,SOURCE,Visual ear tag color,NULL
+Warna Kalung,animals,necklace_color,STRING,YES,SOURCE,Visual necklace color,NULL
+Ciri-Ciri Fisik,animals,physical_characteristics,TEXT,YES,SOURCE,Physical description,NULL
+Status Fisik,animals,current_phys_status_id,FOREIGN_KEY,NO,SOURCE,Map to master_phys_statuses,SEHAT
+Status Inventaris,animals,current_inventory_status,STRING,NO,SOURCE,TERSEDIA; KELUAR; MATI; TERJUAL,TERSEDIA
+Is Active,animals,is_active,BOOLEAN,NO,SOURCE,1 if active; 0 if dead/sold/exit,1
+Is For Sale,animals,is_for_sale,BOOLEAN,NO,SOURCE,1 if explicitly marked for sale in master; else 0,0 (No forced sale status)
+Tanggal Lahir,animals,birth_date,DATE,YES,SOURCE,Date string YYYY-MM-DD,NULL (No fake birth date)
+Bobot Lahir,animals,birth_weight,DECIMAL,YES,SOURCE,Birth weight in kg,NULL (No fake 3.5kg)
+Tanggal Masuk,animals,entry_date,DATE,YES,SOURCE,Date string YYYY-MM-DD,NULL
+Tipe Perolehan,animals,acquisition_type,STRING,NO,SOURCE,BELI / LAHIR,BELI
+Harga Perolehan,animals,acquisition_cost,DECIMAL,YES,SOURCE,Purchase cost in IDR,NULL (No fake purchase price)
+Valuasi,animals,valuation,DECIMAL,YES,SOURCE,Valuation in IDR,NULL (No fake valuation)
+Bobot Saat Ini,weight_logs,weight,DECIMAL,YES,SOURCE,Logged in weight_logs only if present in master,NULL (No birth_weight + 12 kg!)
+Tipe Timbangan,weight_logs,weight_type,STRING,YES,SOURCE,AKTUAL / ASUMSI,ASUMSI
+Litter Size,animals,litter_size,STRING,YES,SOURCE,TUNGGAL / KEMBAR,NULL (No forced TUNGGAL)
+Total Siklus,animals,total_cycles,INTEGER,YES,DERIVED,Computed from breeding logs,NULL
+Lokasi,animals,current_location_id,FOREIGN_KEY,NO,SOURCE,Map to master_locations,Kandang Utama
+Mitra,animals,partner_id,FOREIGN_KEY,YES,SOURCE,Map to MasterPartner,NULL
+Eartag Pejantan,animals,sire_id,FOREIGN_KEY,YES,SOURCE,Map to sire animal UUID,NULL (No SIRE-010)
+Eartag Induk,animals,dam_id,FOREIGN_KEY,YES,SOURCE,Map to dam animal UUID,NULL
+Ref Kejadian Lahir,animals,birth_event_ref,STRING,YES,SOURCE,Birth event reference tag,NULL (No EVT-2025-001)
+Sumber Data,animals,data_source,STRING,YES,SOURCE,Data origin label,Master SFI v3
+Tingkat KeyakinAN,animals,confidence,STRING,YES,SOURCE,TINGGI / SEDANG / RENDAH,TINGGI
+Di File Mitra,animals,in_partner_file,BOOLEAN,NO,SOURCE,1 if present in owner file,0
+Catatan,animals,notes,TEXT,YES,SOURCE,Additional notes,NULL
+GDrive Folder URL,animals,gdrive_link,STRING,YES,SOURCE,Google Drive folder link,NULL (No fake GDrive URL)

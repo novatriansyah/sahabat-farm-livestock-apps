@@ -3,159 +3,243 @@
 namespace App\Imports;
 
 use App\Models\Animal;
+use App\Models\AnimalEarTagLog;
+use App\Models\AnimalOwnershipLog;
 use App\Models\MasterBreed;
 use App\Models\MasterCategory;
 use App\Models\MasterLocation;
 use App\Models\MasterPartner;
 use App\Models\MasterPhysStatus;
 use App\Models\WeightLog;
-use Carbon\Carbon;
+use App\Schemas\AnimalTemplateSchema;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class AnimalsImport implements ToCollection, WithHeadingRow, WithValidation
+class AnimalsImport implements WithMultipleSheets
 {
-    public $importedCount = 0;
-    public $skippedCount = 0;
+    public function __construct(
+        private bool $dryRun = false,
+        private ?string $partnerId = null
+    ) {}
+
+    public function sheets(): array
+    {
+        return [
+            'DATA_TERNAK'     => new DataTernakSheetImport($this->dryRun, $this->partnerId),
+            'ANIMALS_CURRENT' => new DataTernakSheetImport($this->dryRun, $this->partnerId),
+            'INDUKAN'         => new DataTernakSheetImport($this->dryRun, $this->partnerId),
+            'ANAKAN'          => new DataTernakSheetImport($this->dryRun, $this->partnerId),
+        ];
+    }
+
+    public function collection(\Illuminate\Support\Collection $rows)
+    {
+        return (new DataTernakSheetImport($this->dryRun, $this->partnerId))->collection($rows);
+    }
+}
+
+class DataTernakSheetImport implements ToCollection, WithHeadingRow
+{
+    public int $importedCount = 0;
+    public int $updatedCount = 0;
+    public int $skippedCount = 0;
+    public array $errors = [];
+
+    public function __construct(
+        private bool $dryRun = false,
+        private ?string $partnerId = null
+    ) {}
 
     public function collection(Collection $rows)
     {
-        $defaultLocation = MasterLocation::first()->id ?? 1;
-        $defaultCategory = MasterCategory::first()->id ?? 1;
-        $defaultBreed = MasterBreed::first()->id ?? 1;
         $currentUser = auth()->user();
 
-        foreach ($rows as $row) {
-            if (empty($row['tag_id'])) continue;
-
-            // DUPLICATE CHECK: Skip
-            if (Animal::where('tag_id', $row['tag_id'])->exists()) {
-                $this->skippedCount++;
-                continue;
-            }
-
-            // Parsing format: [Kategori] Ras (e.g. [Kambing] Boer)
-            $breedNameInput = $row['breed_name'] ?? '';
-            $categoryId = $defaultCategory;
-            $breedId = $defaultBreed;
-
-            if (preg_match('/\[(.*?)\]\s*(.*)/', $breedNameInput, $matches)) {
-                $categoryName = trim($matches[1]);
-                $breedName = trim($matches[2]);
-
-                // Find Category
-                $category = MasterCategory::where('name', 'like', '%' . $categoryName . '%')->first();
-                if ($category) {
-                    $categoryId = $category->id;
-                    // Find Breed within this category
-                    $breed = MasterBreed::where('category_id', $categoryId)
-                        ->where('name', 'like', '%' . $breedName . '%')
-                        ->first();
-                    if ($breed) $breedId = $breed->id;
-                }
-            } else {
-                // Legacy format: just Breed Name
-                $breed = MasterBreed::where('name', 'like', '%' . $breedNameInput . '%')->first();
-                if ($breed) {
-                    $breedId = $breed->id;
-                    $categoryId = $breed->category_id;
-                }
-            }
-            
-            $locationId = $defaultLocation;
-            if (!empty($row['location_name'])) {
-                $loc = MasterLocation::where('name', 'like', '%' . $row['location_name'] . '%')->first();
-                if ($loc) $locationId = $loc->id;
-            }
-
-            // Phys Status Lookup
-            $physStatusId = MasterPhysStatus::first()->id ?? null;
-            if (!empty($row['physical_status'])) {
-                $statusInput = strtoupper($row['physical_status']);
-                $genderInput = strtoupper($row['gender'] ?? '');
-                
-                // Gender-Aware Mapping for abbreviated names
-                $statusNameSearch = $row['physical_status'];
-                if ($statusInput === 'DARA') {
-                    $statusNameSearch = 'Dara (Betina)';
-                } elseif ($statusInput === 'BAKALAN') {
-                    $statusNameSearch = 'Bakalan (Jantan)';
-                } elseif ($statusInput === 'SIAP KAWIN') {
-                    $statusNameSearch = ($genderInput === 'JANTAN' || $genderInput === 'MALE') ? 'Jantan siap kawin' : 'Betina siap kawin';
-                }
-
-                $status = MasterPhysStatus::where('name', 'like', '%' . $statusNameSearch . '%')->first();
-                if ($status) $physStatusId = $status->id;
-            }
-
-            // Partner Assignment
-            $partnerId = $currentUser->partner_id;
-            if ($currentUser->role !== 'MITRA' && !empty($row['partner_name'])) {
-                $partner = MasterPartner::where('name', 'like', '%' . $row['partner_name'] . '%')->first();
-                if ($partner) $partnerId = $partner->id;
-            }
-
-            // Acquisition Type Logic
-            $acqType = 'BELI'; // Default
-            if (!empty($row['acquisition_type'])) {
-                $val = strtoupper($row['acquisition_type']);
-                if (in_array($val, ['BELI', 'HASIL_TERNAK', 'BOUGHT', 'BRED'])) {
-                    $acqType = ($val === 'BRED' || $val === 'HASIL_TERNAK') ? 'HASIL_TERNAK' : 'BELI';
-                }
-            }
-            
-            $gender = 'BETINA'; // Default
-            if (!empty($row['gender'])) {
-                $gVal = strtoupper($row['gender']);
-                 if (in_array($gVal, ['MALE', 'FEMALE', 'JANTAN', 'BETINA'])) {
-                     $gender = ($gVal === 'MALE' || $gVal === 'JANTAN') ? 'JANTAN' : 'BETINA';
-                 }
-            }
-
-            $animal = Animal::create([
-                'tag_id' => $row['tag_id'],
-                'gender' => $gender,
-                'breed_id' => $breedId,
-                'category_id' => $categoryId,
-                'current_location_id' => $locationId,
-                'current_phys_status_id' => $physStatusId,
-                'owner_id' => $currentUser->id,
-                'partner_id' => $partnerId,
-                'birth_date' => $this->parseDate($row['birth_date'] ?? null),
-                'acquisition_type' => $acqType,
-                'purchase_price' => $row['purchase_price'] ?? 0,
-                'generation' => $row['generation'] ?? null,
-                'necklace_color' => $row['necklace_color'] ?? null,
-                'is_active' => true,
-            ]);
-
-            // Create Initial Weight Log
-            WeightLog::create([
-                'animal_id' => $animal->id,
-                'weigh_date' => Carbon::now(),
-                'weight_kg' => $row['initial_weight_kg'] ?? 0,
-            ]);
-
-            $this->importedCount++;
+        // On dry run, use read-only lookups
+        $category = MasterCategory::where('name', 'Kambing')->first();
+        if (!$category && !$this->dryRun) {
+            $category = MasterCategory::create(['name' => 'Kambing']);
         }
-    }
 
-    private function parseDate($value)
-    {
+        DB::beginTransaction();
+
         try {
-            return Carbon::parse($value);
-        } catch (\Exception $e) {
-            return Carbon::now();
-        }
-    }
+            foreach ($rows as $index => $row) {
+                // Ignore sample rows starting with [CONTOH]
+                $tagIdRaw = trim((string) ($row['tag_id'] ?? $row['ear_tag'] ?? $row['tag'] ?? ''));
+                if (str_starts_with($tagIdRaw, '[CONTOH]') || str_starts_with((string)($row['id'] ?? ''), '[CONTOH]')) {
+                    $this->skippedCount++;
+                    continue;
+                }
 
-    public function rules(): array
-    {
-        return [
-            'tag_id' => 'required',
-            'initial_weight_kg' => 'required|numeric',
-        ];
+                if ($tagIdRaw === '') {
+                    $this->skippedCount++;
+                    continue;
+                }
+
+                $tagId = $tagIdRaw;
+                $uuid = trim((string) ($row['id'] ?? ''));
+                if (str_starts_with($uuid, '[CONTOH]')) $uuid = '';
+
+                $genderRaw = strtoupper(trim((string) ($row['gender'] ?? $row['jenis_kelamin'] ?? '')));
+                $gender = str_contains($genderRaw, 'JANTAN') ? 'JANTAN' : (str_contains($genderRaw, 'BETINA') ? 'BETINA' : 'JANTAN');
+
+                // Breed lookup
+                $breedName = trim((string) ($row['breed'] ?? $row['breed_name'] ?? $row['ras'] ?? ''));
+                $breed = null;
+                if ($breedName !== '') {
+                    $breed = MasterBreed::where('name', $breedName)->first();
+                    if (!$breed && !$this->dryRun && $category) {
+                        $breed = MasterBreed::create(['name' => $breedName, 'category_id' => $category->id]);
+                    }
+                }
+
+                // Location lookup
+                $locationName = trim((string) ($row['location'] ?? $row['location_name'] ?? $row['kandang'] ?? ''));
+                $location = null;
+                if ($locationName !== '') {
+                    $location = MasterLocation::where('name', $locationName)->first();
+                    if (!$location && !$this->dryRun) {
+                        $location = MasterLocation::create([
+                            'name' => $locationName,
+                            'type' => str_contains($locationName, 'Koloni') ? 'KANDANG_KOLONI' : 'KANDANG_INDIVIDU'
+                        ]);
+                    }
+                }
+
+                // Physical Status lookup
+                $physStatusName = strtoupper(trim((string) ($row['physical_status'] ?? $row['status_fisik'] ?? '')));
+                $physStatus = null;
+                if ($physStatusName !== '') {
+                    $physStatus = MasterPhysStatus::where('name', $physStatusName)->first()
+                        ?? MasterPhysStatus::where('name', 'like', "%{$physStatusName}%")->first();
+                }
+
+                // Partner lookup
+                $partnerName = trim((string) ($row['partner'] ?? $row['partner_name'] ?? $row['pemilik'] ?? ''));
+                $partnerIdResolved = $this->partnerId;
+                if (!$partnerIdResolved && $partnerName !== '' && $partnerName !== 'SFI') {
+                    $p = MasterPartner::where('name', $partnerName)->orWhere('name', "Mitra {$partnerName}")->first();
+                    if ($p) $partnerIdResolved = $p->id;
+                }
+
+                // Birth Date — support Y-m-d, d-m-Y, Carbon objects, and full datetime strings
+                $birthDateRaw = trim((string) ($row['birth_date'] ?? $row['tanggal_lahir'] ?? ''));
+                $birthDate = null;
+                if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $birthDateRaw)) {
+                    $birthDate = $birthDateRaw;
+                } elseif (preg_match('/^(\d{2})-(\d{2})-(\d{4})$/', $birthDateRaw, $m)) {
+                    $birthDate = "{$m[3]}-{$m[2]}-{$m[1]}";
+                } elseif (preg_match('/^(\d{4})-(\d{2})-(\d{2})[ T]/', $birthDateRaw, $m)) {
+                    // Full datetime string e.g. "2025-11-24 00:00:00"
+                    $birthDate = "{$m[1]}-{$m[2]}-{$m[3]}";
+                } elseif (is_numeric($birthDateRaw) && $birthDateRaw > 0) {
+                    // Excel serial date
+                    try {
+                        $birthDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float)$birthDateRaw)->format('Y-m-d');
+                    } catch (\Throwable $e) {
+                        $birthDate = null;
+                    }
+                }
+
+                $acquisitionType = strtoupper(trim((string) ($row['acquisition_type'] ?? $row['cara_perolehan'] ?? 'BELI')));
+                if (!in_array($acquisitionType, ['BELI', 'HASIL_TERNAK', 'MITRA'])) {
+                    $acquisitionType = 'BELI';
+                }
+
+                $purchasePrice = isset($row['acquisition_cost']) && $row['acquisition_cost'] !== '' ? (float)$row['acquisition_cost'] : (isset($row['purchase_price']) ? (float)$row['purchase_price'] : null);
+                $valuation = isset($row['valuation']) && $row['valuation'] !== '' ? (float)$row['valuation'] : null;
+                $birthWeight = isset($row['birth_weight']) && $row['birth_weight'] !== '' ? (float)$row['birth_weight'] : null;
+                $currentWeight = isset($row['current_weight']) && $row['current_weight'] !== '' ? (float)$row['current_weight'] : null;
+
+                $isDead = ($physStatusName === 'DEAD' || $physStatusName === 'MATI' || $tagId === 'B43');
+                $isActive = $isDead ? false : (isset($row['is_active']) ? (bool)$row['is_active'] : true);
+
+                if ($this->dryRun) {
+                    $this->importedCount++;
+                    continue;
+                }
+
+                // Find animal by UUID or Tag ID
+                $animal = null;
+                if (!empty($uuid)) {
+                    $animal = Animal::find($uuid);
+                }
+                if (!$animal) {
+                    $animal = Animal::where('tag_id', $tagId)->first();
+                }
+
+                $attributes = [
+                    'tag_id'                   => $tagId,
+                    'legacy_tag_id'            => trim((string) ($row['legacy_tag_id'] ?? $row['tag_lama'] ?? '')) ?: null,
+                    'owner_id'                 => $currentUser->id ?? Animal::first()?->owner_id ?? (string) Str::uuid(),
+                    'partner_id'               => $partnerIdResolved,
+                    'category_id'              => $category?->id ?? Animal::first()?->category_id ?? 1,
+                    'breed_id'                 => $breed?->id ?? Animal::first()?->breed_id ?? 1,
+                    'current_location_id'      => $location?->id ?? Animal::first()?->current_location_id ?? 1,
+                    'current_phys_status_id'   => $physStatus?->id ?? Animal::first()?->current_phys_status_id ?? 1,
+                    'gender'                   => $gender,
+                    'declared_generation'      => trim((string) ($row['declared_generation'] ?? $row['generation'] ?? '')) ?: null,
+                    'ear_tag_color'            => trim((string) ($row['ear_tag_color'] ?? '')) ?: null,
+                    'necklace_color'           => trim((string) ($row['necklace_color'] ?? '')) ?: null,
+                    'physical_characteristics' => trim((string) ($row['physical_characteristics'] ?? '')) ?: null,
+                    'birth_date'               => $birthDate,
+                    'birth_weight'             => $birthWeight,
+                    'entry_date'               => trim((string) ($row['entry_date'] ?? '')) ?: null,
+                    'acquisition_type'         => $acquisitionType,
+                    'purchase_price'           => $purchasePrice,
+                    'valuation'                => $valuation,
+                    'current_inventory_status' => trim((string) ($row['current_inventory_status'] ?? '')) ?: ($isActive ? 'TERSEDIA' : 'KELUAR'),
+                    'is_active'                => $isActive,
+                    'is_for_sale'              => isset($row['is_for_sale']) ? (bool)$row['is_for_sale'] : false,
+                    'litter_size'              => trim((string) ($row['litter_size'] ?? '')) ?: null,
+                    'birth_event_ref'          => trim((string) ($row['birth_event_ref'] ?? '')) ?: null,
+                    'data_source'              => trim((string) ($row['data_source'] ?? '')) ?: 'Import Excel',
+                    'confidence'               => trim((string) ($row['confidence'] ?? '')) ?: 'TINGGI',
+                    'in_partner_file'          => isset($row['in_partner_file']) ? (bool)$row['in_partner_file'] : false,
+                    'google_drive_link'        => trim((string) ($row['gdrive_folder_url'] ?? $row['google_drive_link'] ?? '')) ?: null,
+                    'notes'                    => trim((string) ($row['notes'] ?? '')) ?: null,
+                ];
+
+                if ($animal) {
+                    $animal->update($attributes);
+                    $this->updatedCount++;
+                } else {
+                    if (!empty($uuid)) {
+                        $attributes['id'] = $uuid;
+                    }
+                    $animal = Animal::create($attributes);
+                    $this->importedCount++;
+                }
+
+                // Log weight ONLY if currentWeight is provided
+                if ($currentWeight !== null) {
+                    $alreadyLogged = WeightLog::where('animal_id', $animal->id)
+                        ->where('weight_kg', $currentWeight)
+                        ->exists();
+
+                    if (!$alreadyLogged) {
+                        WeightLog::create([
+                            'animal_id'  => $animal->id,
+                            'weight_kg'  => $currentWeight,
+                            'weigh_date' => now()->toDateString(),
+                        ]);
+                    }
+                }
+            }
+
+            if ($this->dryRun) {
+                DB::rollBack();
+            } else {
+                DB::commit();
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->errors[] = $e->getMessage();
+            throw $e;
+        }
     }
 }

@@ -1,0 +1,570 @@
+[
+    {
+        "NO": "1",
+        "KATEGORI": "Jenis kelamin belum ada",
+        "TAG": "B35-SFI",
+        "TANGGAL": "25-11-2025",
+        "MASALAH": "JK tidak tertulis di catatan tangan",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "2",
+        "KATEGORI": "Jenis kelamin belum ada",
+        "TAG": "B36-SFI",
+        "TANGGAL": "25-11-2025",
+        "MASALAH": "JK tidak tertulis di catatan tangan",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "3",
+        "KATEGORI": "Jenis kelamin belum ada",
+        "TAG": "B37-SFI",
+        "TANGGAL": "25-11-2025",
+        "MASALAH": "JK tidak tertulis di catatan tangan",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "4",
+        "KATEGORI": "Jenis kelamin belum ada",
+        "TAG": "B41-VINA",
+        "TANGGAL": "01-12-2025",
+        "MASALAH": "JK tidak tertulis di catatan tangan",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "5",
+        "KATEGORI": "Jenis kelamin belum ada",
+        "TAG": "B42-VINA",
+        "TANGGAL": "01-12-2025",
+        "MASALAH": "JK tidak tertulis di catatan tangan",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "6",
+        "KATEGORI": "Nomor eartag belum ada",
+        "TAG": "(kosong)",
+        "TANGGAL": "12-11-2025",
+        "MASALAH": "Jantan dari indukan ?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "7",
+        "KATEGORI": "Nomor eartag belum ada",
+        "TAG": "(kosong)",
+        "TANGGAL": "28-12-2025",
+        "MASALAH": "Betina dari indukan 049",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "8",
+        "KATEGORI": "Nomor eartag belum ada",
+        "TAG": "(kosong)",
+        "TANGGAL": "28-12-2025",
+        "MASALAH": "Jantan dari indukan 04",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "9",
+        "KATEGORI": "Nomor eartag belum ada",
+        "TAG": "(kosong)",
+        "TANGGAL": "28-12-2025",
+        "MASALAH": "Betina dari indukan 057",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "10",
+        "KATEGORI": "Nomor eartag belum ada",
+        "TAG": "(kosong)",
+        "TANGGAL": "29-12-2025",
+        "MASALAH": "Jantan dari indukan 676",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "11",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "213-OKI-INDUK",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F2 milik OKI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "12",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "292-OKI-INDUK",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F2 milik OKI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "13",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "284-OKI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F2 milik OKI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "14",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "277-OKI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F2 milik OKI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "15",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "291-OKI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F2 milik OKI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "16",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "011-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "17",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "015-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan merino milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "18",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "019-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "19",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "023-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "20",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "028-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "21",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "0338-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "22",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "04-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "23",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "042-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F1 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "24",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "046-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "25",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "049-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "26",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "056-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "27",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "057-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "28",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "061-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "29",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "064-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "30",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "065-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F1 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "31",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "069-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F1 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "32",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "077-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "33",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "079-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "34",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "084-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "35",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "099-SFI-INDUK",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "36",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "122-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F1 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "37",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "167-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F1 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "38",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "198-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F1 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "39",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "231-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F2 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "40",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "242-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan teksel milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "41",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "248-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "42",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "257-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan F2 milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "43",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "264-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "44",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "266-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "45",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "271-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "46",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "273-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "47",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "676-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan lokal milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "48",
+        "KATEGORI": "Tgl lahir indukan belum ada",
+        "TAG": "900-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Indukan teksel milik SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "49",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B29",
+        "TANGGAL": "22-11-2025",
+        "MASALAH": "Catatan tangan 2025-11-22 vs file VINA 2025-11-24 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "50",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B30",
+        "TANGGAL": "22-11-2025",
+        "MASALAH": "Catatan tangan 2025-11-22 vs file VINA 2025-11-24 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "51",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B31",
+        "TANGGAL": "23-11-2025",
+        "MASALAH": "Catatan tangan 2025-11-23 vs file FAHRI 2025-11-24 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "52",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B32",
+        "TANGGAL": "23-11-2025",
+        "MASALAH": "Catatan tangan 2025-11-23 vs file FAHRI 2025-11-24 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "53",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B33",
+        "TANGGAL": "23-11-2025",
+        "MASALAH": "Catatan tangan 2025-11-23 vs file FAHRI 2025-11-24 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "54",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B34",
+        "TANGGAL": "24-11-2025",
+        "MASALAH": "Catatan tangan 2025-11-24 vs file FAHRI 2025-11-26 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "55",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B39",
+        "TANGGAL": "27-11-2025",
+        "MASALAH": "Catatan tangan 2025-11-27 vs file VINA 2025-11-29 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "56",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B44",
+        "TANGGAL": "03-12-2025",
+        "MASALAH": "Catatan tangan 2025-12-03 vs file VINA 2025-12-01 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "57",
+        "KATEGORI": "Beda tgl vs file mitra",
+        "TAG": "B48",
+        "TANGGAL": "09-12-2025",
+        "MASALAH": "Catatan tangan 2025-12-09 vs file FAHRI 2025-12-10 - koreksi file mitra?",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "58",
+        "KATEGORI": "Konflik nomor 269",
+        "TAG": "269",
+        "TANGGAL": "17-02-2026",
+        "MASALAH": "File VINA: 269 = eartag baru B42 (1 Des 2025). Catatan tangan: 269 = anak 17 Feb 2026 dari indukan 087. File VINA juga punya 289 lahir 17 Feb 2026.",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "TAMBAHAN: BELUM ADA NOMOR EARTAG",
+        "KATEGORI": null,
+        "TAG": null,
+        "TANGGAL": null,
+        "MASALAH": null,
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "NO",
+        "KATEGORI": "JENIS",
+        "TAG": "TAG SEMENTARA",
+        "TANGGAL": "TANGGAL TERKAIT",
+        "MASALAH": "KETERANGAN",
+        "JAWABAN ANDA": "NOMOR ASLI (isi di sini)"
+    },
+    {
+        "NO": "1",
+        "KATEGORI": "INDUKAN",
+        "TAG": "BELUM ADA NO-01-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Terdeteksi dari kelahiran 2025-09-24. Anakan: B06-SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "2",
+        "KATEGORI": "INDUKAN",
+        "TAG": "BELUM ADA NO-02-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Terdeteksi dari kelahiran 2025-09-29. Anakan: B08-SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "3",
+        "KATEGORI": "INDUKAN",
+        "TAG": "BELUM ADA NO-03-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Terdeteksi dari kelahiran 2025-10-12. Anakan: B11-SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "4",
+        "KATEGORI": "INDUKAN",
+        "TAG": "BELUM ADA NO-04-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Terdeteksi dari kelahiran 2025-11-12. Anakan: BELUM ADA NO-ANAK-01-SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "5",
+        "KATEGORI": "INDUKAN",
+        "TAG": "BELUM ADA NO-05-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Terdeteksi dari kelahiran 2025-12-08. Anakan: B46-SFI, B47-SFI",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "6",
+        "KATEGORI": "INDUKAN",
+        "TAG": "BELUM ADA NO-06-SFI",
+        "TANGGAL": null,
+        "MASALAH": "Terdeteksi dari kelahiran 2026-04-11. Anakan: 099-SFI-ANAK",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "7",
+        "KATEGORI": "ANAKAN",
+        "TAG": "BELUM ADA NO-ANAK-01-SFI",
+        "TANGGAL": "12-11-2025",
+        "MASALAH": "Lahir 2025-11-12, Jantan, indukan BELUM ADA NO-04. lahir 1 jantan BB 3.45 - INDUKAN MENINGGAL; nomor anak tidak",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "8",
+        "KATEGORI": "ANAKAN",
+        "TAG": "BELUM ADA NO-ANAK-02-SFI",
+        "TANGGAL": "28-12-2025",
+        "MASALAH": "Lahir 2025-12-28, Betina, indukan 049. lahir 1 betina - nomor anak TIDAK tertulis",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "9",
+        "KATEGORI": "ANAKAN",
+        "TAG": "BELUM ADA NO-ANAK-03-SFI",
+        "TANGGAL": "28-12-2025",
+        "MASALAH": "Lahir 2025-12-28, Jantan, indukan 04. nomor anak tidak tertulis; ertek indukan '04?' terpotong",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "10",
+        "KATEGORI": "ANAKAN",
+        "TAG": "BELUM ADA NO-ANAK-04-SFI",
+        "TANGGAL": "28-12-2025",
+        "MASALAH": "Lahir 2025-12-28, Betina, indukan 057. nomor anak tidak tertulis",
+        "JAWABAN ANDA": null
+    },
+    {
+        "NO": "11",
+        "KATEGORI": "ANAKAN",
+        "TAG": "BELUM ADA NO-ANAK-05-SFI",
+        "TANGGAL": "29-12-2025",
+        "MASALAH": "Lahir 2025-12-29, Jantan, indukan 676. nomor anak tidak tertulis",
+        "JAWABAN ANDA": null
+    }
+]

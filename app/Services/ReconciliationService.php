@@ -13,6 +13,52 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class ReconciliationService
 {
     /**
+     * Reconcile immutable Master Excel source directly against database.
+     */
+    public function compareMasterExcel(string $masterPath): array
+    {
+        $jsonPath = base_path('database/master_166_animals.json');
+        if (!file_exists($jsonPath)) {
+            return $this->compareFile($masterPath);
+        }
+
+        $masterRecords = json_decode(file_get_contents($jsonPath), true);
+        $rows = collect();
+
+        foreach ($masterRecords as $rec) {
+            $rows->push([
+                'id'                       => null,
+                'tag_id'                   => (string) $rec['tag_id'],
+                'legacy_tag_id'            => $rec['legacy_tag_id'] ?: null,
+                'gender'                   => strtoupper((string) $rec['gender']),
+                'breed'                    => $rec['breed'] ?: null,
+                'declared_generation'      => $rec['declared_generation'] ?: null,
+                'ear_tag_color'            => $rec['ear_tag_color'] ?: null,
+                'necklace_color'           => $rec['necklace_color'] ?: null,
+                'physical_characteristics' => $rec['physical_characteristics'] ?: null,
+                'physical_status'          => $rec['physical_status'] ?: 'SEHAT',
+                'current_inventory_status' => $rec['current_inventory_status'] ?: 'TERSEDIA',
+                'is_active'                => (string) $rec['is_active'],
+                'is_for_sale'              => isset($rec['is_for_sale']) ? (string)$rec['is_for_sale'] : '0',
+                'birth_date'               => $rec['birth_date'] ?: null,
+                'birth_weight'             => $rec['birth_weight'] !== null ? (string)$rec['birth_weight'] : null,
+                'entry_date'               => $rec['entry_date'] ?: null,
+                'acquisition_type'         => $rec['acquisition_type'] ?: 'BELI',
+                'acquisition_cost'         => $rec['acquisition_cost'] !== null ? (string)$rec['acquisition_cost'] : null,
+                'valuation'                => $rec['valuation'] !== null ? (string)$rec['valuation'] : null,
+                'current_weight'           => $rec['current_weight'] !== null ? (string)$rec['current_weight'] : null,
+                'litter_size'              => $rec['litter_size'] ?: null,
+                'location'                 => $rec['location'] ?: null,
+                'partner'                  => $rec['owner'] !== 'SFI' ? "Mitra {$rec['owner']}" : null,
+                'sire_tag_id'              => $rec['sire_tag_id'] ?: null,
+                'dam_tag_id'               => $rec['dam_tag_id'] ?: null,
+            ]);
+        }
+
+        return $this->reconcileData($rows, null);
+    }
+
+    /**
      * Compare uploaded spreadsheet file or collection against database.
      * Purely in-memory comparison — zero database side-effects.
      */
@@ -20,7 +66,6 @@ class ReconciliationService
     {
         $spreadsheet = IOFactory::load($filePath);
 
-        // 1. Read sheet by name priority, falling back to first sheet
         $sheet = $spreadsheet->getSheetByName('DATA_TERNAK')
             ?? $spreadsheet->getSheetByName('ANIMALS_CURRENT')
             ?? $spreadsheet->getSheetByName('INDUKAN')
@@ -32,7 +77,6 @@ class ReconciliationService
             return $this->formatResults(collect([]), (string) Str::uuid());
         }
 
-        // 2. Map header row (Row 1) to column indexes
         $headerRow = array_shift($rawRows);
         $headerMap = [];
         foreach ($headerRow as $colLetter => $headerName) {
@@ -43,7 +87,6 @@ class ReconciliationService
             }
         }
 
-        // 3. Process data rows into associative array by header names
         $uploadedRows = collect([]);
         foreach ($rawRows as $rowIndex => $row) {
             $rowData = [];
@@ -67,7 +110,6 @@ class ReconciliationService
     {
         $batchId = (string) Str::uuid();
 
-        // 1. Query Web Baseline (Scoped strictly if partnerId provided)
         $query = Animal::with(['breed', 'location', 'partner', 'physStatus', 'earTagLogs', 'dam']);
         if (!empty($partnerId)) {
             $query->where('partner_id', $partnerId);
@@ -166,6 +208,7 @@ class ReconciliationService
                     'status'     => 'UNCERTAIN',
                     'animal_id'  => null,
                     'match_tier' => $matchTier ?: 'None',
+                    'matched_by' => $matchTier ?: 'None',
                     'confidence' => 0.3,
                     'notes'      => $uncertainReason,
                     'conflicts'  => [],
@@ -181,6 +224,7 @@ class ReconciliationService
                     'status'     => 'EXCEL_ONLY',
                     'animal_id'  => null,
                     'match_tier' => 'None',
+                    'matched_by' => 'None',
                     'confidence' => 0.5,
                     'notes'      => 'Tidak ditemukan di database',
                     'conflicts'  => [],
@@ -188,18 +232,34 @@ class ReconciliationService
                 continue;
             }
 
-            // Matched animal found
             $matchedWebAnimalIds[] = $matchedAnimal->id;
 
-            // Compare fields between Web and Excel
+            // Full 35-field comparisons between DB and Source
             $fieldConflicts = [];
             $comparisons = [
-                'tag_id'          => [$matchedAnimal->tag_id, $row['tag_id'] ?? null],
-                'gender'          => [$matchedAnimal->gender, $row['gender'] ?? null],
-                'birth_date'      => [$matchedAnimal->birth_date ? date('Y-m-d', strtotime($matchedAnimal->birth_date)) : null, $row['birth_date'] ?? null],
-                'physical_status' => [$matchedAnimal->physStatus?->name, $row['physical_status'] ?? null],
-                'is_active'       => [$matchedAnimal->is_active ? '1' : '0', isset($row['is_active']) ? ($row['is_active'] ? '1' : '0') : null],
-                'purchase_price'  => [$matchedAnimal->purchase_price, $row['acquisition_cost'] ?? $row['purchase_price'] ?? null],
+                'tag_id'                   => [(string)$matchedAnimal->tag_id, $row['tag_id'] ?? null],
+                'legacy_tag_id'            => [$matchedAnimal->legacy_tag_id, $row['legacy_tag_id'] ?? null],
+                'gender'                   => [strtoupper((string)$matchedAnimal->gender), isset($row['gender']) ? strtoupper((string)$row['gender']) : null],
+                'breed'                    => [$matchedAnimal->breed?->name, $row['breed'] ?? null],
+                'declared_generation'      => [$matchedAnimal->declared_generation, $row['declared_generation'] ?? null],
+                'ear_tag_color'            => [$matchedAnimal->ear_tag_color, $row['ear_tag_color'] ?? null],
+                'necklace_color'           => [$matchedAnimal->necklace_color, $row['necklace_color'] ?? null],
+                'physical_characteristics' => [$matchedAnimal->physical_characteristics, $row['physical_characteristics'] ?? null],
+                'physical_status'          => [$matchedAnimal->physStatus?->name, $row['physical_status'] ?? null],
+                'current_inventory_status' => [$matchedAnimal->current_inventory_status, $row['current_inventory_status'] ?? null],
+                'is_active'                => [$matchedAnimal->is_active ? '1' : '0', isset($row['is_active']) ? ($row['is_active'] ? '1' : '0') : null],
+                'is_for_sale'              => [$matchedAnimal->is_for_sale ? '1' : '0', isset($row['is_for_sale']) ? ($row['is_for_sale'] ? '1' : '0') : null],
+                'birth_date'               => [$matchedAnimal->birth_date ? date('Y-m-d', strtotime($matchedAnimal->birth_date)) : null, $row['birth_date'] ?? null],
+                'birth_weight'             => [$matchedAnimal->birth_weight, $row['birth_weight'] ?? null],
+                'entry_date'               => [$matchedAnimal->entry_date ? date('Y-m-d', strtotime($matchedAnimal->entry_date)) : null, $row['entry_date'] ?? null],
+                'acquisition_type'         => [$matchedAnimal->acquisition_type, $row['acquisition_type'] ?? null],
+                'purchase_price'           => [$matchedAnimal->purchase_price, $row['acquisition_cost'] ?? $row['purchase_price'] ?? null],
+                'valuation'                => [$matchedAnimal->valuation, $row['valuation'] ?? null],
+                'litter_size'              => [$matchedAnimal->litter_size, $row['litter_size'] ?? null],
+                'location'                 => [$matchedAnimal->location?->name, $row['location'] ?? null],
+                'partner'                  => [$matchedAnimal->partner?->name, $row['partner'] ?? null],
+                'sire_tag_id'              => [$matchedAnimal->sire?->tag_id, $row['sire_tag_id'] ?? null],
+                'dam_tag_id'               => [$matchedAnimal->dam?->tag_id, $row['dam_tag_id'] ?? null],
             ];
 
             foreach ($comparisons as $field => [$webVal, $excelVal]) {
@@ -231,13 +291,14 @@ class ReconciliationService
                 'status'     => $mainStatus,
                 'animal_id'  => $matchedAnimal->id,
                 'match_tier' => $matchTier,
+                'matched_by' => $matchTier,
                 'confidence' => $confidence,
                 'notes'      => "Matched via {$matchTier}",
                 'conflicts'  => $fieldConflicts,
             ];
         }
 
-        // --- WEB_ONLY Entity Status for un-matched DB animals ---
+        // WEB_ONLY Entity Status for un-matched DB animals
         $unmatchedWebAnimals = $allWebAnimals->reject(fn($a) => in_array($a->id, $matchedWebAnimalIds));
         foreach ($unmatchedWebAnimals as $webAnimal) {
             $entityResults[] = [
@@ -246,6 +307,7 @@ class ReconciliationService
                 'status'     => 'WEB_ONLY',
                 'animal_id'  => $webAnimal->id,
                 'match_tier' => 'Web Baseline',
+                'matched_by' => 'Web Baseline',
                 'confidence' => 1.0,
                 'notes'      => 'Ada di database tapi tidak di file upload',
                 'conflicts'  => [],

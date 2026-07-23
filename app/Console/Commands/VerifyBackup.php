@@ -35,13 +35,17 @@ class VerifyBackup extends Command
         $this->info("Verifying backup: {$backup}");
         $this->line("  Expected SHA256: {$manifest['sha256']}");
 
-        $sqlContent = Storage::disk($disk)->get($sqlPath);
-        if ($manifest['compressed']) {
-            $sqlContent = gzdecode($sqlContent);
-        }
-
-        $actualSha = hash('sha256', $sqlContent);
+        $storedContent = Storage::disk($disk)->get($sqlPath);
+        $actualSha = hash('sha256', $storedContent);
         $this->line("  Actual SHA256:   {$actualSha}");
+
+        if ($manifest['compressed']) {
+            $uncompressed = @gzdecode($storedContent);
+            if ($uncompressed === false) {
+                $this->error("  ✗ INTEGRITY FAILED — invalid compressed file");
+                return Command::FAILURE;
+            }
+        }
 
         if ($actualSha === $manifest['sha256']) {
             $this->info("  ✓ INTEGRITY PASSED");

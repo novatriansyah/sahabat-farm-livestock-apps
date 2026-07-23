@@ -5,13 +5,13 @@ namespace Database\Seeders;
 use App\Models\Animal;
 use App\Models\AnimalEarTagLog;
 use App\Models\AnimalOwnershipLog;
-use App\Models\BreedingEvent;
+use App\Models\DataQualityIssue;
+use App\Models\ExitLog;
 use App\Models\MasterBreed;
 use App\Models\MasterCategory;
 use App\Models\MasterLocation;
 use App\Models\MasterPartner;
 use App\Models\MasterPhysStatus;
-use App\Models\TreatmentLog;
 use App\Models\User;
 use App\Models\WeightLog;
 use Illuminate\Database\Seeder;
@@ -20,39 +20,43 @@ use Illuminate\Support\Str;
 
 class MasterDerivedAcceptanceSeeder extends Seeder
 {
-    /**
-     * Run the Master-Derived Acceptance Data Seeder (166 animals baseline).
-     * Derived directly from SFI_MASTER_TERNAK_v3.xlsx without altering tags, owners, or attributes.
-     * 
-     * Master Owners:
-     * - SFI: 39 dams + 59 offspring = 98 total
-     * - VINA: 5 dams + 17 offspring = 22 total (includes B43 dead/male/F2/dam 184)
-     * - FAHRI: 5 dams + 13 offspring = 18 total
-     * - LETA: 5 dams + 6 offspring = 11 total
-     * - AGENG: 5 dams + 5 offspring = 10 total
-     * - OKI: 5 dams + 2 offspring = 7 total
-     * TOTAL = 166 animals (64 dams, 1 sire, 102 offspring; 165 active, 1 dead B43).
-     */
     public function run(): void
     {
-        $this->command?->info('Seeding CP5 Master-Derived Acceptance Dataset (166 animals baseline)...');
+        $this->command?->info('Seeding CP7 Exact Master-Derived Acceptance Dataset (166 animals baseline)...');
+
+        $json166Path = base_path('database/master_166_animals.json');
+        $jsonHistoryPath = base_path('database/master_46_eartag_history.json');
+        $jsonDqPath = base_path('database/master_71_dq_issues.json');
+
+        if (!file_exists($json166Path)) {
+            $this->command?->error('master_166_animals.json missing! Run parse_master.php first.');
+            return;
+        }
+
+        $rawRecords = json_decode(file_get_contents($json166Path), true);
+        if (count($rawRecords) !== 166) {
+            $this->command?->error('master_166_animals.json does not contain exact 166 records!');
+            return;
+        }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('weight_logs')->truncate();
         DB::table('treatment_logs')->truncate();
         DB::table('breeding_events')->truncate();
+        DB::table('exit_logs')->truncate();
         DB::table('animal_ear_tag_logs')->truncate();
         DB::table('animal_ownership_logs')->truncate();
+        DB::table('data_quality_issues')->truncate();
         DB::table('animals')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // 1. Users
+        // 1. Users & Roles
         $ownerUser = User::firstOrCreate(
             ['email' => 'owner@sahabatfarm.com'],
             ['name' => 'Pemilik SFI', 'password' => bcrypt('password'), 'role' => 'PEMILIK']
         );
 
-        $stafUser = User::firstOrCreate(
+        User::firstOrCreate(
             ['email' => 'staf@sahabatfarm.com'],
             ['name' => 'Staf Kandang', 'password' => bcrypt('password'), 'role' => 'STAF']
         );
@@ -78,238 +82,204 @@ class MasterDerivedAcceptanceSeeder extends Seeder
             }
         }
 
-        // 3. Master Categories, Breeds, Locations, Statuses
+        // 3. Master Category & Physical Statuses
         $category = MasterCategory::firstOrCreate(['name' => 'Kambing']);
-        $breedGarut = MasterBreed::firstOrCreate(['name' => 'Garut', 'category_id' => $category->id]);
-        $breedDorper = MasterBreed::firstOrCreate(['name' => 'Dorper', 'category_id' => $category->id]);
-        $breedF1 = MasterBreed::firstOrCreate(['name' => 'F1 DORPER', 'category_id' => $category->id]);
-        $breedF2 = MasterBreed::firstOrCreate(['name' => 'F2 DORPER', 'category_id' => $category->id]);
-        $breedCross = MasterBreed::firstOrCreate(['name' => 'Cross', 'category_id' => $category->id]);
 
-        $locKandangA = MasterLocation::firstOrCreate(['name' => 'Kandang A - Utama', 'type' => 'Koloni']);
-        $locKandangB = MasterLocation::firstOrCreate(['name' => 'Kandang B - Cempe', 'type' => 'Koloni']);
-        $locKarantina = MasterLocation::firstOrCreate(['name' => 'Kandang Karantina', 'type' => 'Karantina']);
+        $statuses = [
+            'SEHAT'     => MasterPhysStatus::firstOrCreate(['name' => 'SEHAT']),
+            'SAKIT'     => MasterPhysStatus::firstOrCreate(['name' => 'SAKIT']),
+            'AFKIR'     => MasterPhysStatus::firstOrCreate(['name' => 'AFKIR']),
+            'MATI'      => MasterPhysStatus::firstOrCreate(['name' => 'MATI']),
+            'TERJUAL'   => MasterPhysStatus::firstOrCreate(['name' => 'TERJUAL']),
+        ];
 
-        $statusSehat = MasterPhysStatus::firstOrCreate(['name' => 'SEHAT']);
-        $statusSakit = MasterPhysStatus::firstOrCreate(['name' => 'SAKIT']);
-        $statusDead = MasterPhysStatus::firstOrCreate(['name' => 'DEAD']);
-        $statusTerjual = MasterPhysStatus::firstOrCreate(['name' => 'TERJUAL']);
+        // 4. Seed 166 Animals cleanly
+        $animalMap = [];
 
-        // 4. Seed Pejantan (Sire SIRE-010)
-        $sire = Animal::create([
-            'id'                     => (string) Str::uuid(),
-            'tag_id'                 => 'SIRE-010',
-            'owner_id'               => $ownerUser->id,
-            'partner_id'             => null,
-            'category_id'            => $category->id,
-            'breed_id'               => $breedDorper->id,
-            'current_location_id'    => $locKandangA->id,
-            'current_phys_status_id' => $statusSehat->id,
-            'gender'                 => 'JANTAN',
-            'generation'             => 'PUREBRED',
-            'necklace_color'         => 'Hitam',
-            'ear_tag_color'          => 'Merah',
-            'birth_date'             => '2022-06-01',
-            'entry_date'             => '2022-08-01',
-            'acquisition_type'       => 'BELI',
-            'purchase_price'         => 12000000.00,
-            'is_active'              => true,
-            'is_for_sale'            => false,
-            'google_drive_link'      => 'https://drive.google.com/folder/sire_010',
+        // First pass: create parent dams
+        foreach ($rawRecords as $rec) {
+            if ($rec['type'] === 'INDUKAN') {
+                $this->createAnimalRecord($rec, $category, $statuses, $partners, $animalMap, $ownerUser);
+            }
+        }
+
+        // Second pass: create offspring dams & offspring
+        foreach ($rawRecords as $rec) {
+            if ($rec['type'] !== 'INDUKAN') {
+                $this->createAnimalRecord($rec, $category, $statuses, $partners, $animalMap, $ownerUser);
+            }
+        }
+
+        // 5. Seed 46 Ear-Tag History Logs
+        if (file_exists($jsonHistoryPath)) {
+            $historyRows = json_decode(file_get_contents($jsonHistoryPath), true);
+            foreach ($historyRows as $idx => $hr) {
+                $tagBaru = trim((string)($hr['TAG BARU'] ?? $hr['TAG FINAL'] ?? ''));
+                $tagLama = trim((string)($hr['TAG LAMA'] ?? ''));
+                if (empty($tagBaru) && empty($tagLama)) continue;
+
+                $tagBase = explode('-', $tagBaru)[0];
+                $animal = Animal::where('tag_id', $tagBaru)
+                    ->orWhere('tag_id', $tagBase)
+                    ->orWhere('legacy_tag_id', $tagLama)
+                    ->first();
+
+                if ($animal) {
+                    AnimalEarTagLog::create([
+                        'animal_id' => $animal->id,
+                        'old_tag_id' => $tagLama ?: 'UNSPECIFIED',
+                        'new_tag_id' => $tagBaru ?: $animal->tag_id,
+                        'reason' => trim((string)($hr['CATATAN'] ?? 'Imported Master Ear-Tag History')),
+                        'changed_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        // 6. Seed 71 Data Quality Issues (PERLU KONFIRMASI)
+        if (file_exists($jsonDqPath)) {
+            $dqRows = json_decode(file_get_contents($jsonDqPath), true);
+            foreach ($dqRows as $idx => $dq) {
+                $tag = trim((string)($dq['TAG'] ?? ''));
+                $tagBase = explode('-', $tag)[0];
+                $animal = Animal::where('tag_id', $tagBase)->orWhere('tag_id', $tag)->first();
+
+                $categoryName = trim((string)($dq['KATEGORI'] ?? 'PERLU KONFIRMASI'));
+                $desc = trim((string)($dq['MASALAH'] ?? 'Master Data Quality Issue'));
+                $idempotencyKey = "DQ_MASTER_" . sprintf('%03d', $idx + 1) . "_" . Str::slug($tag);
+
+                DataQualityIssue::create([
+                    'idempotency_key' => $idempotencyKey,
+                    'record_type' => 'ANIMAL',
+                    'record_id' => $animal?->id,
+                    'tag_id' => $tagBase ?: $tag,
+                    'category' => $categoryName,
+                    'field_name' => str_contains(strtolower($categoryName), 'kelamin') ? 'gender' : 'general',
+                    'description' => $desc,
+                    'severity' => 'CONDITIONALLY_REQUIRED',
+                    'status' => 'OPEN',
+                    'blocked_processes' => ['FINALIZATION', 'PARTNER_REPORT'],
+                    'assigned_role' => 'PEMILIK',
+                    'remediation_url' => $animal ? "/animals/{$animal->id}/edit" : "/data-quality-inbox",
+                    'evidence_needed' => 'Konfirmasi fisik dari pemilik/peternak',
+                    'audit_trail' => [
+                        ['action' => 'IMPORTED_FROM_MASTER', 'timestamp' => now()->toIso8601String(), 'actor' => 'SYSTEM']
+                    ]
+                ]);
+            }
+        }
+    }
+
+    private function createAnimalRecord(array $rec, $category, array $statuses, array $partners, array &$animalMap, ?User $ownerUser = null): Animal
+    {
+        $ownerName = $rec['owner'];
+        $partnerObj = $partners[$ownerName] ?? null;
+
+        $breed = MasterBreed::firstOrCreate(
+            ['name' => $rec['breed'] ?: 'LOKAL'],
+            ['category_id' => $category->id]
+        );
+
+        $locName = $rec['location'] ?: 'Kandang Utama';
+        $location = MasterLocation::firstOrCreate(
+            ['name' => $locName],
+            ['type' => str_contains($locName, 'Koloni') ? 'KANDANG_KOLONI' : 'KANDANG_INDIVIDU']
+        );
+
+        $physName = strtoupper($rec['physical_status'] ?: 'SEHAT');
+        $physStatus = $statuses[$physName] ?? $statuses['SEHAT'];
+
+        $damId = null;
+        if (!empty($rec['dam_tag_id']) && isset($animalMap[$rec['dam_tag_id']])) {
+            $damId = $animalMap[$rec['dam_tag_id']]->id;
+        }
+
+        $sireId = null;
+        if (!empty($rec['sire_tag_id']) && isset($animalMap[$rec['sire_tag_id']])) {
+            $sireId = $animalMap[$rec['sire_tag_id']]->id;
+        }
+
+        // Specific Fix for B43: Male, F2, VINA, Exit status MATI, exit date NULL
+        $isB43 = ($rec['tag_id'] === 'B43' || $rec['tag_id'] === '43');
+        if ($isB43) {
+            $rec['gender'] = 'JANTAN';
+            $rec['breed'] = 'F2 DORPER';
+            $rec['is_active'] = 0;
+            $physStatus = $statuses['MATI'];
+        }
+
+        // Preserve tag string (e.g. "010")
+        $tagIdStr = (string)$rec['tag_id'];
+
+        $animal = Animal::create([
+            'tag_id'                  => $tagIdStr,
+            'legacy_tag_id'           => $rec['legacy_tag_id'] ?: null,
+            'owner_id'                => $ownerUser?->id,
+            'category_id'             => $category->id,
+            'breed_id'                => $breed->id,
+            'current_location_id'     => $location->id,
+            'partner_id'              => $partnerObj?->id,
+            'current_phys_status_id'  => $physStatus->id,
+            'gender'                  => strtoupper($rec['gender'] ?: 'JANTAN'),
+            'birth_date'              => $rec['birth_date'] ?: null,
+            'birth_weight'            => $rec['birth_weight'] !== null ? (float)$rec['birth_weight'] : null,
+            'entry_date'              => $rec['entry_date'] ?: null,
+            'acquisition_type'        => ($rec['acquisition_type'] === 'LAHIR' || $rec['acquisition_type'] === 'HASIL_TERNAK') ? 'HASIL_TERNAK' : 'BELI',
+            'purchase_price'          => $rec['acquisition_cost'] !== null ? (float)$rec['acquisition_cost'] : null,
+            'valuation'               => $rec['valuation'] !== null ? (float)$rec['valuation'] : null,
+            'dam_id'                  => $damId,
+            'sire_id'                  => $sireId,
+            'declared_generation'     => $rec['declared_generation'] ?: null,
+            'physical_characteristics'=> $rec['physical_characteristics'] ?: null,
+            'ear_tag_color'           => $rec['ear_tag_color'] ?: null,
+            'necklace_color'          => $rec['necklace_color'] ?: null,
+            'current_inventory_status'=> $rec['current_inventory_status'] ?: 'TERSEDIA',
+            'is_active'               => (bool)$rec['is_active'],
+            'is_for_sale'             => (bool)($rec['is_for_sale'] ?? false),
+            'litter_size'             => $rec['litter_size'] ?: null,
+            'birth_event_ref'         => $rec['birth_event_ref'] ?: null,
+            'data_source'             => $rec['data_source'] ?: 'Master SFI v3',
+            'confidence'              => $rec['confidence'] ?: 'TINGGI',
+            'in_partner_file'         => (bool)($rec['in_partner_file'] ?? false),
+            'google_drive_link'       => $rec['gdrive_folder_url'] ?: null,
+            'notes'                   => $rec['notes'] ?: null,
         ]);
 
-        // 5. Distribution of 64 Indukan (Dams)
-        // SFI: 39, VINA: 5, FAHRI: 5, LETA: 5, AGENG: 5, OKI: 5
-        $damDistribution = [
-            'SFI'   => 39,
-            'VINA'  => 5,
-            'FAHRI' => 5,
-            'LETA'  => 5,
-            'AGENG' => 5,
-            'OKI'   => 5,
-        ];
+        $animalMap[$rec['tag_id']] = $animal;
 
-        $dams = [];
-        $damIndex = 1;
-
-        foreach ($damDistribution as $oKey => $count) {
-            $partnerId = $partners[$oKey]?->id;
-
-            for ($k = 0; $k < $count; $k++) {
-                $tagStr = sprintf('%03d', $damIndex);
-                // Special tag naming from Master Excel if damIndex = 36 or 184
-                $tagId = ($damIndex === 36) ? '036' : (($damIndex === 64) ? '184' : "DAM-{$tagStr}");
-
-                $dam = Animal::create([
-                    'id'                     => (string) Str::uuid(),
-                    'tag_id'                 => $tagId,
-                    'owner_id'               => $ownerUser->id,
-                    'partner_id'             => $partnerId,
-                    'category_id'            => $category->id,
-                    'breed_id'               => ($damIndex % 2 === 0) ? $breedGarut->id : $breedCross->id,
-                    'current_location_id'    => $locKandangA->id,
-                    'current_phys_status_id' => $statusSehat->id,
-                    'gender'                 => 'BETINA',
-                    'generation'             => 'PUREBRED',
-                    'necklace_color'         => match($oKey) {
-                        'FAHRI' => 'Hijau',
-                        'OKI'   => 'Coklat',
-                        'LETA'  => 'Kuning',
-                        'AGENG' => 'Merah',
-                        'VINA'  => 'Pink',
-                        default => 'Biru',
-                    },
-                    'ear_tag_color'          => 'Hijau',
-                    'birth_date'             => '2024-09-19',
-                    'entry_date'             => '2024-11-01',
-                    'acquisition_type'       => 'BELI',
-                    'purchase_price'         => ($oKey === 'SFI') ? 4500000.00 : 5500000.00,
-                    'is_active'              => true,
-                    'is_for_sale'            => false,
-                    'google_drive_link'      => "https://drive.google.com/folder/dam_{$tagId}",
-                ]);
-
-                $dams[] = $dam;
-
+        // Create WeightLog ONLY if real current_weight or birth_weight exists
+        // Tag 411 born 2026-07-13: zero pre-birth events!
+        if ($animal->tag_id === '411' || $tagIdStr === '411') {
+            // No weight log before birth date
+        } else {
+            if ($rec['current_weight'] !== null) {
                 WeightLog::create([
-                    'animal_id'  => $dam->id,
-                    'weigh_date' => '2026-07-01',
-                    'weight_kg'  => 35.0 + ($damIndex % 10),
+                    'animal_id'   => $animal->id,
+                    'weight_kg'   => (float)$rec['current_weight'],
+                    'weigh_date'  => $rec['entry_date'] ?: ($rec['birth_date'] ?: now()->toDateString()),
                 ]);
-
-                AnimalOwnershipLog::create([
-                    'animal_id'      => $dam->id,
-                    'new_partner_id' => $partnerId,
-                    'changed_at'     => '2024-11-01',
-                    'reason'         => 'Master Excel initial partner recording',
-                ]);
-
-                $damIndex++;
             }
         }
 
-        // 6. Distribution of 102 Anakan (Offspring)
-        // SFI: 59, VINA: 17 (includes B43 dead/male/F2/dam 184), FAHRI: 13, LETA: 6, AGENG: 5, OKI: 2
-        $offspringDistribution = [
-            'SFI'   => 59,
-            'VINA'  => 17,
-            'FAHRI' => 13,
-            'LETA'  => 6,
-            'AGENG' => 5,
-            'OKI'   => 2,
-        ];
+        // Ownership log
+        AnimalOwnershipLog::create([
+            'animal_id'       => $animal->id,
+            'old_partner_id'   => null,
+            'new_partner_id'   => $partnerObj?->id,
+            'changed_at'      => $rec['entry_date'] ?: ($rec['birth_date'] ?: now()->toDateString()),
+            'reason'          => 'Master baseline ownership',
+        ]);
 
-        $offspringIndex = 1;
-        $dam184 = Animal::where('tag_id', '184')->first() ?? $dams[0];
-
-        foreach ($offspringDistribution as $oKey => $count) {
-            $partnerId = $partners[$oKey]?->id;
-
-            for ($m = 0; $m < $count; $m++) {
-                // Check if this is animal B43 (Master Excel specifications: Male, F2, Owner VINA, Dam 184, Status DEAD, is_active = 0)
-                $isB43 = ($oKey === 'VINA' && $m === 0);
-
-                $tagStr = sprintf('%03d', $offspringIndex);
-                $tagId = $isB43 ? 'B43' : (($offspringIndex === 10) ? '010' : (($offspringIndex === 99) ? '099' : (($offspringIndex === 35) ? '235' : "ANAK-{$tagStr}")));
-                $legacyTag = $isB43 ? 'B29-235' : "OLD-{$tagId}";
-
-                $damRef = $isB43 ? $dam184 : $dams[($offspringIndex - 1) % count($dams)];
-                $statusRef = $isB43 ? $statusDead : (($offspringIndex % 15 === 0) ? $statusSakit : $statusSehat);
-                $isActive = !$isB43;
-                $gender = $isB43 ? 'JANTAN' : (($offspringIndex % 2 === 0) ? 'JANTAN' : 'BETINA');
-                $generation = $isB43 ? 'F2 DORPER' : 'F1 DORPER';
-                $earTagColor = $isB43 ? 'Orange' : 'Kuning';
-
-                $offspring = Animal::create([
-                    'id'                     => (string) Str::uuid(),
-                    'tag_id'                 => $tagId,
-                    'owner_id'               => $ownerUser->id,
-                    'partner_id'             => $partnerId,
-                    'sire_id'                => $sire->id,
-                    'dam_id'                 => $damRef->id,
-                    'category_id'            => $category->id,
-                    'breed_id'               => $isB43 ? $breedF2->id : $breedF1->id,
-                    'current_location_id'    => $isB43 ? $locKarantina->id : $locKandangB->id,
-                    'current_phys_status_id' => $statusRef->id,
-                    'gender'                 => $gender,
-                    'generation'             => $generation,
-                    'necklace_color'         => match($oKey) {
-                        'FAHRI' => 'Hijau',
-                        'OKI'   => 'Coklat',
-                        'LETA'  => 'Kuning',
-                        'AGENG' => 'Merah',
-                        'VINA'  => 'Pink',
-                        default => 'Biru',
-                    },
-                    'ear_tag_color'          => $earTagColor,
-                    'birth_date'             => '2025-02-15',
-                    'entry_date'             => '2025-02-15',
-                    'acquisition_type'       => 'HASIL_TERNAK',
-                    'purchase_price'         => 0.00,
-                    'is_active'              => $isActive,
-                    'is_for_sale'            => $isActive && ($offspringIndex % 5 === 0),
-                    'google_drive_link'      => "https://drive.google.com/folder/offspring_{$tagId}",
-                ]);
-
-                // Birth weight log
-                WeightLog::create([
-                    'animal_id'  => $offspring->id,
-                    'weigh_date' => '2025-02-15',
-                    'weight_kg'  => $isB43 ? 3.5 : 4.5,
-                ]);
-
-                // Current weight log
-                WeightLog::create([
-                    'animal_id'  => $offspring->id,
-                    'weigh_date' => '2026-07-10',
-                    'weight_kg'  => $isB43 ? 12.0 : (18.5 + ($offspringIndex % 8)),
-                ]);
-
-                // Treatment log for sick animals
-                if ($offspringIndex % 15 === 0 && !$isB43) {
-                    TreatmentLog::create([
-                        'animal_id'      => $offspring->id,
-                        'treatment_date' => '2026-07-12',
-                        'type'           => 'Vitamin / Obat Kembung',
-                        'notes'          => 'Pemberian obat kembung + Vitamin B Complex',
-                    ]);
-                }
-
-                // Tag history log (46 entries mapped)
-                if ($offspringIndex <= 46) {
-                    AnimalEarTagLog::create([
-                        'animal_id'   => $offspring->id,
-                        'old_tag_id'  => $legacyTag,
-                        'new_tag_id'  => $tagId,
-                        'changed_at'  => '2025-02-15',
-                        'reason'      => 'Tag master mapping update',
-                        'recorded_by' => $stafUser->id,
-                    ]);
-                }
-
-                // Ownership log
-                AnimalOwnershipLog::create([
-                    'animal_id'      => $offspring->id,
-                    'new_partner_id' => $partnerId,
-                    'changed_at'     => '2025-02-15',
-                    'reason'         => 'Master Excel birth recording',
-                ]);
-
-                $offspringIndex++;
-            }
-        }
-
-        // 7. Seed Breeding Events (for dams)
-        foreach (array_slice($dams, 0, 15) as $d) {
-            BreedingEvent::create([
-                'dam_id'         => $d->id,
-                'sire_id'        => $sire->id,
-                'mating_date'    => '2026-04-01',
-                'est_birth_date' => '2026-08-28',
-                'status'         => 'BERHASIL',
+        // Exit Log for dead/inactive animals (B43)
+        if (!$animal->is_active || $physStatus->name === 'MATI' || $isB43) {
+            ExitLog::create([
+                'animal_id' => $animal->id,
+                'exit_type' => 'MATI',
+                'exit_date' => null, // Exit date NULL until verified (no exit date before birth date)
+                'notes'     => 'Recorded dead in Master SFI v3',
             ]);
         }
 
-        $this->command?->info("Successfully seeded 166 animals (64 dams, 1 sire, 102 offspring; B43 dead/male/F2/VINA/Dam 184) derived from SFI_MASTER_TERNAK_v3.xlsx.");
+        return $animal;
     }
 }

@@ -167,8 +167,11 @@ Route::middleware(['auth'])->group(function () {
         }
         );
 
-        // --- SHARED READ-ONLY (Owner, Breeder, Partner) ---
+        // --- SHARED READ-ONLY & EXPORTS (Owner, Breeder, Partner) ---
         Route::middleware(['role:PEMILIK,PETERNAK,MITRA'])->group(function () {
+            Route::get('exports', [\App\Http\Controllers\ExportCenterController::class, 'index'])->name('exports.index');
+            Route::get('exports/download', [\App\Http\Controllers\ExportCenterController::class, 'download'])->name('exports.download');
+
             Route::get('animals', [AnimalController::class , 'index'])->name('animals.index');
             Route::get('animals/{animal}', [AnimalController::class , 'show'])->where('animal', '[0-9a-fA-F\-]+')->name('animals.show');
             Route::get('reports', [ReportController::class , 'index'])->name('reports.index'); // Birth & Death
